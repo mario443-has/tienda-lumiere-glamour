@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lumiere Glamour</title>
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Segoe+UI&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+<nav class="menu-superior">
+    <ul>
+        <li><a href="{% url 'index' %}">Inicio</a></li>
+        <li><a href="#categorias">Categorías</a></li>
+        <li><a href="#productos">Productos</a></li>
+        <li><a href="https://wa.me/573007221200" target="_blank">Contacto</a></li>
+    </ul>
+</nav>
+    <!-- ENCABEZADO -->
+    <header>
+        <img src="{% static 'img/logo.png' %}" alt="Logo de Lumière Glamour" height="80">
+        <h1>Lumiere Glamour</h1>
+        <p>Maquillaje, cuidado facial y más</p>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="contenido">
+
+        <!-- CATEGORÍAS -->
+       <div class="categorias" id="categorias">
+    <h2>Categorías</h2>
+    <ul class="filtro-categorias">
+        {% for categoria in categorias %}
+            <li><a href="?categoria={{ categoria.id }}">{{ categoria.nombre }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+        <!-- PRODUCTOS -->
+<div class="productos" id="productos">
+    <h2>Productos</h2>
+    <div class="productos-lista">
+        {% for producto in productos %}
+            <div class="producto">
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/250x200.png?text=Sin+Imagen" alt="Sin imagen">
+                {% endif %}
+
+                <h3>{{ producto.nombre }}</h3>
+
+                <p><strong>Precio:</strong> ${{ producto.precio }}</p>
+                {% if producto.precio_descuento %}
+                    <p style="color: #d94f9a;"><strong>Descuento:</strong> ${{ producto.precio_descuento }}</p>
+                {% endif %}
+
+                <div style="margin-top: 10px;">
+                    <a href="{% url 'producto_detalle' producto.id %}" style="margin-bottom: 8px; display: inline-block;">
+                        Ver más
+                    </a><br>
+                    <a href="https://wa.me/573007221200?text=Hola%2C%20quiero%20comprar%20el%20producto%20{{ producto.nombre|urlencode }}"
+                       class="whatsapp-btn" target="_blank">
+                       <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <p>No hay productos disponibles aún.</p>
+        {% endfor %}
+    </div>
+</div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        📍 Ipiales - Nariño | 📞 WhatsApp: +57 300 722 1200 | Síguenos en:
+        <a href="#"><img src="https://cdn-icons-png.flaticon.com/24/733/733547.png" alt="Facebook"></a>
+        <a href="#"><img src="https://cdn-icons-png.flaticon.com/24/2111/2111463.png" alt="Instagram"></a>
+        <a href="https://wa.me/573007221200"><img src="https://cdn-icons-png.flaticon.com/24/733/733585.png" alt="WhatsApp"></a>
+    </footer>
+
+<a href="https://wa.me/573007221200?text=Hola%2C%20estoy%20interesada%20en%20tus%20productos"
+   class="whatsapp-flotante" target="_blank" title="Escríbenos por WhatsApp">
+   <i class="fab fa-whatsapp"></i>
+</a>
+</body>
+</html>

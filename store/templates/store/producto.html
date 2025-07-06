@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ producto.nombre }} | Lumiere Glamour</title>
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Segoe+UI&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- MENÚ SUPERIOR -->
+<nav class="menu-superior">
+    <ul>
+        <li><a href="{% url 'index' %}">Inicio</a></li>
+        <li><a href="{% url 'index' %}#categorias">Categorías</a></li>
+        <li><a href="{% url 'index' %}#productos">Productos</a></li>
+        <li><a href="https://wa.me/573007221200" target="_blank">Contacto</a></li>
+    </ul>
+</nav>
+
+<!-- ENCABEZADO -->
+<header>
+    <h1>Lumiere Glamour</h1>
+    <p>Brilla con tu mejor versión</p>
+</header>
+
+<!-- CONTENIDO -->
+<div class="contenido">
+    <div class="producto" style="width: 100%; max-width: 600px; margin: auto; text-align: center;">
+        {% if producto.imagen %}
+            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width:100%; border-radius: 16px; object-fit: cover; height: 300px;">
+        {% endif %}
+        <h3>{{ producto.nombre }}</h3>
+        <p class="precio" style="color: var(--color-acento); font-size: 1.4em;"><strong>Precio:</strong> ${{ producto.precio }}</p>
+        {% if producto.precio_descuento %}
+            <p style="color: #d94f9a;"><strong>Descuento:</strong> ${{ producto.precio_descuento }}</p>
+        {% endif %}
+        <p class="descripcion">{{ producto.descripcion }}</p>
+
+        <a class="whatsapp-btn" target="_blank"
+           href="https://wa.me/573007221200?text=Hola%2C%20quiero%20comprar%20el%20producto%20{{ producto.nombre|urlencode }}">
+           <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
+        </a>
+    </div>
+</div>
+
+<!-- PIE DE PÁGINA -->
+<footer>
+    📍 Ipiales - Nariño | 📞 WhatsApp: +57 300 722 1200 | Síguenos en:
+    <a href="#"><img src="https://cdn-icons-png.flaticon.com/24/733/733547.png" alt="Facebook"></a>
+    <a href="#"><img src="https://cdn-icons-png.flaticon.com/24/2111/2111463.png" alt="Instagram"></a>
+    <a href="https://wa.me/573007221200"><img src="https://cdn-icons-png.flaticon.com/24/733/733585.png" alt="WhatsApp"></a>
+</footer>
+
+</body>
+</html>

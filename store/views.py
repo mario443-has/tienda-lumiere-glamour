@@ -159,3 +159,8 @@ def producto_detalle(request, producto_id):
     # Renderiza la plantilla de detalle del producto.
     # Asegúrate de que 'store/producto.html' sea la ruta correcta a tu plantilla de detalle.
     return render(request, 'store/producto.html', context)
+
+from django.http import HttpResponse
+
+def google_verification(request):
+    return HttpResponse("google-site-verification: google1e60e56990e838db.html", content_type="text/plain")

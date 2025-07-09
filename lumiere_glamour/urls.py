@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),  # 👈 Esto conecta tu app principal
+    path('ckeditor/', include('ckeditor_uploader.urls')), # URL para CKEditor
 ]
 
 # Para servir archivos multimedia (como imágenes) en modo desarrollo

@@ -3,56 +3,634 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{{ producto.nombre }} | Lumiere Glamour</title>
-    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Segoe+UI&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ producto.nombre }} - Lumière Glamour</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Great Vibes para el logo, Inter para el texto general -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Estilo personalizado para la fuente del logo */
+        .font-great-vibes {
+            font-family: 'Great Vibes', cursive;
+        }
+        /* Estilos para el scrollbar (opcional, para una estética más limpia) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Estilos para el contenido de CKEditor (si es necesario) */
+        .ck-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .ck-content p {
+            margin-bottom: 1em;
+        }
+        .ck-content ul, .ck-content ol {
+            margin-left: 1.5em;
+            list-style-type: disc;
+        }
+        .ck-content ol {
+            list-style-type: decimal;
+        }
+        .ck-content h1, .ck-content h2, .ck-content h3, .ck-content h4, .ck-content h5, .ck-content h6 {
+            font-weight: bold;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100 font-inter text-gray-800">
 
-<!-- MENÚ SUPERIOR -->
-<nav class="menu-superior">
-    <ul>
-        <li><a href="{% url 'index' %}">Inicio</a></li>
-        <li><a href="{% url 'index' %}#categorias">Categorías</a></li>
-        <li><a href="{% url 'index' %}#productos">Productos</a></li>
-        <li><a href="https://wa.me/573007221200" target="_blank">Contacto</a></li>
-    </ul>
-</nav>
+    <!-- Header Section - Barra de Navegación Unificada -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <!-- Barra Superior de Información -->
+        <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-center text-sm py-2 px-4">
+            <span>Envíos a toda Colombia 100% seguros y garantizados</span>
+        </div>
 
-<!-- ENCABEZADO -->
-<header>
-    <h1>Lumiere Glamour</h1>
-    <p>Brilla con tu mejor versión</p>
-</header>
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo de la tienda -->
+            <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                <img src="{% static 'img/logo.png' %}" alt="Lumière Glamour Logo" class="h-20 w-auto rounded-full shadow-md">
+                <span class="text-3xl font-great-vibes text-pink-600 hover:text-pink-700 transition duration-300">
+                    Lumiere Glamour
+                </span>
+            </a>
 
-<!-- CONTENIDO -->
-<div class="contenido">
-    <div class="producto" style="width: 100%; max-width: 600px; margin: auto; text-align: center;">
-        {% if producto.imagen %}
-            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width:100%; border-radius: 16px; object-fit: cover; height: 300px;">
-        {% endif %}
-        <h3>{{ producto.nombre }}</h3>
-        <p class="precio" style="color: var(--color-acento); font-size: 1.4em;"><strong>Precio:</strong> ${{ producto.precio }}</p>
-        {% if producto.precio_descuento %}
-            <p style="color: #d94f9a;"><strong>Descuento:</strong> ${{ producto.precio_descuento }}</p>
-        {% endif %}
-        <p class="descripcion">{{ producto.descripcion }}</p>
+            <!-- Barra de Búsqueda (Desktop) -->
+            <form action="{% url 'home' %}" method="get" class="hidden md:flex items-center flex-grow max-w-md mx-4">
+                <input type="text" name="q" placeholder="Buscar productos..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                       value="{{ request.GET.q|default:'' }}">
+                <button type="submit" class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
 
-        <a class="whatsapp-btn" target="_blank"
-           href="https://wa.me/573007221200?text=Hola%2C%20quiero%20comprar%20el%20producto%20{{ producto.nombre|urlencode }}">
-           <i class="fab fa-whatsapp"></i> Pedir por WhatsApp
-        </a>
-    </div>
+            <!-- Iconos de Usuario y Carrito (Desktop) -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#" class="text-gray-700 hover:text-pink-600 transition duration-300" title="Mi Cuenta">
+                    <i class="fas fa-user text-xl"></i>
+                </a>
+                <a href="#" class="relative text-gray-700 hover:text-pink-600 transition duration-300" title="Mi Carrito" onclick="openCartModal()">
+                    <i class="fas fa-shopping-bag text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
+
+            <!-- Botón del Menú Móvil (Hamburger) -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 hover:text-pink-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+
+        <!-- Menú de Navegación Principal (Desktop) -->
+        <nav class="hidden md:flex justify-center py-2 bg-gray-50 shadow-inner">
+            <ul class="flex space-x-8">
+                <li><a href="{% url 'home' %}" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Inicio</a></li>
+                
+                <li class="relative group">
+                    <button class="flex items-center text-gray-700 hover:text-pink-600 font-medium transition duration-300 focus:outline-none">
+                        Categorías
+                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top">
+                        <div class="py-1">
+                            {% for categoria in categorias %}
+                                {% if categoria.subcategorias.all %}
+                                    <div class="relative group/sub">
+                                        <a href="{% url 'home' %}?categoria={{ categoria.id }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center">
+                                            {{ categoria.nombre }}
+                                            <svg class="w-4 h-4 transform rotate-90 group-hover/sub:rotate-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
+                                        <div class="absolute left-full top-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform scale-95 group-hover/sub:scale-100 origin-top-left">
+                                            {% for sub in categoria.subcategorias.all %}
+                                                <a href="{% url 'home' %}?subcategoria={{ sub.id }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600">
+                                                    {{ sub.nombre }}
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <a href="{% url 'home' %}?categoria={{ categoria.id }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600">
+                                        {{ categoria.nombre }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </li>
+                <!-- Elementos de menú configurables desde el admin (MenuItem) -->
+                {% if menu_items %}
+                    {% for item in menu_items %}
+                        <li><a href="{{ item.url }}" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">{{ item.nombre }}</a></li>
+                    {% endfor %}
+                {% else %}
+                    <!-- Ejemplos de enlaces si no se configuran desde el admin -->
+                    <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Ofertas</a></li>
+                    <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Contacto</a></li>
+                    <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Cibermake</a></li>
+                    <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Blog</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Menú Móvil (Oculto por defecto) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg pb-4">
+            <!-- Barra de Búsqueda (Móvil) -->
+            <form action="{% url 'home' %}" method="get" class="px-4 py-2">
+                <div class="flex">
+                    <input type="text" name="q" placeholder="Buscar productos..."
+                           class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                           value="{{ request.GET.q|default:'' }}">
+                    <button type="submit" class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <a href="{% url 'home' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Inicio</a>
+            
+            <!-- Categorías Desplegables Móviles -->
+            <div class="relative">
+                <button id="mobile-categories-button" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center">
+                    Categorías
+                    <svg class="ml-1 w-4 h-4 transform rotate-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="mobile-categories-dropdown" class="hidden pl-8 py-1 bg-gray-50">
+                    <!-- Bucle para Categorías en Móvil -->
+                    {% for categoria in categorias %}
+                    <div class="relative">
+                        <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center" onclick="toggleSubmenu(this)">
+                            {{ categoria.nombre }}
+                            {% if categoria.subcategorias.all %}
+                            <svg class="w-4 h-4 transform rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            {% endif %}
+                        </button>
+                        {% if categoria.subcategorias.all %}
+                        <div class="hidden pl-4 py-1 bg-gray-100">
+                            {% for subcategoria in categoria.subcategorias.all %}
+                            <a href="{% url 'home' %}?subcategoria={{ subcategoria.id }}" class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-200 hover:text-pink-600">{{ subcategoria.nombre }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-500">No hay categorías disponibles.</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Elementos de menú configurables para móvil -->
+            {% if menu_items %}
+                {% for item in menu_items %}
+                    <a href="{{ item.url }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">{{ item.nombre }}</a>
+                {% endfor %}
+            {% else %}
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Ofertas</a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Contacto</a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Cibermake</a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Blog</a>
+            {% endif %}
+            <!-- Iconos de Usuario y Carrito (Móvil) -->
+            <div class="px-4 py-2 flex space-x-4 border-t border-gray-200 mt-2">
+                <a href="#" class="text-gray-700 hover:text-pink-600 transition duration-300" title="Mi Cuenta">
+                    <i class="fas fa-user text-xl"></i> Mi Cuenta
+                </a>
+                <a href="#" class="relative text-gray-700 hover:text-pink-600 transition duration-300" title="Mi Carrito" onclick="openCartModal()">
+                    <i class="fas fa-shopping-bag text-xl"></i>
+                    <span id="mobile-cart-count" class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content - Product Detail -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Breadcrumbs -->
+        <nav class="text-sm text-gray-600 mb-6">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="{% url 'home' %}" class="text-pink-600 hover:underline">Inicio</a>
+                    <span class="mx-2">/</span>
+                </li>
+                {% if producto.categoria %}
+                    <li class="flex items-center">
+                        <a href="{% url 'home' %}?categoria={{ producto.categoria.id }}" class="text-pink-600 hover:underline">{{ producto.categoria.nombre }}</a>
+                        <span class="mx-2">/</span>
+                    </li>
+                {% endif %}
+                {% if producto.subcategoria %}
+                    <li class="flex items-center">
+                        <a href="{% url 'home' %}?subcategoria={{ producto.subcategoria.id }}" class="text-pink-600 hover:underline">{{ producto.subcategoria.nombre }}</a>
+                        <span class="mx-2">/</span>
+                    </li>
+                {% endif %}
+                <li class="text-gray-800 font-semibold">{{ producto.nombre }}</li>
+            </ol>
+        </nav>
+
+        <div class="bg-white rounded-lg shadow-xl p-6 flex flex-col md:flex-row gap-8">
+            <!-- Product Image Section -->
+            <div class="md:w-1/2 flex flex-col items-center">
+                <div class="w-full max-w-md h-96 flex items-center justify-center overflow-hidden rounded-lg shadow-md mb-4">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="max-w-full max-h-full object-contain" id="main-product-image">
+                    {% else %}
+                        <img src="{% static 'img/sin_imagen.jpg' %}" alt="Sin imagen" class="max-w-full max-h-full object-contain" id="main-product-image">
+                    {% endif %}
+                </div>
+                <!-- Thumbnail Images -->
+                <div class="flex space-x-2 mt-2">
+                    {# Muestra la imagen principal como miniatura #}
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }} principal" class="w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition" onclick="changeMainImage('{{ producto.imagen.url }}')">
+                    {% endif %}
+                    {# Itera sobre las imágenes adicionales del producto #}
+                    {% for img in producto.images.all %}
+                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:producto.nombre }}" class="w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition" onclick="changeMainImage('{{ img.image.url }}')">
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="md:w-1/2 flex flex-col">
+                <h1 class="text-4xl font-bold text-gray-900 mb-3">{{ producto.nombre }}</h1>
+                <div class="flex items-baseline mb-4">
+                    <span class="text-5xl font-extrabold text-pink-600 mr-4">${{ producto.get_precio_final|floatformat:2 }}</span>
+                    {% if producto.descuento > 0 %}
+                        <span class="text-xl text-gray-500 line-through">${{ producto.precio|floatformat:2 }}</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-gray-700 mb-6 leading-relaxed">{{ producto.descripcion|default_if_none:"No hay descripción disponible." }}</p>
+
+                <div class="flex items-center space-x-4 mb-8">
+                    <label for="quantity" class="text-lg font-medium text-gray-700">Cantidad:</label>
+                    <input type="number" id="quantity" value="1" min="1" class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-center">
+                </div>
+
+                <!-- Botón Añadir al Carrito -->
+                <button id="add-to-cart-button-detail"
+                        class="w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
+                        data-product-id="{{ producto.id }}"
+                        data-product-name="{{ producto.nombre }}"
+                        data-product-price="{{ producto.get_precio_final|floatformat:2 }}">
+                    <i class="fas fa-cart-plus text-2xl"></i>
+                    <span>Añadir al Carrito</span>
+                </button>
+
+                <!-- Información adicional (puedes hacerla configurable con SiteSetting si quieres) -->
+                <div class="mt-8 border-t border-gray-200 pt-6">
+                    <p class="text-gray-700 text-sm mb-2">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i> Producto disponible para envío inmediato.
+                    </p>
+                    <p class="text-gray-700 text-sm">
+                        <i class="fas fa-truck text-blue-500 mr-2"></i> Envío gratis en pedidos superiores a $X.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Description Section -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mt-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Conoce más sobre {{ producto.nombre }}</h2>
+            <div class="prose max-w-none text-gray-700 leading-relaxed ck-content">
+                {# Muestra la descripción larga si existe, de lo contrario, la descripción corta #}
+                {% if producto.long_description %}
+                    {{ producto.long_description|safe }} {# Usar 'safe' para renderizar HTML de RichTextField #}
+                {% else %}
+                    <p>{{ producto.descripcion|default_if_none:"No hay descripción detallada disponible." }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Social Sharing Section -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mt-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Compártelo en:</h2>
+            <div class="flex justify-center space-x-6">
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="text-blue-600 hover:text-blue-800 transition transform hover:scale-110" title="Compartir en Facebook">
+                    <i class="fab fa-facebook-square text-4xl"></i>
+                </a>
+                <a href="https://wa.me/?text={{ producto.nombre|urlencode }}%20-%20Mira%20este%20producto%3A%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="text-green-500 hover:text-green-700 transition transform hover:scale-110" title="Compartir en WhatsApp">
+                    <i class="fab fa-whatsapp-square text-4xl"></i>
+                </a>
+                
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-8 mt-8">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="footer-col text-center md:text-left">
+                <h4 class="text-xl font-semibold mb-4">Lumiere Glamour</h4>
+                <p class="text-gray-300">Tienda de maquillaje profesional, cuidado facial y accesorios.</p>
+                <p class="text-gray-300 mt-2"><strong>Ipiales - Nariño - Colombia</strong></p>
+            </div>
+            <div class="footer-col text-center md:text-left">
+                <h4 class="text-xl font-semibold mb-4">Enlaces Rápidos</h4>
+                <ul>
+                    <li class="mb-2"><a href="#" class="text-gray-300 hover:text-pink-500 transition duration-300">Brochas</a></li>
+                    <li class="mb-2"><a href="#" class="text-gray-300 hover:text-pink-500 transition duration-300">Bases</a></li>
+                    <li class="mb-2"><a href="#" class="text-gray-300 hover:text-pink-500 transition duration-300">Cuidado Facial</a></li>
+                    <li class="mb-2"><a href="#" class="text-gray-300 hover:text-pink-500 transition duration-300">Descuentos</a></li>
+                </ul>
+            </div>
+            <div class="footer-col text-center md:text-left">
+                <h4 class="text-xl font-semibold mb-4">Contáctanos</h4>
+               <div class="space-y-2">
+    <a href="https://wa.me/573007221200" 
+        target="_blank" 
+        class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+        title="Enviar mensaje por WhatsApp">
+        <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+    </a>
+
+    <a href="https://www.instagram.com/lumiere_glamour_" 
+        target="_blank"
+        class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+        title="Visitar Instagram">
+        <i class="fab fa-instagram mr-2"></i> Instagram
+    </a>
+
+    <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr" 
+        target="_blank"
+        class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+        title="Ir a nuestra página de Facebook">
+        <i class="fab fa-facebook mr-2"></i> Facebook
+    </a>
+
+    <a href="https://www.tiktok.com/@lumiere.glamour3" 
+        target="_blank" 
+        class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+        title="Ver en TikTok">
+        <i class="fab fa-tiktok mr-2"></i> TikTok
+    </a>
 </div>
 
-<!-- PIE DE PÁGINA -->
-<footer>
-    📍 Ipiales - Nariño | 📞 WhatsApp: +57 300 722 1200 | Síguenos en:
-    <a href="#"><img src="https://cdn-icons-png.flaticon.com/24/733/733547.png" alt="Facebook"></a>
-    <a href="#"><img src="https://cdn-icons-png.flaticon.com/24/2111/2111463.png" alt="Instagram"></a>
-    <a href="https://wa.me/573007221200"><img src="https://cdn-icons-png.flaticon.com/24/733/733585.png" alt="WhatsApp"></a>
-</footer>
+            </div>
+        </div>
+        <p class="copyright text-center text-gray-400 text-sm mt-8">© {{ "now"|date:"Y" }} Lumiere Glamour. Todos los derechos reservados.</p>
+    </footer>
 
+    <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
+    <a href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
+       class="whatsapp-flotante fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40"
+       target="_blank" title="Escríbenos por WhatsApp (Consulta General)">
+       <i class="fab fa-whatsapp text-2xl"></i>
+    </a>
+
+    <!-- NUEVO BOTÓN FLOTANTE "Comprar por WhatsApp" (para el carrito) -->
+    <button id="buy-whatsapp-button"
+            class="fixed bottom-20 right-6 bg-purple-600 text-white py-3 px-4 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 z-40 flex items-center space-x-2 hidden">
+        <i class="fab fa-whatsapp text-xl"></i>
+        <span>Comprar Carrito</span>
+        <span id="buy-whatsapp-cart-count" class="bg-white text-purple-600 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+    </button>
+
+    <!-- MODAL DEL CARRITO -->
+    <div id="cart-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md mx-auto transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <!-- Encabezado del Modal -->
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                <h3 class="text-2xl font-semibold text-gray-900">Tu Carrito</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeCartModal()">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Cuerpo del Modal - Lista de Productos -->
+            <div id="cart-items-container" class="py-4 max-h-80 overflow-y-auto">
+                <!-- Los productos del carrito se renderizarán aquí dinámicamente -->
+                <p class="text-gray-500 text-center" id="empty-cart-message">El carrito está vacío.</p>
+            </div>
+
+            <!-- Pie del Modal - Total y Botones -->
+            <div class="pt-4 border-t border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xl font-semibold text-gray-900">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-pink-600">$0.00</span>
+                </div>
+                <div class="flex flex-col space-y-3">
+                    <button id="modal-buy-whatsapp-button"
+                            class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>Comprar por WhatsApp</span>
+                    </button>
+                    <button type="button" class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition duration-300" onclick="closeCartModal()">
+                        Seguir Comprando
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript para el menú móvil (Hamburger)
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileCategoriesButton = document.getElementById('mobile-categories-button');
+        const mobileCategoriesDropdown = document.getElementById('mobile-categories-dropdown');
+
+        // Toggle del menú principal móvil
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            // Cambiar el ícono del botón (hamburger <-> close)
+            const icon = mobileMenuButton.querySelector('svg');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>'; // Ícono de menú
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; // Ícono de cerrar
+            }
+        });
+
+        // Toggle del dropdown de categorías en móvil
+        mobileCategoriesButton.addEventListener('click', () => {
+            mobileCategoriesDropdown.classList.toggle('hidden');
+            // Cambiar la flecha del botón de categorías
+            const icon = mobileCategoriesButton.querySelector('svg');
+            icon.classList.toggle('rotate-0');
+            icon.classList.toggle('rotate-180'); // Gira la flecha
+        });
+
+        // Toggle de submenús en móvil (para subcategorías)
+        function toggleSubmenu(button) {
+            const submenu = button.nextElementSibling; // El div que contiene las subcategorías
+            if (submenu) { // Asegurarse de que el submenu exista
+                submenu.classList.toggle('hidden');
+                // Cambiar la flecha del botón del submenú
+                const icon = button.querySelector('svg');
+                icon.classList.toggle('rotate-90'); // Flecha hacia abajo
+                icon.classList.toggle('rotate-0'); // Flecha hacia la derecha
+            }
+        }
+
+        // --- Lógica del Carrito y WhatsApp (Copiada de index.html para consistencia) ---
+        let cart = []; // Array para almacenar los productos en el carrito
+
+        const cartCountSpan = document.getElementById('cart-count');
+        const mobileCartCountSpan = document.getElementById('mobile-cart-count');
+        const buyWhatsappButton = document.getElementById('buy-whatsapp-button'); // Botón flotante
+        const buyWhatsappCartCountSpan = document.getElementById('buy-whatsapp-cart-count'); // Contador botón flotante
+
+        const cartModal = document.getElementById('cart-modal');
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const emptyCartMessage = document.getElementById('empty-cart-message');
+        const cartTotalSpan = document.getElementById('cart-total');
+        const modalBuyWhatsappButton = document.getElementById('modal-buy-whatsapp-button'); // Botón dentro del modal
+
+        // Función para abrir el modal del carrito
+        function openCartModal() {
+            cartModal.classList.remove('hidden');
+            renderCartItems(); // Asegura que los ítems se rendericen al abrir
+        }
+
+        // Función para cerrar el modal del carrito
+        function closeCartModal() {
+            cartModal.classList.add('hidden');
+        }
+
+        // Función para actualizar el contador del carrito y la visibilidad del botón de compra
+        function updateCartDisplay() {
+            const itemCount = cart.length;
+            cartCountSpan.textContent = itemCount;
+            mobileCartCountSpan.textContent = itemCount;
+
+            if (itemCount > 0) {
+                cartCountSpan.classList.remove('hidden');
+                mobileCartCountSpan.classList.remove('hidden');
+                buyWhatsappButton.classList.remove('hidden');
+                buyWhatsappCartCountSpan.textContent = itemCount;
+            } else {
+                cartCountSpan.classList.add('hidden');
+                mobileCartCountSpan.classList.add('hidden');
+                buyWhatsappButton.classList.add('hidden');
+            }
+            renderCartItems(); // Actualiza también el contenido del modal del carrito
+        }
+
+        // Función para renderizar los ítems del carrito en el modal
+        function renderCartItems() {
+            cartItemsContainer.innerHTML = ''; // Limpiar el contenedor actual
+            let total = 0;
+
+            if (cart.length === 0) {
+                emptyCartMessage.classList.remove('hidden');
+            } else {
+                emptyCartMessage.classList.add('hidden');
+                cart.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('flex', 'justify-between', 'items-center', 'py-2', 'border-b', 'border-gray-100');
+                    itemDiv.innerHTML = `
+                        <div class="flex-1">
+                            <p class="text-gray-800 font-medium">${item.name}</p>
+                            <p class="text-gray-600 text-sm">$${parseFloat(item.price).toFixed(2)}</p>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700 ml-4" onclick="removeItemFromCart('${item.id}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    `;
+                    cartItemsContainer.appendChild(itemDiv);
+                    total += parseFloat(item.price);
+                });
+            }
+            cartTotalSpan.textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Función para eliminar un ítem del carrito
+        function removeItemFromCart(productIdToRemove) {
+            // Encuentra el índice del primer producto con el ID coincidente
+            const indexToRemove = cart.findIndex(item => item.id === productIdToRemove);
+            if (indexToRemove > -1) {
+                cart.splice(indexToRemove, 1); // Elimina solo un elemento
+                alert('Producto eliminado del carrito.');
+                updateCartDisplay(); // Actualiza la visualización del carrito
+            }
+        }
+
+        // Funcionalidad del botón "Comprar por WhatsApp" (para el carrito)
+        function sendCartToWhatsApp() {
+            if (cart.length === 0) {
+                alert('Tu carrito está vacío. Agrega productos antes de comprar.');
+                return;
+            }
+
+            const whatsappNumber = '{{ whatsapp_number|default:"573007221200" }}'; // Usa el valor de Django o un default
+            let message = "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                message += `${index + 1}. ${item.name} - $${item.price}\n`;
+                total += parseFloat(item.price);
+            });
+
+            message += `\nTotal estimado: $${total.toFixed(2)}\n`;
+            message += "Por favor, confírmame la disponibilidad y el proceso de pago.";
+
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            // Opcional: Limpiar el carrito después de enviar el pedido
+            cart = [];
+            updateCartDisplay();
+            alert('Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
+            closeCartModal(); // Cierra el modal después de enviar
+        }
+
+        // Asignar la función a los botones de WhatsApp
+        buyWhatsappButton.addEventListener('click', sendCartToWhatsApp); // Botón flotante
+        modalBuyWhatsappButton.addEventListener('click', sendCartToWhatsApp); // Botón dentro del modal
+
+        // Lógica específica de producto.html
+        const mainProductImage = document.getElementById('main-product-image');
+        function changeMainImage(newSrc) {
+            mainProductImage.src = newSrc;
+        }
+
+        // Lógica para añadir al carrito desde la página de detalle
+        const addToCartButtonDetail = document.getElementById('add-to-cart-button-detail');
+        if (addToCartButtonDetail) {
+            addToCartButtonDetail.addEventListener('click', (event) => {
+                // Obtener los datos del producto directamente de los data-attributes del botón
+                // Esto es más robusto que usar directamente las variables de Django en JS
+                const productId = event.currentTarget.dataset.productId; 
+                const productName = event.currentTarget.dataset.productName;
+                const productPrice = event.currentTarget.dataset.productPrice;
+                const quantity = parseInt(document.getElementById('quantity').value);
+
+                if (quantity > 0) {
+                    for (let i = 0; i < quantity; i++) {
+                        cart.push({ id: productId, name: productName, price: productPrice });
+                    }
+                    alert(`${quantity} unidad(es) de "${productName}" ha(n) sido agregada(s) al carrito.`);
+                    updateCartDisplay();
+                } else {
+                    alert('Por favor, ingresa una cantidad válida.');
+                }
+            });
+        }
+
+        // Inicializar la visualización del carrito al cargar la página
+        updateCartDisplay();
+    </script>
 </body>
 </html>

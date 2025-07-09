@@ -1,7 +1,8 @@
+# store/urls.py
 from django.urls import path
-from . import views
+from . import views  # Importa tus vistas
 
 urlpatterns = [
-    path('', views.inicio, name='index'),  # esta es tu página de inicio
+    path('', views.inicio, name='home'),
     path('producto/<int:producto_id>/', views.producto_detalle, name='producto_detalle'),
 ]

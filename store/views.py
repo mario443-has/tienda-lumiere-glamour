@@ -2,7 +2,7 @@ import json # Importa el módulo json
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 # Asegúrate de que todos estos modelos estén definidos en tu models.py
-from .models import Producto, Categoria, MenuItem, SiteSetting, SubCategoria
+from .models import Producto, Categoria, MenuItem, SiteSetting, SubCategoria, Anuncio
 
 
 def get_common_context():
@@ -39,11 +39,13 @@ def inicio(request):
     - Búsqueda de productos por nombre, descripción, categoría o subcategoría.
     - Filtrado de productos por categoría.
     - Filtrado de productos por subcategoría.
+    - **Nuevo:** Filtrado de productos en oferta.
     - Pasa datos comunes (categorías, menú, WhatsApp) a la plantilla.
     """
     query = request.GET.get('q') # Obtiene el término de búsqueda de la URL
     categoria_id = request.GET.get('categoria') # Obtiene el ID de la categoría para filtrar
     subcategoria_id = request.GET.get('subcategoria') # Obtiene el ID de la subcategoría para filtrar
+    ofertas_activas = request.GET.get('ofertas') # Nuevo: Obtiene el parámetro 'ofertas'
 
     # Inicia con todos los productos activos.
     # Asume que tu modelo Producto tiene un campo `is_active = models.BooleanField(default=True)`.
@@ -53,7 +55,12 @@ def inicio(request):
     nombre_categoria_actual = None # Variable para el título de la sección de productos
     categoria_actual_obj = None # Objeto de la categoría o subcategoría actualmente seleccionada
 
-    # 1. Aplicar filtro de búsqueda si se proporciona un `query`
+    # 1. Aplicar filtro de ofertas si se proporciona el parámetro 'ofertas=true'
+    if ofertas_activas == 'true':
+        productos_queryset = productos_queryset.filter(descuento__gt=0) # Filtra productos con descuento > 0
+        # No se establece nombre_categoria_actual aquí, se usará 'Ofertas Especiales' en la plantilla
+
+    # 2. Aplicar filtro de búsqueda si se proporciona un `query`
     if query:
         productos_queryset = productos_queryset.filter(
             Q(nombre__icontains=query) |
@@ -62,7 +69,8 @@ def inicio(request):
             Q(subcategoria__nombre__icontains=query) # Filtra también por nombre de subcategoría
         ).distinct() # `distinct()` para evitar duplicados si un producto coincide en varios campos
 
-    # 2. Aplicar filtro por categoría si se proporciona `categoria_id`
+    # 3. Aplicar filtro por categoría si se proporciona `categoria_id`
+    # Este filtro se aplica DESPUÉS del filtro de ofertas, por si se combinan.
     if categoria_id:
         try:
             categoria_actual_obj = Categoria.objects.get(id=categoria_id)
@@ -72,7 +80,8 @@ def inicio(request):
             # Si la categoría no existe, no se filtra y se mantiene el nombre en None
             pass 
 
-    # 3. Aplicar filtro por subcategoría si se proporciona `subcategoria_id`
+    # 4. Aplicar filtro por subcategoría si se proporciona `subcategoria_id`
+    # Este filtro se aplica DESPUÉS del filtro de ofertas y categoría.
     if subcategoria_id:
         try:
             subcategoria_actual_obj = SubCategoria.objects.get(id=subcategoria_id)
@@ -95,9 +104,10 @@ def inicio(request):
             # Si la subcategoría no existe, no se filtra
             pass 
 
-    # --- ESTA ES LA PARTE CLAVE PARA SOLUCIONAR EL ERROR (RE-INTEGRADA) ---
     # Convertir el QuerySet de productos a una lista de diccionarios
     # para que sea serializable a JSON y pueda ser usada por JavaScript.
+    # Aunque el `all_products_data_for_js` no se usa en la plantilla final, se mantiene aquí
+    # por si futuras implementaciones de JavaScript lo requieren.
     products_for_js = []
     for producto in productos_queryset:
         products_for_js.append({
@@ -113,15 +123,20 @@ def inicio(request):
     # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
     context = get_common_context()
 
+    # NUEVO: Obtener anuncios activos y ordenarlos
+    anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
+
     # Añadir los datos específicos de esta vista al contexto que se pasará a la plantilla
     context.update({
         'productos': productos_queryset, # Mantenemos esto para el bucle principal de la plantilla Django
-        'all_products_data_for_js': products_for_js, # Esto se pasará al JavaScript vía json_script
+        # 'all_products_data_for_js': products_for_js, # Esto se pasará al JavaScript vía json_script (se omite si no se usa en plantilla)
         'query': query or '', # Pasa el query para mostrarlo en el título si aplica
         'categoria_actual': categoria_actual_obj.id if categoria_actual_obj else None, # Pasa el ID para el estado 'active' en la navegación
         'nombre_categoria_actual': nombre_categoria_actual, # Pasa el nombre para el título de la sección
+        'ofertas_activas': ofertas_activas == 'true', # Pasa un booleano para el estado de ofertas
+        'anuncios': anuncios, # Añadir anuncios al contexto
     })
-
+    
     # Renderiza la plantilla principal. Asegúrate de que el nombre de la plantilla sea correcto,
     # por ejemplo, 'index.html' si está en la raíz de tu carpeta templates,
     # o 'store/index.html' si está dentro de una subcarpeta 'store'.

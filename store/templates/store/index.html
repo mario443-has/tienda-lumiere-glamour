@@ -39,6 +39,31 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+
+        /* Estilos específicos para el carrusel de anuncios */
+        #announcement-carousel-wrapper {
+            position: relative;
+            width: 100%;
+            height: 20rem; /* ajusta si quieres una altura diferente */
+            overflow: hidden;
+        }
+        #announcement-carousel {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-item {
+            flex: 0 0 100%;
+            height: 100%;
+            position: relative;
+        }
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-inter text-gray-800">
@@ -53,7 +78,7 @@
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <!-- Logo de la tienda -->
             <a href="{% url 'home' %}" class="flex items-center space-x-2">
-                <img src="{% static 'img/logo.png' %}" alt="Lumière Glamour Logo" class="h-20 w-auto rounded-full shadow-md">
+                <img src="{% static 'img/logo.jpg' %}" alt="Lumière Glamour Logo" class="h-20 w-auto rounded-full shadow-md">
                 <span class="text-3xl font-great-vibes text-pink-600 hover:text-pink-700 transition duration-300">
                     Lumiere Glamour
                 </span>
@@ -129,7 +154,7 @@
                     {% endfor %}
                 {% else %}
                     <!-- Ejemplos de enlaces si no se configuran desde el admin -->
-                    <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Ofertas</a></li>
+                    <li><a href="{% url 'home' %}?ofertas=true" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Ofertas</a></li>
                     <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Contacto</a></li>
                     <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Cibermake</a></li>
                     <li><a href="#" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Blog</a></li>
@@ -188,7 +213,7 @@
                     <a href="{{ item.url }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">{{ item.nombre }}</a>
                 {% endfor %}
             {% else %}
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Ofertas</a>
+                <a href="{% url 'home' %}?ofertas=true" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Ofertas</a>
                 <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Contacto</a>
                 <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Cibermake</a>
                 <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Blog</a>
@@ -205,6 +230,54 @@
             </div>
         </div>
     </header>
+
+    <!-- NUEVA SECCIÓN: Carrusel de Anuncios -->
+    {# Solo muestra el carrusel si hay anuncios activos #}
+    {% if anuncios %}
+    <section class="relative w-full max-w-5xl mx-auto mt-0 rounded-lg shadow-lg overflow-hidden">
+        <div id="announcement-carousel-wrapper"> {# Eliminado flex justify-center items-center #}
+            <div id="announcement-carousel">
+                {% for anuncio in anuncios %}
+                    <div class="carousel-item">
+                        {% if anuncio.url %}
+                            <a href="{{ anuncio.url }}" target="_blank" class="block w-full h-full">
+                        {% endif %}
+                            {% if anuncio.imagen %}
+                                <img src="{{ anuncio.imagen.url }}" alt="{{ anuncio.titulo }}" onerror="this.onerror=null;this.src='https://placehold.co/1000x400/cccccc/333333?text=Anuncio';">
+                            {% else %}
+                                {# Imagen de placeholder si no hay imagen #}
+                                <img src="https://placehold.co/1000x400/cccccc/333333?text=Anuncio" alt="Placeholder Anuncio">
+                            {% endif %}
+                        {% if anuncio.url %}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Botones de Navegación del Carrusel -->
+        <!-- Botón Anterior -->
+        <button id="prev-announcement"
+            class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 sm:p-3 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
+            <i class="fas fa-chevron-left text-base sm:text-xl"></i>
+        </button>
+
+        <!-- Botón Siguiente -->
+        <button id="next-announcement"
+            class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 sm:p-3 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
+            <i class="fas fa-chevron-right text-base sm:text-xl"></i>
+        </button>
+
+        <!-- Indicadores de Puntos del Carrusel -->
+        <div id="carousel-indicators" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+            {% for anuncio in anuncios %}
+                {# forloop.counter0 es el índice basado en 0 #}
+                <div class="indicator w-3 h-3 bg-white rounded-full cursor-pointer opacity-50 hover:opacity-100 transition" data-slide-to="{{ forloop.counter0 }}"></div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
     <!-- Sección de Beneficios -->
     <section class="container mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-center">
@@ -238,6 +311,8 @@
                 {% if categoria_actual %}
                     en {{ nombre_categoria_actual }}
                 {% endif %}
+            {% elif ofertas_activas %} {# Nuevo: Título para ofertas #}
+                Ofertas Especiales
             {% elif categoria_actual %}
                 {{ nombre_categoria_actual }}
             {% else %}
@@ -258,10 +333,15 @@
             <div id="slider" class="overflow-x-auto scroll-smooth whitespace-nowrap space-x-4 pb-4 px-2">
                 <div class="inline-flex space-x-4">
                     {% for producto in productos %}
-                        <div class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top">
+                        <div class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative">
+                            <!-- Distintivo de OFERTA -->
+                            {% if producto.descuento > 0 %}
+                                <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10 shadow-md">
+                                    OFERTA
+                                </div>
+                            {% endif %}
                             <!-- Enlace a la página de detalle del producto -->
-
-                            <a href="{% url 'producto_detalle' producto.id %}">
+                            <a href="{% url 'producto_detalle' producto.id %}"> {# AQUI CAMBIAMOS PARA IR A LA PAGINA DE DETALLE #}
                                 {% if producto.imagen %}
                                     <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
                                 {% else %}
@@ -293,6 +373,9 @@
                         {% if query %}
                             <p class="text-xl font-semibold mb-2">No encontramos resultados para "<span class="text-pink-600">{{ query }}</span>".</p>
                             <p class="text-gray-500">Intenta buscar con otras palabras clave o revisa nuestras categorías.</p>
+                        {% elif ofertas_activas %} {# Nuevo: Mensaje para ofertas vacías #}
+                            <p class="text-xl font-semibold mb-2">No hay productos en oferta en este momento.</p>
+                            <p class="text-gray-500">¡Vuelve pronto para ver nuestras promociones!</p>
                         {% else %}
                             <p class="text-xl font-semibold mb-2">No hay productos disponibles en esta categoría.</p>
                             <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
@@ -331,7 +414,7 @@
         <i class="fab fa-whatsapp mr-2"></i> WhatsApp
     </a>
 
-    <a href="https://www.instagram.com/lumiere_glamour_?igsh=YjJlM2w0MHJtMzEz&utm_source=ig_contact_invite" 
+    <a href="https://www.instagram.com/lumiere_glamour_" 
         target="_blank"
         class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
         title="Visitar Instagram">
@@ -345,7 +428,7 @@
         <i class="fab fa-facebook mr-2"></i> Facebook
     </a>
 
-    <a href="https://www.tiktok.com/@lumiere.glamour3?_t=ZS-8xrRfyEiyDy&_r=1" 
+    <a href="https://www.tiktok.com/@lumiere.glamour3" 
         target="_blank" 
         class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
         title="Ver en TikTok">
@@ -410,61 +493,7 @@
         </div>
     </div>
 
-    <!-- NUEVO MODAL DE DETALLES DEL PRODUCTO -->
-    <div id="product-detail-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-2xl mx-auto transform transition-all sm:my-8 sm:align-middle sm:w-full flex flex-col md:flex-row">
-            <!-- Columna de Imagen -->
-            <div class="md:w-1/2 flex justify-center items-center p-4">
-                <img id="product-detail-image" src="https://placehold.co/400x400/F0F0F0/333333?text=Cargando+Imagen" alt="Imagen del Producto" class="rounded-lg max-h-96 object-contain">
-            </div>
-            <!-- Columna de Detalles -->
-            <div class="md:w-1/2 p-4 flex flex-col justify-between">
-                <div>
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 id="product-detail-name" class="text-3xl font-bold text-gray-900">Nombre del Producto</h3>
-                        <button type="button" class="text-gray-400 hover:text-gray-600 text-2xl" onclick="closeProductDetailModal()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <p id="product-detail-description" class="text-gray-700 mb-6 text-base leading-relaxed">Descripción detallada del producto.</p>
-                    <div class="flex items-baseline mb-6">
-                        <span id="product-detail-price" class="text-4xl font-extrabold text-pink-600 mr-3">$0.00</span>
-                        <span id="product-detail-old-price" class="text-lg text-gray-500 line-through hidden">$0.00</span>
-                    </div>
-                </div>
-                <div class="mt-auto">
-                    <!-- Botón "Agregar al Carrito" dentro del modal de detalle -->
-                    <button id="product-detail-add-to-cart-button"
-                            class="w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
-                        <i class="fas fa-cart-plus"></i>
-                        <span>Agregar al Carrito</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-  {{ all_products_data_for_js|json_script:"all_products_data" }}
-
-
     <script>
-          // Leer los productos desde el HTML con ID all_products_data
-    const allProducts = JSON.parse(document.getElementById('all_products_data').textContent);
-
-    // Ya puedes usar allProducts
-    console.log(allProducts);
-
-    function openProductDetailModal(productId) {
-        const product = allProducts.find(p => p.id == productId);
-        if (product) {
-            document.getElementById('product-detail-image').src = product.imagen;
-            document.getElementById('product-detail-name').textContent = product.nombre;
-            document.getElementById('product-detail-description').textContent = product.descripcion;
-            document.getElementById('product-detail-price').textContent = `$${product.get_precio_final}`;
-            document.getElementById('product-detail-old-price').textContent = product.descuento > 0 ? `$${product.precio}` : '';
-        }
-    }
-
         // JavaScript para el menú móvil (Hamburger)
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -518,19 +547,6 @@
         const cartTotalSpan = document.getElementById('cart-total');
         const modalBuyWhatsappButton = document.getElementById('modal-buy-whatsapp-button'); // Botón dentro del modal
 
-        // --- Lógica del Modal de Detalles del Producto ---
-        const productDetailModal = document.getElementById('product-detail-modal');
-        const productDetailImage = document.getElementById('product-detail-image');
-        const productDetailName = document.getElementById('product-detail-name');
-        const productDetailDescription = document.getElementById('product-detail-description');
-        const productDetailPrice = document.getElementById('product-detail-price');
-        const productDetailOldPrice = document.getElementById('product-detail-old-price');
-        const productDetailAddToCartButton = document.getElementById('product-detail-add-to-cart-button');
-
-        // Para la vista previa del Canvas, simulamos `productos`
-        // En tu entorno Django, esta variable sería pasada directamente desde la vista:
-        // Asegúrate de que en tu views.py, si usas `json_script`, el ID sea "all_products_data"
-
         // Función para abrir el modal del carrito
         function openCartModal() {
             cartModal.classList.remove('hidden');
@@ -540,39 +556,6 @@
         // Función para cerrar el modal del carrito
         function closeCartModal() {
             cartModal.classList.add('hidden');
-        }
-
-        // Función para abrir el modal de detalles del producto
-        function openProductDetailModal(productId) {
-            const product = allProducts.find(p => p.id == productId); // Usamos == para comparar string con number si es necesario
-
-            if (product) {
-                productDetailImage.src = product.imagen || "{% static 'img/sin_imagen.jpg' %}";
-                productDetailName.textContent = product.nombre;
-                productDetailDescription.textContent = product.descripcion || 'No hay descripción disponible.';
-                productDetailPrice.textContent = `$${parseFloat(product.get_precio_final).toFixed(2)}`;
-
-                if (parseFloat(product.descuento) > 0) {
-                    productDetailOldPrice.textContent = `$${parseFloat(product.precio).toFixed(2)}`;
-                    productDetailOldPrice.classList.remove('hidden');
-                } else {
-                    productDetailOldPrice.classList.add('hidden');
-                }
-
-                // Configurar el botón "Agregar al Carrito" del modal de detalle
-                productDetailAddToCartButton.dataset.productId = product.id;
-                productDetailAddToCartButton.dataset.productName = product.nombre;
-                productDetailAddToCartButton.dataset.productPrice = product.get_precio_final;
-
-                productDetailModal.classList.remove('hidden');
-            } else {
-                alert('Producto no encontrado.');
-            }
-        }
-
-        // Función para cerrar el modal de detalles del producto
-        function closeProductDetailModal() {
-            productDetailModal.classList.add('hidden');
         }
 
         // Función para actualizar el contador del carrito y la visibilidad del botón de compra
@@ -628,13 +611,12 @@
             const indexToRemove = cart.findIndex(item => item.id === productIdToRemove);
             if (indexToRemove > -1) {
                 cart.splice(indexToRemove, 1); // Elimina solo un elemento
-                alert('Producto eliminado del carrito.');
+                console.log('Producto eliminado del carrito.'); // Reemplazado alert con console.log
                 updateCartDisplay(); // Actualiza la visualización del carrito
             }
         }
 
-
-        // Añadir producto al carrito (listener para botones en tarjetas y en el modal de detalle)
+        // Añadir producto al carrito (listener para botones en tarjetas)
         document.querySelectorAll('.add-to-cart-button').forEach(button => {
             button.addEventListener('click', (event) => {
                 const productId = event.currentTarget.dataset.productId;
@@ -643,17 +625,16 @@
 
                 cart.push({ id: productId, name: productName, price: productPrice });
                 
-                alert(`"${productName}" ha sido agregado al carrito.`);
+                console.log(`"${productName}" ha sido agregado al carrito.`); // Reemplazado alert con console.log
 
                 updateCartDisplay(); // Actualiza el contador del carrito
-                closeProductDetailModal(); // Cierra el modal de detalle si se agregó desde allí
             });
         });
 
         // Funcionalidad del botón "Comprar por WhatsApp" (para el carrito)
         function sendCartToWhatsApp() {
             if (cart.length === 0) {
-                alert('Tu carrito está vacío. Agrega productos antes de comprar.');
+                console.log('Tu carrito está vacío. Agrega productos antes de comprar.'); // Reemplazado alert con console.log
                 return;
             }
 
@@ -675,7 +656,7 @@
             // Opcional: Limpiar el carrito después de enviar el pedido
             cart = [];
             updateCartDisplay();
-            alert('Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
+            console.log('Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.'); // Reemplazado alert con console.log
             closeCartModal(); // Cierra el modal después de enviar
         }
 
@@ -684,7 +665,7 @@
         modalBuyWhatsappButton.addEventListener('click', sendCartToWhatsApp); // Botón dentro del modal
 
 
-        // Slider horizontal
+        // Slider horizontal de productos
         const slider = document.getElementById("slider");
         const slideLeft = document.getElementById("slideLeft");
         const slideRight = document.getElementById("slideRight");
@@ -697,6 +678,136 @@
                 slider.scrollLeft += 300; // Desplaza 300px a la derecha
             });
         }
+
+        // Lógica del Carrusel de Anuncios (Mejorada)
+        document.addEventListener("DOMContentLoaded", function () {
+            const carouselWrapper = document.getElementById("announcement-carousel-wrapper");
+            const carousel = document.getElementById("announcement-carousel");
+            const items = carousel ? carousel.querySelectorAll(".carousel-item") : []; 
+            const prevBtn = document.getElementById("prev-announcement");
+            const nextBtn = document.getElementById("next-announcement");
+            const indicatorsContainer = document.getElementById("carousel-indicators");
+            const indicators = indicatorsContainer ? indicatorsContainer.querySelectorAll(".indicator") : [];
+
+            let currentIndex = 0;
+            let totalSlides = items.length;
+            let autoSlideInterval;
+            let dragThreshold = 50; // Píxeles para considerar un swipe
+
+            function updateCarousel() {
+                if (!carousel || totalSlides === 0) return;
+
+                const offset = -currentIndex * 100;
+                carousel.style.transform = `translateX(${offset}%)`;
+
+                // Actualizar indicadores de puntos
+                indicators.forEach((dot, i) => {
+                    dot.classList.toggle("opacity-100", i === currentIndex);
+                    dot.classList.toggle("opacity-50", i !== currentIndex);
+                });
+            }
+
+            function goToSlide(index) {
+                // Asegura que el índice esté dentro de los límites y envuelve si es necesario
+                currentIndex = (index + totalSlides) % totalSlides;
+                updateCarousel();
+            }
+
+            function startAutoSlide() {
+                stopAutoSlide(); // Limpia cualquier intervalo existente
+                if (totalSlides > 1) { // Solo auto-desliza si hay más de una diapositiva
+                    autoSlideInterval = setInterval(() => {
+                        goToSlide(currentIndex + 1); // goToSlide maneja el módulo
+                    }, 5000); // Cambia de slide cada 5 segundos
+                }
+            }
+
+            function stopAutoSlide() {
+                clearInterval(autoSlideInterval);
+            }
+
+            // Event listeners para los botones de navegación del carrusel
+            if (prevBtn) {
+                prevBtn.addEventListener("click", () => {
+                    stopAutoSlide(); // Detener auto-slide al interactuar manualmente
+                    goToSlide(currentIndex - 1);
+                    startAutoSlide(); // Reiniciar auto-slide después de la interacción
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener("click", () => {
+                    stopAutoSlide(); // Detener auto-slide al interactuar manualmente
+                    goToSlide(currentIndex + 1);
+                    startAutoSlide(); // Reiniciar auto-slide después de la interacción
+                });
+            }
+
+            // Event listeners para los indicadores de puntos
+            if (indicatorsContainer) {
+                indicators.forEach((dot, i) => {
+                    dot.addEventListener("click", () => {
+                        stopAutoSlide(); // Detener auto-slide al interactuar manualmente
+                        goToSlide(i);
+                        startAutoSlide(); // Reiniciar auto-slide después de la interacción
+                    });
+                });
+            }
+
+            // Swipe móvil
+            let startX = 0;
+            let isDragging = false;
+
+            if (carouselWrapper) { // Asegurarse de que el carouselWrapper exista para los eventos táctiles
+                carouselWrapper.addEventListener("touchstart", (e) => {
+                    startX = e.touches[0].clientX;
+                    isDragging = true;
+                    stopAutoSlide(); // Detener auto-slide cuando el usuario comienza a interactuar
+                });
+
+                carouselWrapper.addEventListener("touchmove", (e) => {
+                    if (!isDragging) return;
+                    const currentX = e.touches[0].clientX;
+                    const diffX = currentX - startX;
+
+                    // Solo activar el deslizamiento una vez por gesto de swipe
+                    if (Math.abs(diffX) > dragThreshold) {
+                        if (diffX < 0) { // Deslizado hacia la izquierda
+                            goToSlide(currentIndex + 1);
+                        } else { // Deslizado hacia la derecha
+                            goToSlide(currentIndex - 1);
+                        }
+                        isDragging = false; // Evita múltiples deslizamientos de un solo arrastre largo
+                        startX = currentX; // Reinicia startX para evitar que se vuelva a activar inmediatamente si se sigue arrastrando
+                    }
+                });
+
+                carouselWrapper.addEventListener("touchend", () => {
+                    isDragging = false;
+                    startAutoSlide(); // Reanudar auto-slide después de la interacción
+                });
+
+                // Añadir touchcancel para mayor robustez (por si el toque se interrumpe)
+                carouselWrapper.addEventListener("touchcancel", () => {
+                    isDragging = false;
+                    startAutoSlide();
+                });
+            }
+
+            // Configuración inicial al cargar la página y en cada redimensionamiento
+            const resizeObserver = new ResizeObserver(() => {
+                if (carouselWrapper && carousel) {
+                    updateCarousel(); // Recalcular posición y ancho en cada redimensionamiento
+                }
+            });
+            resizeObserver.observe(carouselWrapper); // Observa el contenedor principal para cambios de tamaño
+
+            // Llamada inicial para establecer el carrusel
+            if (carousel && items.length > 0) {
+                updateCarousel(); // Mostrar la primera diapositiva y activar el primer indicador
+                startAutoSlide(); // Iniciar el auto-deslizamiento
+            }
+        }); // Fin de DOMContentLoaded
 
         // Inicializar la visualización del carrito al cargar la página
         updateCartDisplay();

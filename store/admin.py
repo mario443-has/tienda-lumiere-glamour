@@ -1,6 +1,6 @@
 from django.contrib import admin
 # Asegúrate de que todos estos modelos estén importados correctamente desde tu models.py
-from .models import Categoria, SubCategoria, Producto, Variacion, MenuItem, SiteSetting, ProductImage
+from .models import Categoria, SubCategoria, Producto, Variacion, MenuItem, SiteSetting, ProductImage, Anuncio
 
 # Inline para ProductImage: permite añadir y editar imágenes de un producto
 # directamente desde la página de edición del producto en el admin.
@@ -71,3 +71,13 @@ class SiteSettingAdmin(admin.ModelAdmin):
     list_display = ('key', 'value')
     list_editable = ('value',) # Permite editar el valor directamente desde la lista
     search_fields = ('key',) # Mantenemos tu campo de búsqueda
+
+# NUEVO: Admin para el modelo Anuncio
+@admin.register(Anuncio)
+class AnuncioAdmin(admin.ModelAdmin):
+    list_display_links = ('fecha_creacion',)
+    list_display = ('is_active', 'order', 'url', 'fecha_creacion')
+    list_filter = ('is_active',)
+    list_editable = ('is_active', 'order', 'url') # Permite editar estos campos directamente en la lista
+    date_hierarchy = 'fecha_creacion' # Para navegación por fechas en el admin
+    fields = ('imagen', 'url', 'is_active', 'order')  # ✅ Solo muestra estos campos

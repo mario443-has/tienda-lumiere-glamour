@@ -132,3 +132,23 @@ class SiteSetting(models.Model):
 
     def __str__(self):
         return f"{self.key}: {self.value}"
+    
+# NUEVO MODELO: Anuncio
+class Anuncio(models.Model):
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True, null=True)
+    imagen = models.ImageField(upload_to='anuncios/') # Carpeta para las imágenes de anuncios
+    url = models.URLField(max_length=200, blank=True, null=True, help_text="URL a la que redirige el anuncio (opcional)")
+    is_active = models.BooleanField(default=True, help_text="¿Está activo este anuncio?")
+    order = models.IntegerField(default=0, help_text="Orden de visualización en el carrusel")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    ultima_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Anuncio"
+        verbose_name_plural = "Anuncios"
+        ordering = ['order', '-fecha_creacion'] # Ordena por orden y luego por fecha de creación
+
+    def __str__(self):
+        return self.titulo
+

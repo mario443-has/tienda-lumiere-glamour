@@ -103,3 +103,6 @@ LOGIN_REDIRECT_URL = '/'
 
 # CKEditor
 CKEDITOR_UPLOAD_PATH = "uploads/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+

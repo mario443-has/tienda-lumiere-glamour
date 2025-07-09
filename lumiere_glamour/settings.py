@@ -1,16 +1,18 @@
 import os
 from pathlib import Path
 
-# BASE_DIR: carpeta base del proyecto
+# BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Clave secreta del proyecto (cámbiala cuando subas a producción)
-SECRET_KEY = 'django-insecure-clave_secreta_demo'
+# SECRET_KEY para producción (usa variable de entorno en Render)
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-clave_secreta_demo")
 
-# Modo debug (True para desarrollo, False para producción)
-DEBUG = True
+# DEBUG controlado por entorno
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS
+RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+ALLOWED_HOSTS = [RENDER_HOSTNAME] if RENDER_HOSTNAME else ['127.0.0.1']
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
@@ -23,12 +25,12 @@ INSTALLED_APPS = [
     'store',
     'ckeditor',
     'ckeditor_uploader',
-    # Tu app de tienda
 ]
 
-# Middleware necesario
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise debe ir justo después de SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,7 +60,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'lumiere_glamour.wsgi.application'
 ASGI_APPLICATION = 'lumiere_glamour.asgi.application'
 
-# Base de datos SQLite (local)
+# Base de datos SQLite (Render puede usar PostgreSQL si prefieres)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -66,7 +68,7 @@ DATABASES = {
     }
 }
 
-# Validadores de contraseña
+# Validadores de contraseñas
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -76,27 +78,28 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Idioma y zona horaria
+# Zona horaria y lenguaje
 LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
-# Archivos estáticos (CSS, JS)
+# Archivos estáticos
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Necesario para Render
 
-
-# Archivos subidos por el usuario (imágenes, etc.)
+# Archivos multimedia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Seguridad para producción en Render
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # Redirección tras login (opcional)
 LOGIN_REDIRECT_URL = '/'
 
-import os
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-CKEDITOR_UPLOAD_PATH = "uploads/" # Donde se guardarán las imágenes subidas por CKEditor
+# CKEditor
+CKEDITOR_UPLOAD_PATH = "uploads/"

@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'store',
     'ckeditor',
     'ckeditor_uploader',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 # Middleware
@@ -90,8 +92,13 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Necesario para Render
 
 # Archivos multimedia
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'diufiaga4',
+    'API_KEY': '939421387286463',
+    'API_SECRET': 'vxfGm02h2pUNwmxKj84BKS3Apsk',
+}
 
 # Seguridad para producción en Render
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

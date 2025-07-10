@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: lumiere-glamour
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn lumiere_glamour.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: lumiere_glamour.settings
+      - key: SECRET_KEY
+        value: s3cr3t_k3y_lumiere_2025
+      - key: ALLOWED_HOSTS
+        value: .onrender.com

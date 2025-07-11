@@ -92,17 +92,16 @@ class Variacion(models.Model):
     nombre = models.CharField(max_length=100)
     valor = models.CharField(max_length=100)
     color = models.CharField(max_length=50, blank=True, null=True)
-    color_hex = models.CharField(max_length=7, blank=True, null=True, help_text="Código HEX del color (ej. #FF0000)") # ✅ Añadido
+    color_hex = models.CharField(max_length=7, blank=True, null=True, help_text="Código HEX del color (ej. #FF0000)")
     tono = models.CharField(max_length=50, blank=True, null=True)
     presentacion = models.CharField(max_length=50, blank=True, null=True)
-    imagen = CloudinaryField('imagen_variacion', blank=True, null=True, help_text="Imagen específica para esta variación") # ✅ Añadido
-    price_override = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Opcional: Precio para esta variación. Si está vacío, usa el precio del producto principal.") # ✅ Añadido
+    imagen = CloudinaryField('imagen_variacion', blank=True, null=True, help_text="Imagen específica para esta variación")
+    price_override = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Opcional: Precio para esta variación. Si está vacío, usa el precio del producto principal.")
 
     class Meta:
         unique_together = ('producto', 'nombre', 'valor')
         verbose_name = "Variación"
         verbose_name_plural = "Variaciones"
-        # Puedes añadir ordering aquí si quieres un orden por defecto para las variaciones
 
     def __str__(self):
         parts = [self.producto.nombre]
@@ -115,8 +114,8 @@ class Variacion(models.Model):
     @property
     def precio_final(self):
         # Calcula el precio final de la variación, aplicando el descuento del producto principal
-        base_price = self.price_override if self.price_override is not None else self.product.precio
-        return base_price * (1 - self.product.descuento)
+        base_price = self.price_override if self.price_override is not None else self.producto.precio # CORREGIDO: self.product.precio a self.producto.precio
+        return base_price * (1 - self.producto.descuento)
 
 
 class MenuItem(models.Model):

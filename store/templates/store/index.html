@@ -327,7 +327,7 @@
           <!-- Ejemplos de enlaces si no se configuran desde el admin -->
           <li>
             <a
-              href="{% url 'home' %}?ofertas=true"
+              href="{% url 'home' %}"
               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
               >Ofertas</a
             >
@@ -462,7 +462,7 @@
         >
         {% endfor %} {% else %}
         <a
-          href="{% url 'home' %}?ofertas=true"
+          href="{% url 'home' %}"
           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600"
           >Ofertas</a
 
@@ -563,8 +563,7 @@
         id="carousel-indicators"
         class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20"
       >
-        {% for anuncio in anuncios %} {# forloop.counter0 es el índice basado en
-        0 #}
+        {% for anuncio in anuncios %}
         <div
           class="indicator w-3 h-3 bg-white rounded-full cursor-pointer opacity-50 hover:opacity-100 transition"
           data-slide-to="{{ forloop.counter0 }}"
@@ -622,7 +621,15 @@
         {# La imagen inicial será la del primer variante o la imagen principal del producto #}
         <img
           id="product-image-{{ producto.id }}"
-          src="{% if producto.variantes.all %}{{ producto.variantes.first.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+          src="
+            {% if producto.variaciones.all and producto.variaciones.first.imagen %}
+              {{ producto.variaciones.first.imagen.url }}
+            {% elif producto.imagen %}
+              {{ producto.imagen.url }}
+            {% else %}
+              {% static 'img/sin_imagen.jpg' %}
+            {% endif %}
+          "
           alt="{{ producto.nombre }}"
           class="w-full h-48 object-cover"
         />
@@ -636,7 +643,7 @@
         <div class="flex justify-between items-center mb-4">
           {# El precio inicial será el del primer variante o el precio principal del producto #}
           <span id="product-price-{{ producto.id }}" class="text-2xl font-bold text-pink-600">
-            ${% if producto.variantes.all %}{{ producto.variantes.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}
+            ${% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}
           </span>
           {% if producto.descuento > 0 %}
           <span class="text-sm text-gray-500 line-through">
@@ -646,10 +653,11 @@
         </div>
 
         <!-- Sección de selección de color (Variantes) -->
+        {% if producto.variaciones.all %} {# Solo muestra esta sección si hay variaciones #}
         <div class="mb-4">
             <p class="text-gray-700 text-sm mb-2">Color:</p>
             <div class="flex items-center space-x-2">
-                {% for variante in producto.variantes.all %}
+                {% for variante in producto.variaciones.all %}
                     {% if forloop.counter0 < 3 %} {# Mostrar solo los primeros 3 colores #}
                     <div
                         class="color-option {% if forloop.first %}selected{% endif %}"
@@ -664,13 +672,11 @@
                         <i class="fas fa-plus"></i> {# Ícono de Font Awesome #}
                     </div>
                     {% endif %}
-                {% empty %}
-                <p class="text-gray-500 text-xs">No hay colores disponibles.</p>
                 {% endfor %}
             </div>
             {# Contenedor para los colores adicionales, oculto por defecto #}
             <div id="additional-colors-{{ producto.id }}" class="additional-colors-container flex-wrap space-x-2 hidden">
-                {% for variante in producto.variantes.all %}
+                {% for variante in producto.variaciones.all %}
                     {% if forloop.counter0 >= 3 %} {# Mostrar los colores a partir del 4to #}
                     <div
                         class="color-option"
@@ -684,14 +690,15 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
         <button
           class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
           data-product-id="{{ producto.id }}"
           data-product-name="{{ producto.nombre }}"
-          data-product-price="{% if producto.variantes.all %}{{ producto.variantes.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
-          data-selected-color="{% if producto.variantes.all %}{{ producto.variantes.first.color_name }}{% endif %}"
-          data-selected-variant-id="{% if producto.variantes.all %}{{ producto.variantes.first.id }}{% endif %}" {# ID de la variante seleccionada #}
+          data-product-price="{% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
+          data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color_name }}{% else %}N/A{% endif %}" {# Añadido 'N/A' si no hay variaciones #}
+          data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Usa product.id si no hay variaciones #}
         >
           <i class="fas fa-cart-plus"></i>
           <span>Agregar al Carrito</span>

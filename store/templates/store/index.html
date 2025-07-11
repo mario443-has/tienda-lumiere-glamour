@@ -50,9 +50,20 @@
       #announcement-carousel-wrapper {
         position: relative;
         width: 100%;
-        height: 20rem; /* ajusta si quieres una altura diferente */
+        height: 12rem; /* Altura para móviles */
         overflow: hidden;
       }
+      @media (min-width: 640px) { /* sm breakpoint */
+        #announcement-carousel-wrapper {
+          height: 16rem; /* Altura para tablets */
+        }
+      }
+      @media (min-width: 768px) { /* md breakpoint */
+        #announcement-carousel-wrapper {
+          height: 20rem; /* Altura para escritorio */
+        }
+      }
+
       #announcement-carousel {
         display: flex;
         width: 100%;
@@ -69,6 +80,49 @@
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+      /* Estilos para los círculos de color */
+      .color-option {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s ease-in-out;
+      }
+      .color-option.selected {
+        border-color: #f687b3; /* Un rosa más oscuro para el borde seleccionado */
+        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f687b3; /* Borde doble para resaltar */
+      }
+      .color-option:hover {
+        transform: scale(1.1);
+      }
+      /* Estilo para el botón de "más colores" */
+      .more-colors-button {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #f687b3; /* Color de fondo rosa */
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+      }
+      .more-colors-button:hover {
+        background-color: #d85c8e; /* Rosa más oscuro al pasar el ratón */
+      }
+      /* Contenedor para colores adicionales */
+      .additional-colors-container {
+        display: none; /* Oculto por defecto */
+        flex-wrap: wrap; /* Permite que los colores se envuelvan si hay muchos */
+        gap: 8px; /* Espacio entre los círculos de color */
+        margin-top: 8px; /* Espacio superior para separar de los primeros 3 */
+      }
+      .additional-colors-container.visible {
+        display: flex; /* Visible cuando se activa */
       }
     </style>
 
@@ -106,7 +160,7 @@
           <img
             src="{% static 'img/logo.png' %}"
             alt="Lumière Glamour Logo"
-            class="h-20 w-auto rounded-full shadow-md"
+            class="h-16 sm:h-20 w-auto rounded-full shadow-md" {# Ajuste de tamaño para móvil #}
           />
           <span
             class="text-3xl font-great-vibes text-pink-600 hover:text-pink-700 transition duration-300"
@@ -217,7 +271,7 @@
                   {% if categoria.subcategorias.all %}
                   <div class="relative group/sub">
                     <a
-                      href="{% url 'home' %}?categoria={{ categoria.id }}"
+                      href="{% url 'home' %}"
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
                     >
                       {{ categoria.nombre }}
@@ -384,7 +438,7 @@
               <div class="hidden pl-4 py-1 bg-gray-100">
                 {% for subcategoria in categoria.subcategorias.all %}
                 <a
-                  href="{% url 'home' %}?subcategoria={{ subcategoria.id }}"
+                  href="{% url 'home' %}"
                   class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-200 hover:text-pink-600"
                   >{{ subcategoria.nombre }}</a
                 >
@@ -411,6 +465,7 @@
           href="{% url 'home' %}?ofertas=true"
           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600"
           >Ofertas</a
+
         >
         <a
           href="#"
@@ -508,7 +563,8 @@
         id="carousel-indicators"
         class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20"
       >
-        {% for anuncio in anuncios %} 
+        {% for anuncio in anuncios %} {# forloop.counter0 es el índice basado en
+        0 #}
         <div
           class="indicator w-3 h-3 bg-white rounded-full cursor-pointer opacity-50 hover:opacity-100 transition"
           data-slide-to="{{ forloop.counter0 }}"
@@ -552,6 +608,7 @@
     {% for producto in productos %}
     <div
       class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative"
+      data-product-id="{{ producto.id }}" {# Añadido para facilitar la selección de elementos #}
     >
       {% if producto.descuento > 0 %}
       <div
@@ -562,31 +619,24 @@
       {% endif %}
 
       <a href="{% url 'producto_detalle' producto.id %}">
-        {% if producto.imagen %}
+        {# La imagen inicial será la del primer variante o la imagen principal del producto #}
         <img
-          src="{{ producto.imagen.url }}"
+          id="product-image-{{ producto.id }}"
+          src="{% if producto.variantes.all %}{{ producto.variantes.first.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
           alt="{{ producto.nombre }}"
           class="w-full h-48 object-cover"
         />
-        {% else %}
-        <img
-          src="{% static 'img/sin_imagen.jpg' %}"
-          alt="Sin imagen"
-          class="w-full h-48 object-cover"
-        />
-        {% endif %}
       </a>
 
       <div class="p-5">
         <h3 class="text-xl font-semibold text-gray-900 mb-2">
           {{ producto.nombre }}
         </h3>
-        <p class="text-gray-600 text-sm mb-3">
-          {{ producto.descripcion|default_if_none:""|truncatechars:100 }}
-        </p>
+        {# Eliminada la descripción del producto #}
         <div class="flex justify-between items-center mb-4">
-          <span class="text-2xl font-bold text-pink-600">
-            ${{ producto.get_precio_final|floatformat:0 }}
+          {# El precio inicial será el del primer variante o el precio principal del producto #}
+          <span id="product-price-{{ producto.id }}" class="text-2xl font-bold text-pink-600">
+            ${% if producto.variantes.all %}{{ producto.variantes.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}
           </span>
           {% if producto.descuento > 0 %}
           <span class="text-sm text-gray-500 line-through">
@@ -595,11 +645,53 @@
           {% endif %}
         </div>
 
+        <!-- Sección de selección de color (Variantes) -->
+        <div class="mb-4">
+            <p class="text-gray-700 text-sm mb-2">Color:</p>
+            <div class="flex items-center space-x-2">
+                {% for variante in producto.variantes.all %}
+                    {% if forloop.counter0 < 3 %} {# Mostrar solo los primeros 3 colores #}
+                    <div
+                        class="color-option {% if forloop.first %}selected{% endif %}"
+                        style="background-color: {{ variante.color_hex }};"
+                        data-variant-id="{{ variante.id }}"
+                        data-color-name="{{ variante.color_name }}"
+                        data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                        data-variant-price="{{ variante.precio_final|floatformat:0 }}"
+                    ></div>
+                    {% elif forloop.counter0 == 3 %} {# Mostrar el botón '+' si hay más de 3 colores #}
+                    <div class="more-colors-button" data-product-id="{{ producto.id }}">
+                        <i class="fas fa-plus"></i> {# Ícono de Font Awesome #}
+                    </div>
+                    {% endif %}
+                {% empty %}
+                <p class="text-gray-500 text-xs">No hay colores disponibles.</p>
+                {% endfor %}
+            </div>
+            {# Contenedor para los colores adicionales, oculto por defecto #}
+            <div id="additional-colors-{{ producto.id }}" class="additional-colors-container flex-wrap space-x-2 hidden">
+                {% for variante in producto.variantes.all %}
+                    {% if forloop.counter0 >= 3 %} {# Mostrar los colores a partir del 4to #}
+                    <div
+                        class="color-option"
+                        style="background-color: {{ variante.color_hex }};"
+                        data-variant-id="{{ variante.id }}"
+                        data-color-name="{{ variante.color_name }}"
+                        data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                        data-variant-price="{{ variante.precio_final|floatformat:0 }}"
+                    ></div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
         <button
           class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
           data-product-id="{{ producto.id }}"
           data-product-name="{{ producto.nombre }}"
-          data-product-price="{{ producto.get_precio_final|floatformat:0 }}"
+          data-product-price="{% if producto.variantes.all %}{{ producto.variantes.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
+          data-selected-color="{% if producto.variantes.all %}{{ producto.variantes.first.color_name }}{% endif %}"
+          data-selected-variant-id="{% if producto.variantes.all %}{{ producto.variantes.first.id }}{% endif %}" {# ID de la variante seleccionada #}
         >
           <i class="fas fa-cart-plus"></i>
           <span>Agregar al Carrito</span>
@@ -973,9 +1065,10 @@
                             <p class="text-gray-600 text-sm">$${parseFloat(
                               item.price
                             ).toFixed(2)}</p>
+                            ${item.color ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
                         </div>
                         <button class="text-red-500 hover:text-red-700 ml-4" onclick="removeItemFromCart('${
-                          item.id
+                          item.variantId
                         }')">
                             <i class="fas fa-trash-alt"></i>
                         </button>
@@ -987,16 +1080,15 @@
         cartTotalSpan.textContent = `$${total.toFixed(2)}`;
       }
 
-      // Función para eliminar un ítem del carrito
-      function removeItemFromCart(productIdToRemove) {
-        // Encuentra el índice del primer producto con el ID coincidente
+      // Función para eliminar un ítem del carrito (ahora por variantId)
+      function removeItemFromCart(variantIdToRemove) {
         const indexToRemove = cart.findIndex(
-          (item) => item.id === productIdToRemove
+          (item) => item.variantId === variantIdToRemove
         );
         if (indexToRemove > -1) {
-          cart.splice(indexToRemove, 1); // Elimina solo un elemento
-          console.log("Producto eliminado del carrito."); // Reemplazado alert con console.log
-          updateCartDisplay(); // Actualiza la visualización del carrito
+          cart.splice(indexToRemove, 1);
+          console.log("Producto (variante) eliminado del carrito.");
+          updateCartDisplay();
         }
       }
 
@@ -1005,13 +1097,20 @@
         button.addEventListener("click", (event) => {
           const productId = event.currentTarget.dataset.productId;
           const productName = event.currentTarget.dataset.productName;
-          const productPrice = event.currentTarget.dataset.productPrice;
+          const productPrice = event.currentTarget.dataset.productPrice; // Precio actual mostrado
+          const selectedColor = event.currentTarget.dataset.selectedColor; // Color actual mostrado
+          const selectedVariantId = event.currentTarget.dataset.selectedVariantId; // ID de la variante seleccionada
 
-          cart.push({ id: productId, name: productName, price: productPrice });
-
-          console.log(`"${productName}" ha sido agregado al carrito.`); // Reemplazado alert con console.log
-
-          updateCartDisplay(); // Actualiza el contador del carrito
+          // Si no hay una variante seleccionada (ej. producto sin variantes), usa los datos del producto base
+          if (!selectedVariantId) {
+              cart.push({ id: productId, name: productName, price: productPrice, color: 'N/A', variantId: productId });
+              console.log(`"${productName}" ha sido agregado al carrito.`);
+          } else {
+              cart.push({ id: productId, name: productName, price: productPrice, color: selectedColor, variantId: selectedVariantId });
+              console.log(`"${productName}" (Variante ID: ${selectedVariantId}, Color: ${selectedColor}) ha sido agregado al carrito.`);
+          }
+          
+          updateCartDisplay();
         });
       });
 
@@ -1020,17 +1119,21 @@
         if (cart.length === 0) {
           console.log(
             "Tu carrito está vacío. Agrega productos antes de comprar."
-          ); // Reemplazado alert con console.log
+          );
           return;
         }
 
-        const whatsappNumber = '{{ whatsapp_number|default:"573007221200" }}'; // Usa el valor de Django o un default
+        const whatsappNumber = '{{ whatsapp_number|default:"573007221200" }}';
         let message =
           "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
         let total = 0;
 
         cart.forEach((item, index) => {
-          message += `${index + 1}. ${item.name} - $${item.price}\n`;
+          message += `${index + 1}. ${item.name}`;
+          if (item.color && item.color !== 'N/A') {
+              message += ` (Color: ${item.color})`;
+          }
+          message += ` - $${item.price}\n`;
           total += parseFloat(item.price);
         });
 
@@ -1048,13 +1151,13 @@
         updateCartDisplay();
         console.log(
           "Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra."
-        ); // Reemplazado alert con console.log
-        closeCartModal(); // Cierra el modal después de enviar
+        );
+        closeCartModal();
       }
 
       // Asignar la función a los botones de WhatsApp
-      buyWhatsappButton.addEventListener("click", sendCartToWhatsApp); // Botón flotante
-      modalBuyWhatsappButton.addEventListener("click", sendCartToWhatsApp); // Botón dentro del modal
+      buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
+      modalBuyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
 
       // Slider horizontal de productos
       const slider = document.getElementById("slider");
@@ -1062,12 +1165,11 @@
       const slideRight = document.getElementById("slideRight");
 
       if (slider) {
-        // Asegurarse de que el slider exista
         slideLeft.addEventListener("click", () => {
-          slider.scrollLeft -= 300; // Desplaza 300px a la izquierda
+          slider.scrollLeft -= 300;
         });
         slideRight.addEventListener("click", () => {
-          slider.scrollLeft += 300; // Desplaza 300px a la derecha
+          slider.scrollLeft += 300;
         });
       }
 
@@ -1092,7 +1194,7 @@
         let currentIndex = 0;
         let totalSlides = items.length;
         let autoSlideInterval;
-        let dragThreshold = 50; // Píxeles para considerar un swipe
+        let dragThreshold = 50;
 
         function updateCarousel() {
           if (!carousel || totalSlides === 0) return;
@@ -1100,7 +1202,6 @@
           const offset = -currentIndex * 100;
           carousel.style.transform = `translateX(${offset}%)`;
 
-          // Actualizar indicadores de puntos
           indicators.forEach((dot, i) => {
             dot.classList.toggle("opacity-100", i === currentIndex);
             dot.classList.toggle("opacity-50", i !== currentIndex);
@@ -1108,18 +1209,16 @@
         }
 
         function goToSlide(index) {
-          // Asegura que el índice esté dentro de los límites y envuelve si es necesario
           currentIndex = (index + totalSlides) % totalSlides;
           updateCarousel();
         }
 
         function startAutoSlide() {
-          stopAutoSlide(); // Limpia cualquier intervalo existente
+          stopAutoSlide();
           if (totalSlides > 1) {
-            // Solo auto-desliza si hay más de una diapositiva
             autoSlideInterval = setInterval(() => {
-              goToSlide(currentIndex + 1); // goToSlide maneja el módulo
-            }, 5000); // Cambia de slide cada 5 segundos
+              goToSlide(currentIndex + 1);
+            }, 5000);
           }
         }
 
@@ -1127,44 +1226,40 @@
           clearInterval(autoSlideInterval);
         }
 
-        // Event listeners para los botones de navegación del carrusel
         if (prevBtn) {
           prevBtn.addEventListener("click", () => {
-            stopAutoSlide(); // Detener auto-slide al interactuar manualmente
+            stopAutoSlide();
             goToSlide(currentIndex - 1);
-            startAutoSlide(); // Reiniciar auto-slide después de la interacción
+            startAutoSlide();
           });
         }
 
         if (nextBtn) {
           nextBtn.addEventListener("click", () => {
-            stopAutoSlide(); // Detener auto-slide al interactuar manualmente
+            stopAutoSlide();
             goToSlide(currentIndex + 1);
-            startAutoSlide(); // Reiniciar auto-slide después de la interacción
+            startAutoSlide();
           });
         }
 
-        // Event listeners para los indicadores de puntos
         if (indicatorsContainer) {
           indicators.forEach((dot, i) => {
             dot.addEventListener("click", () => {
-              stopAutoSlide(); // Detener auto-slide al interactuar manualmente
+              stopAutoSlide();
               goToSlide(i);
-              startAutoSlide(); // Reiniciar auto-slide después de la interacción
+              startAutoSlide();
             });
           });
         }
 
-        // Swipe móvil
         let startX = 0;
         let isDragging = false;
 
         if (carouselWrapper) {
-          // Asegurarse de que el carouselWrapper exista para los eventos táctiles
           carouselWrapper.addEventListener("touchstart", (e) => {
             startX = e.touches[0].clientX;
             isDragging = true;
-            stopAutoSlide(); // Detener auto-slide cuando el usuario comienza a interactuar
+            stopAutoSlide();
           });
 
           carouselWrapper.addEventListener("touchmove", (e) => {
@@ -1172,45 +1267,95 @@
             const currentX = e.touches[0].clientX;
             const diffX = currentX - startX;
 
-            // Solo activar el deslizamiento una vez por gesto de swipe
             if (Math.abs(diffX) > dragThreshold) {
               if (diffX < 0) {
-                // Deslizado hacia la izquierda
                 goToSlide(currentIndex + 1);
               } else {
-                // Deslizado hacia la derecha
                 goToSlide(currentIndex - 1);
               }
-              isDragging = false; // Evita múltiples deslizamientos de un solo arrastre largo
-              startX = currentX; // Reinicia startX para evitar que se vuelva a activar inmediatamente si se sigue arrastrando
+              isDragging = false;
+              startX = currentX;
             }
           });
 
           carouselWrapper.addEventListener("touchend", () => {
             isDragging = false;
-            startAutoSlide(); // Reanudar auto-slide después de la interacción
+            startAutoSlide();
           });
 
-          // Añadir touchcancel para mayor robustez (por si el toque se interrumpe)
           carouselWrapper.addEventListener("touchcancel", () => {
             isDragging = false;
             startAutoSlide();
           });
         }
 
-        // Configuración inicial al cargar la página y en cada redimensionamiento
         const resizeObserver = new ResizeObserver(() => {
           if (carouselWrapper && carousel) {
-            updateCarousel(); // Recalcular posición y ancho en cada redimensionamiento
+            updateCarousel();
           }
         });
-        resizeObserver.observe(carouselWrapper); // Observa el contenedor principal para cambios de tamaño
+        resizeObserver.observe(carouselWrapper);
 
-        // Llamada inicial para establecer el carrusel
         if (carousel && items.length > 0) {
-          updateCarousel(); // Mostrar la primera diapositiva y activar el primer indicador
-          startAutoSlide(); // Iniciar el auto-deslizamiento
+          updateCarousel();
+          startAutoSlide();
         }
+
+        // Lógica de selección de color para variantes de producto
+        document.querySelectorAll('.color-option').forEach(colorOption => {
+            colorOption.addEventListener('click', function() {
+                const parentProductDiv = this.closest('[data-product-id]'); // Encuentra el contenedor del producto
+                const productId = parentProductDiv.dataset.productId;
+
+                const selectedVariantId = this.dataset.variantId;
+                const selectedColorName = this.dataset.colorName;
+                const selectedVariantImage = this.dataset.variantImage;
+                const selectedVariantPrice = this.dataset.variantPrice;
+
+                // Actualizar la imagen del producto
+                const productImage = parentProductDiv.querySelector(`#product-image-${productId}`);
+                if (productImage) {
+                    productImage.src = selectedVariantImage;
+                }
+
+                // Actualizar el precio del producto
+                const productPriceSpan = parentProductDiv.querySelector(`#product-price-${productId}`);
+                if (productPriceSpan) {
+                    productPriceSpan.textContent = `$${selectedVariantPrice}`;
+                }
+
+                // Remover la clase 'selected' de todas las opciones de color para este producto
+                parentProductDiv.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+
+                // Añadir la clase 'selected' a la opción de color clickeada
+                this.classList.add('selected');
+
+                // Actualizar los data-attributes del botón "Agregar al Carrito"
+                const addToCartButton = parentProductDiv.querySelector('.add-to-cart-button');
+                if (addToCartButton) {
+                    addToCartButton.dataset.selectedVariantId = selectedVariantId;
+                    addToCartButton.dataset.productPrice = selectedVariantPrice; // Actualiza el precio en el botón
+                    addToCartButton.dataset.selectedColor = selectedColorName; // Actualiza el color en el botón
+                }
+            });
+        });
+
+        // Lógica para el botón de "más colores"
+        document.querySelectorAll('.more-colors-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                const additionalColorsContainer = document.getElementById(`additional-colors-${productId}`);
+                if (additionalColorsContainer) {
+                    additionalColorsContainer.classList.toggle('hidden');
+                    additionalColorsContainer.classList.toggle('visible');
+                    // Opcional: Cambiar el texto del botón de '+' a '-' o un icono
+                    // this.innerHTML = additionalColorsContainer.classList.contains('visible') ? '<i class="fas fa-minus"></i>' : '<i class="fas fa-plus"></i>';
+                }
+            });
+        });
+
       }); // Fin de DOMContentLoaded
 
       // Inicializar la visualización del carrito al cargar la página

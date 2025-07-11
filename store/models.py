@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from decimal import Decimal
 from ckeditor.fields import RichTextField
-from cloudinary.models import CloudinaryField  # ✅ Importa CloudinaryField
+from cloudinary.models import CloudinaryField
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -45,7 +45,7 @@ class Producto(models.Model):
     long_description = RichTextField(blank=True, null=True, verbose_name="Descripción Larga (con formato)")
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0.00, help_text="Porcentaje de descuento (ej. 0.10 para 10%)")
-    imagen = CloudinaryField('imagen', blank=True, null=True)  # ✅ CloudinaryField
+    imagen = CloudinaryField('imagen', blank=True, null=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
     subcategoria = models.ForeignKey(SubCategoria, on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -75,7 +75,7 @@ class Producto(models.Model):
 
 class ProductImage(models.Model):
     producto = models.ForeignKey(Producto, related_name='images', on_delete=models.CASCADE)
-    image = CloudinaryField('imagen', blank=True, null=True)  # ✅ CloudinaryField
+    image = CloudinaryField('imagen', blank=True, null=True)
     alt_text = models.CharField(max_length=255, blank=True, help_text="Texto alternativo para la imagen")
     order = models.IntegerField(default=0, help_text="Orden de visualización de la imagen")
 
@@ -92,16 +92,32 @@ class Variacion(models.Model):
     nombre = models.CharField(max_length=100)
     valor = models.CharField(max_length=100)
     color = models.CharField(max_length=50, blank=True, null=True)
+    color_hex = models.CharField(max_length=7, blank=True, null=True, help_text="Código HEX del color (ej. #FF0000)") # ✅ Añadido
     tono = models.CharField(max_length=50, blank=True, null=True)
     presentacion = models.CharField(max_length=50, blank=True, null=True)
+    imagen = CloudinaryField('imagen_variacion', blank=True, null=True, help_text="Imagen específica para esta variación") # ✅ Añadido
+    price_override = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Opcional: Precio para esta variación. Si está vacío, usa el precio del producto principal.") # ✅ Añadido
 
     class Meta:
         unique_together = ('producto', 'nombre', 'valor')
         verbose_name = "Variación"
         verbose_name_plural = "Variaciones"
+        # Puedes añadir ordering aquí si quieres un orden por defecto para las variaciones
 
     def __str__(self):
-        return f"{self.producto.nombre} - {self.nombre}: {self.valor}"
+        parts = [self.producto.nombre]
+        if self.nombre: parts.append(self.nombre)
+        if self.color: parts.append(self.color)
+        if self.tono: parts.append(self.tono)
+        if self.presentacion: parts.append(self.presentacion)
+        return " - ".join(parts)
+
+    @property
+    def precio_final(self):
+        # Calcula el precio final de la variación, aplicando el descuento del producto principal
+        base_price = self.price_override if self.price_override is not None else self.product.precio
+        return base_price * (1 - self.product.descuento)
+
 
 class MenuItem(models.Model):
     nombre = models.CharField(max_length=100)
@@ -130,7 +146,7 @@ class SiteSetting(models.Model):
 class Anuncio(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True, null=True)
-    imagen = CloudinaryField('imagen', blank=True, null=True)  # ✅ CloudinaryField
+    imagen = CloudinaryField('imagen', blank=True, null=True)
     url = models.URLField(max_length=200, blank=True, null=True, help_text="URL a la que redirige el anuncio (opcional)")
     is_active = models.BooleanField(default=True, help_text="¿Está activo este anuncio?")
     order = models.IntegerField(default=0, help_text="Orden de visualización en el carrusel")

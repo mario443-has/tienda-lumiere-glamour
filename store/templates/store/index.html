@@ -180,19 +180,20 @@
       </div>
 
       <!-- Menú de Navegación Principal (Desktop) -->
-      <nav class="hidden md:flex justify-center py-2 bg-gray-50 shadow-inner">
-        <ul class="flex space-x-8">
+      <nav class="hidden md:flex justify-center py-2 bg-white shadow-inner">
+        <ul class="flex items-center space-x-6 lg:space-x-8">
+          {# Ajustado el espaciado #}
           <li>
             <a
               href="{% url 'home' %}"
-              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
+              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 px-3 py-2 rounded-md"
               >Inicio</a
             >
           </li>
 
           <li class="relative group">
             <button
-              class="flex items-center text-gray-700 hover:text-pink-600 font-medium transition duration-300 focus:outline-none"
+              class="flex items-center text-gray-700 hover:text-pink-600 font-medium transition duration-300 focus:outline-none px-3 py-2 rounded-md"
             >
               Categorías
               <svg
@@ -259,46 +260,63 @@
               </div>
             </div>
           </li>
-          <!-- Elementos de menú configurables desde el admin (MenuItem) -->
-          {% if menu_items %} {% for item in menu_items %}
-          <li>
-            <a
-              href="{{ item.url }}"
-              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
-              >{{ item.nombre }}</a
-            >
-          </li>
-          {% endfor %} {% else %}
-          <!-- Ejemplos de enlaces si no se configuran desde el admin -->
+          {# Elementos de menú configurables desde el admin (MenuItem) o ejemplos #}
+          {# He reemplazado el bloque 'else' con los elementos de la imagen de referencia #}
           <li>
             <a
               href="{% url 'home' %}?ofertas=true"
-              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
+              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 px-3 py-2 rounded-md"
               >Ofertas</a
             >
           </li>
           <li>
             <a
               href="#"
-              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
-              >Contacto</a
+              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 px-3 py-2 rounded-md"
+              >Catálogos</a
             >
           </li>
           <li>
             <a
               href="#"
-              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
-              >Cibermake</a
+              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 px-3 py-2 rounded-md"
+              >Tiendas</a
             >
           </li>
           <li>
             <a
               href="#"
-              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300"
-              >Blog</a
+              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 px-3 py-2 rounded-md"
+              >Nueva colección</a
             >
           </li>
-          {% endif %}
+          <li>
+            <a
+              href="#"
+              class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 px-3 py-2 rounded-md"
+              >Compra flash</a
+            >
+          </li>
+
+          {# Botón "TRENDY LOCURA" #}
+          <li>
+            <a
+              href="#"
+              class="bg-pink-500 text-white font-bold px-4 py-2 rounded-md hover:bg-pink-600 transition duration-300 shadow-md"
+            >
+              TRENDY LOCURA
+            </a>
+          </li>
+          {# Botón "Hazte mayorista →" #}
+          <li>
+            <a
+              href="#"
+              class="bg-purple-600 text-white font-bold px-4 py-2 rounded-md hover:bg-purple-700 transition duration-300 shadow-md flex items-center space-x-2"
+            >
+              <span>Hazte mayorista</span>
+              <i class="fas fa-arrow-right text-sm"></i>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -391,7 +409,7 @@
               </div>
               {% endif %}
             </div>
-            {% empty %}
+            {% empty %} {# CAMBIO A EMPTY #}
             <a href="#" class="block px-4 py-2 text-sm text-gray-500"
               >No hay categorías disponibles.</a
             >
@@ -518,6 +536,32 @@
     </section>
     {% endif %}
 
+    <!-- NUEVA SECCIÓN: Categorías Destacadas (Estilo Circular) -->
+    <section class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-semibold text-center text-gray-900 mb-8">DESCUBRE NUESTROS PRODUCTOS</h2>
+        <h3 class="text-2xl font-medium text-center text-gray-700 mb-8">ELIGE UNA CATEGORÍA</h3>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-6 justify-items-center">
+            {% for categoria in categorias %}
+                <a href="{% url 'home' %}?categoria={{ categoria.id }}" class="flex flex-col items-center group">
+                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-transparent group-hover:border-pink-500 transition-all duration-300 shadow-md group-hover:shadow-lg">
+                        {% if categoria.imagen %}
+                            <img src="{{ categoria.imagen.url }}" alt="{{ categoria.nombre }}" class="w-full h-full object-cover">
+                        {% else %}
+                            {# Placeholder si no hay imagen para la categoría #}
+                            <img src="https://placehold.co/128x128/cccccc/333333?text=Cat" alt="Categoría Placeholder" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <p class="mt-3 text-center text-gray-700 font-medium group-hover:text-pink-600 transition duration-300 text-sm sm:text-base">
+                        {{ categoria.nombre }}
+                    </p>
+                </a>
+            {% empty %}
+                <p class="col-span-full text-center text-gray-500">No hay categorías disponibles.</p>
+            {% endfor %}
+        </div>
+    </section>
+
     <!-- Sección de Productos (MOVIDA ARRIBA) -->
     <main class="container mx-auto px-4 py-8">
       <h2 class="text-3xl font-semibold text-center text-gray-900 mb-8">
@@ -588,11 +632,11 @@
                 </p>
                 <div class="flex justify-between items-center mb-4">
                   <span class="text-2xl font-bold text-pink-600"
-                    >${{ producto.get_precio_final|floatformat:0 }}</span
+                    >${{ producto.get_precio_final|floatformat:"-0" }}</span
                   >
                   {% if producto.descuento > 0 %}
                   <span class="text-sm text-gray-500 line-through"
-                    >${{ producto.precio|floatformat:0 }}</span
+                    >${{ producto.precio|floatformat:"-0" }}</span
                   >
                   {% endif %}
                 </div>
@@ -601,14 +645,14 @@
                   class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
                   data-product-id="{{ producto.id }}"
                   data-product-name="{{ producto.nombre }}"
-                  data-product-price="{{ producto.get_precio_final|floatformat:0 }}"
+                  data-product-price="{{ producto.get_precio_final|floatformat:"-0" }}"
                 >
                   <i class="fas fa-cart-plus"></i>
                   <span>Agregar al Carrito</span>
                 </button>
               </div>
             </div>
-            {% endfor %}
+            {% empty %} {# AHORA USA EMPTY EN LUGAR DE UN ENDFOR EXTRA #}
             <!-- Mensaje si no hay productos -->
             <div
               class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full"
@@ -640,7 +684,7 @@
               </p>
               {% endif %}
             </div>
-            {% endfor %}
+            {% endfor %} {# ESTE ENDFOR CIERRA EL FOR PRINCIPAL Y SU EMPTY #}
           </div>
         </div>
       </div>

@@ -213,49 +213,50 @@
               class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top"
             >
               <div class="py-1">
-                {% for categoria in categorias %} {% if
-                categoria.subcategorias.all %}
-                <div class="relative group/sub">
+                {% for categoria in categorias %}
+                  {% if categoria.subcategorias.all %}
+                  <div class="relative group/sub">
+                    <a
+                      href="{% url 'home' %}?categoria={{ categoria.id }}"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
+                    >
+                      {{ categoria.nombre }}
+                      <svg
+                        class="w-4 h-4 transform rotate-90 group-hover/sub:rotate-0 transition-transform duration-200"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        ></path>
+                      </svg>
+                    </a>
+                    <div
+                      class="absolute left-full top-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform scale-95 group-hover/sub:scale-100 origin-top-left"
+                    >
+                      {% for sub in categoria.subcategorias.all %}
+                      <a
+                        href="{% url 'home' %}?subcategoria={{ sub.id }}"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
+                      >
+                        {{ sub.nombre }}
+                      </a>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  {% else %}
                   <a
                     href="{% url 'home' %}?categoria={{ categoria.id }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
                   >
                     {{ categoria.nombre }}
-                    <svg
-                      class="w-4 h-4 transform rotate-90 group-hover/sub:rotate-0 transition-transform duration-200"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      ></path>
-                    </svg>
                   </a>
-                  <div
-                    class="absolute left-full top-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform scale-95 group-hover/sub:scale-100 origin-top-left"
-                  >
-                    {% for sub in categoria.subcategorias.all %}
-                    <a
-                      href="{% url 'home' %}?subcategoria={{ sub.id }}"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
-                    >
-                      {{ sub.nombre }}
-                    </a>
-                    {% endfor %}
-                  </div>
-                </div>
-                {% else %}
-                <a
-                  href="{% url 'home' %}?categoria={{ categoria.id }}"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
-                >
-                  {{ categoria.nombre }}
-                </a>
-                {% endif %} {% endfor %}
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
           </li>

@@ -588,11 +588,11 @@
                 </p>
                 <div class="flex justify-between items-center mb-4">
                   <span class="text-2xl font-bold text-pink-600"
-                    >${{ producto.get_precio_final|floatformat:"-0" }}</span
+                    >${{ producto.get_precio_final|floatformat:0 }}</span
                   >
                   {% if producto.descuento > 0 %}
                   <span class="text-sm text-gray-500 line-through"
-                    >${{ producto.precio|floatformat:"-0" }}</span
+                    >${{ producto.precio|floatformat:0 }}</span
                   >
                   {% endif %}
                 </div>
@@ -601,7 +601,7 @@
                   class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
                   data-product-id="{{ producto.id }}"
                   data-product-name="{{ producto.nombre }}"
-                  data-product-price="{{ producto.get_precio_final|floatformat:"-0" }}"
+                  data-product-price="{{ producto.get_precio_final|floatformat:0 }}"
                 >
                   <i class="fas fa-cart-plus"></i>
                   <span>Agregar al Carrito</span>

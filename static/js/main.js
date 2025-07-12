@@ -11,6 +11,8 @@ function cargarCarritoLocal() {
     window.cart.forEach(item => {
         item.quantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
         item.price = parseFloat(item.price) || 0; // Asegurar que el precio sea un número
+        // Asegurar que imageUrl siempre sea una cadena válida, usando el placeholder si es necesario
+        item.imageUrl = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
     });
   } else {
     window.cart = [];
@@ -123,6 +125,9 @@ function renderCartItems() {
             const itemPrice = parseFloat(item.price) || 0; // Por defecto 0 si el parseo falla
             const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1; // Por defecto 1 si es inválido
 
+            // Asegurar que item.imageUrl sea una cadena válida
+            const imageUrlToDisplay = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
+
             const itemDiv = document.createElement("div");
             itemDiv.classList.add(
                 "flex",
@@ -133,7 +138,7 @@ function renderCartItems() {
                 "gap-4" // Espacio entre los elementos del ítem
             );
             itemDiv.innerHTML = `
-                        <img src="${item.imageUrl || '/static/img/sin_imagen.jpg'}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md shadow-sm">
+                        <img src="${imageUrlToDisplay}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='${window.placeholderImageUrl || '/static/img/sin_imagen.jpg'}';">
                         <div class="flex-1">
                             <p class="text-gray-800 font-medium">${item.name}</p>
                             ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
@@ -164,7 +169,7 @@ function updateItemQuantity(variantIdToUpdate, change) {
     const itemIndex = window.cart.findIndex(item => item.variantId === variantIdToUpdate);
 
     if (itemIndex > -1) {
-        // Asegurar que la cantidad sea un número antes de realizar operaciones aritméticas
+        // Asegurar que la cantidad existente sea un número antes de sumar
         window.cart[itemIndex].quantity = (typeof window.cart[itemIndex].quantity === 'number' && !isNaN(window.cart[itemIndex].quantity)) ? window.cart[itemIndex].quantity : 0;
 
         if (change === 0) { // Eliminar el ítem completamente
@@ -514,7 +519,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const productPrice = parseFloat(boton.getAttribute("data-product-price")) || 0;
             const variantId = boton.getAttribute("data-selected-variant-id") || productId; // Usar productId como fallback
             const color = boton.getAttribute("data-selected-color") || 'N/A'; // Usar N/A como fallback
-            const imageUrl = boton.getAttribute("data-product-image-url") || '/static/img/sin_imagen.jpg'; // Obtener URL de la imagen
+            // Usar window.placeholderImageUrl para el fallback
+            const imageUrl = boton.getAttribute("data-product-image-url") || window.placeholderImageUrl; // Obtener URL de la imagen
 
             // Intentar obtener la cantidad del input si existe, de lo contrario, 1
             let quantity = 1;
@@ -531,7 +537,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            console.log("🛒 Añadiendo:", productId, "Cantidad:", quantity, "Variante:", variantId, "Color:", color, "Imagen:", imageUrl);
+            console.log("🛒 Añadiendo:", productId, "Cantidad:", quantity, "Variante:", variantId, "Color:", color, "Imagen:", imageUrl); // Depuración
 
             if (quantity > 0) {
                 fetch("/agregar-al-carrito/", {
@@ -566,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 color: color,
                                 variantId: variantId,
                                 quantity: quantity, // Ya es un número
-                                imageUrl: imageUrl
+                                imageUrl: imageUrl // Ya es una cadena válida
                             });
                         }
 

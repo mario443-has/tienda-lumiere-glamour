@@ -72,34 +72,30 @@
     {% endif %}
 
     <main class="container mx-auto px-4 py-8">
-      <!-- Sección de Categorías (NUEVO DISEÑO) -->
-      <div class="mb-12">
-        <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Explora Nuestras Categorías</h2>
+      <!-- Sección de Categorías (Diseño Circular) -->
+      <section class="py-8">
+        <p class="text-pink-600 text-sm font-semibold text-center uppercase mb-2 tracking-wide">DESCUBRE NUESTROS PRODUCTOS</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-10">ELIGE UNA CATEGORÍA</h2>
 
-        <div class="categorias-grid"> {# Usa la clase del CSS externo #}
-          {% for categoria in categorias_principales %}
-            <div class="categoria-card"> {# Usa la clase del CSS externo #}
-              <a href="{% url 'categoria' categoria.slug %}" class="categoria-card-link">
-                {# Puedes añadir un ícono representativo si tu modelo Categoria tuviera un campo para ello #}
-                <i class="fas fa-box-open categoria-icon"></i> {# Ícono de ejemplo, considera usar iconos específicos #}
-                <h3 class="categoria-nombre">{{ categoria.nombre }}</h3>
-                <p class="categoria-count">({{ categoria.num_productos }} productos)</p>
-              </a>
-              {% if categoria.subcategorias.all %}
-                <ul class="subcategorias-list">
-                  {% for sub in categoria.subcategorias.all %}
-                    <li>
-                      <a href="{% url 'categoria' sub.slug %}" class="subcategoria-link">
-                        {{ sub.nombre }}
-                      </a>
-                    </li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            </div>
+        <div class="flex flex-wrap justify-center gap-6 sm:gap-8">
+          {% for categoria in categorias %}
+            <a href="{% url 'categoria' categoria.slug %}" class="category-circle-link flex flex-col items-center text-center group">
+              <div class="category-circle-image-container w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-transparent group-hover:border-pink-500 transition-all duration-300 shadow-md group-hover:shadow-lg">
+                <img
+                  src="{% if categoria.imagen_circular %}{{ categoria.imagen_circular.url }}{% else %}{% static 'img/placeholder_category.png' %}{% endif %}"
+                  alt="{{ categoria.nombre }}"
+                  class="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
+                  onerror="this.onerror=null;this.src='{% static 'img/placeholder_category.png' %}';"
+                />
+              </div>
+              <p class="text-gray-800 font-semibold mt-3 text-base sm:text-lg group-hover:text-pink-600 transition-colors duration-300">{{ categoria.nombre }}</p>
+            </a>
           {% endfor %}
         </div>
-      </div>
+
+        <p class="text-pink-600 text-sm font-semibold text-center uppercase mt-10 tracking-wide">¡LOS MEJORES PRECIOS!</p>
+      </section>
+
 
       <!-- Sección de Productos -->
       <h2 class="text-3xl font-semibold text-center text-gray-900 mb-8">

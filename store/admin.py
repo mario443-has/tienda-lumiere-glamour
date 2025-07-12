@@ -1,99 +1,117 @@
 from django.contrib import admin
-# Asegúrate de que todos estos modelos estén importados correctamente desde tu models.py
-# Eliminado SubCategoria ya que ahora Categoria maneja la jerarquía
-from .models import Categoria, Producto, Variacion, MenuItem, SiteSetting, ProductImage, Anuncio
+from django.utils.html import format_html
+from .models import Categoria, Producto, ProductImage, Variacion, MenuItem, SiteSetting, Anuncio
 
-# Inline para ProductImage: permite añadir y editar imágenes de un producto
-# directamente desde la página de edición del producto en el admin.
+# Admin para Categoria
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'slug', 'padre', 'num_productos', 'imagen_circular_preview')
+    prepopulated_fields = {'slug': ('nombre',)}
+    search_fields = ('nombre', 'descripcion')
+    list_filter = ('padre',)
+    ordering = ('nombre',)
+    
+    # NUEVO: Añadimos una propiedad para mostrar el conteo de productos en list_display
+    # Asegúrate de que este método 'num_productos' coincida con la anotación de tu manager.
+    def num_productos(self, obj):
+        # Intentamos acceder al atributo num_productos si está anotado.
+        # Si no, caemos de vuelta al conteo directo.
+        return getattr(obj, '_num_productos', obj.productos.count())
+    num_productos.short_description = 'Nº Productos' # Nombre de la columna en el admin
+
+    # NUEVO: Propiedad para la vista previa de la imagen circular en el admin
+    def imagen_circular_preview(self, obj):
+        if obj.imagen_circular:
+            return format_html('<img src="{}" width="50" height="50" style="border-radius: 50%;" />', obj.imagen_circular.url)
+        return "No Image"
+    imagen_circular_preview.short_description = 'Imagen Circular' # Nombre de la columna
+
+    # Opcional: Define los campos a mostrar en el formulario de edición
+    fieldsets = (
+        (None, {
+            'fields': ('nombre', 'descripcion', 'slug', 'padre', 'imagen_circular', 'imagen_circular_preview')
+        }),
+    )
+    readonly_fields = ('imagen_circular_preview',) # Hace que la vista previa sea de solo lectura
+
+admin.site.register(Categoria, CategoriaAdmin)
+
+
+# Admin para Producto
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    extra = 1 # Muestra 1 formulario vacío por defecto para añadir una nueva imagen
-    fields = ['image', 'alt_text', 'order'] # Campos a mostrar en el inline
+    extra = 1
+    fields = ('image', 'alt_text', 'order', 'image_preview')
+    readonly_fields = ('image_preview',)
 
-# Inline para Variacion: permite añadir y editar variaciones de un producto
-# directamente desde la página de edición del producto en el admin.
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="100" height="100" />', obj.image.url)
+        return "No Image"
+    image_preview.short_description = 'Preview'
+
+
 class VariacionInline(admin.TabularInline):
     model = Variacion
-    extra = 1 # Muestra 1 formulario vacío por defecto para añadir una nueva variación
-    # Campos a mostrar en el inline, ahora incluyendo los nuevos campos de imagen y precio
-    fields = ['nombre', 'valor', 'color', 'color_hex', 'tono', 'presentacion', 'imagen', 'price_override']
+    extra = 1
+    fields = ('nombre', 'valor', 'color', 'color_hex', 'tono', 'presentacion', 'price_override', 'imagen', 'imagen_preview')
+    readonly_fields = ('imagen_preview',)
 
-# Admin de Categoría (ahora con soporte para jerarquía)
-@admin.register(Categoria)
-class CategoriaAdmin(admin.ModelAdmin):
-    # Añadido 'padre' y 'descripcion' para visualizar la jerarquía y el nuevo campo
-    list_display = ('nombre', 'slug', 'padre', 'descripcion', 'fecha_creacion', 'fecha_modificacion')
-    search_fields = ('nombre', 'descripcion')
-    prepopulated_fields = {'slug': ('nombre',)}
-    # Permite filtrar por categoría padre
-    list_filter = ('padre',)
-    # Organiza los campos en el formulario de edición de Categoría
-    fieldsets = (
-        (None, {
-            'fields': ('nombre', 'slug', 'descripcion', 'padre')
-        }),
-    )
+    def imagen_preview(self, obj):
+        if obj.imagen:
+            return format_html('<img src="{}" width="50" height="50" />', obj.imagen.url)
+        return "No Image"
+    imagen_preview.short_description = 'Preview'
 
-# Eliminado el Admin de SubCategoría ya que el modelo SubCategoria fue eliminado.
-# @admin.register(SubCategoria)
-# class SubCategoriaAdmin(admin.ModelAdmin):
-#     list_display = ('nombre', 'categoria', 'slug',)
-#     list_filter = ('categoria',)
-#     search_fields = ('nombre',)
-#     prepopulated_fields = {'slug': ('nombre',)}
 
-# Admin de Producto
-@admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    # Eliminado 'subcategoria' de list_display
-    list_display = ('nombre', 'precio', 'descuento', 'get_precio_final', 'categoria', 'is_active', 'stock')
-    # Eliminado 'subcategoria' de list_filter
-    list_filter = ('categoria', 'is_active')
-    search_fields = ('nombre', 'descripcion', 'long_description')
+    list_display = ('nombre', 'categoria', 'precio', 'descuento', 'is_active', 'stock', 'fecha_creacion')
     prepopulated_fields = {'slug': ('nombre',)}
-
-    # date_hierarchy ahora apunta a 'fecha_creacion'
-    date_hierarchy = 'fecha_creacion'
-
-    # Añade los inlines para que ProductImage y Variacion se puedan gestionar desde el Producto
+    search_fields = ('nombre', 'descripcion', 'categoria__nombre')
+    list_filter = ('is_active', 'categoria')
     inlines = [ProductImageInline, VariacionInline]
+    date_hierarchy = 'fecha_creacion'
+    ordering = ('-fecha_creacion',)
 
-    # Organiza los campos en el formulario de edición del producto en el admin
-    fieldsets = (
-        (None, {
-            # Eliminado 'subcategoria' de fields
-            'fields': ('nombre', 'slug', 'categoria', 'is_active', 'stock', 'imagen')
-        }),
-        ('Precios y Descuentos', {
-            'fields': ('precio', 'descuento')
-        }),
-        ('Descripciones', {
-            'fields': ('descripcion', 'long_description')
-        }),
-    )
+admin.site.register(Producto, ProductoAdmin)
 
-# Admin de Menú
-@admin.register(MenuItem)
+
+# Admin para MenuItem
 class MenuItemAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'url', 'order')
-    list_editable = ('url', 'order') # Permite editar URL y orden directamente desde la lista
+    list_editable = ('url', 'order') # Permite editar directamente desde la lista
+    ordering = ('order',)
 
-# Admin de Configuración del sitio
-@admin.register(SiteSetting)
+admin.site.register(MenuItem, MenuItemAdmin)
+
+# Admin para SiteSetting
 class SiteSettingAdmin(admin.ModelAdmin):
     list_display = ('key', 'value')
-    list_editable = ('value',)
-    search_fields = ('key',)
+    list_editable = ('value',) # Permite editar directamente desde la lista
+    search_fields = ('key', 'value')
+    ordering = ('key',)
 
-# Admin para el modelo Anuncio
-@admin.register(Anuncio)
+admin.site.register(SiteSetting, SiteSettingAdmin)
+
+
+# Admin para Anuncio
 class AnuncioAdmin(admin.ModelAdmin):
-    list_display_links = ('fecha_creacion',)
-    # Asegúrate de que 'titulo' esté en el modelo Anuncio
-    list_display = ('titulo', 'is_active', 'order', 'url', 'fecha_creacion')
+    list_display = ('titulo', 'is_active', 'order', 'fecha_creacion', 'anuncio_preview')
+    list_editable = ('is_active', 'order')
+    search_fields = ('titulo', 'descripcion')
     list_filter = ('is_active',)
-    list_editable = ('is_active', 'order', 'url')
-    # date_hierarchy ahora apunta a 'fecha_creacion'
-    date_hierarchy = 'fecha_creacion'
-    # Asegúrate de que 'titulo' esté en los campos
-    fields = ('titulo', 'imagen', 'url', 'is_active', 'order')
+    ordering = ('order', '-fecha_creacion')
+
+    def anuncio_preview(self, obj):
+        if obj.imagen:
+            return format_html('<img src="{}" width="100" height="auto" />', obj.imagen.url)
+        return "No Image"
+    anuncio_preview.short_description = 'Preview'
+
+    fieldsets = (
+        (None, {
+            'fields': ('titulo', 'descripcion', 'imagen', 'anuncio_preview', 'url', 'is_active', 'order')
+        }),
+    )
+    readonly_fields = ('anuncio_preview',) # Hace que la vista previa sea de solo lectura
+
+admin.site.register(Anuncio, AnuncioAdmin)

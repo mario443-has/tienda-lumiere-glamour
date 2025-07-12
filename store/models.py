@@ -44,6 +44,7 @@ class Categoria(models.Model):
         related_name='subcategorias',
         help_text="Categoría padre (opcional, para subcategorías)"
     )
+    imagen_circular = CloudinaryField('imagen_circular', blank=True, null=True, help_text="Imagen circular para la categoría (ej. para la página de inicio)") # NUEVO CAMPO
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
 
@@ -71,12 +72,6 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
-
-    # @property productos_count ELIMINADO para evitar conflicto con el setter del ORM.
-    # Ahora se accederá al conteo directamente a través del atributo 'num_productos'
-    # cuando se use el manager 'principales_con_productos()'.
-    # Si necesitas el conteo en una instancia de Categoria que no viene de una consulta anotada,
-    # deberías hacer categoria_instance.productos.count() directamente.
 
     @property
     def ruta_completa(self):
@@ -161,7 +156,7 @@ class Variacion(models.Model):
     class Meta:
         unique_together = ('producto', 'nombre', 'valor')
         verbose_name = "Variación"
-        verbose_name_plural = "Variaciones"
+        verbose_name_plural = "Variaciones" # CORREGIDO: de verbose_plural a verbose_name_plural
 
     def __str__(self):
         parts = [self.producto.nombre]

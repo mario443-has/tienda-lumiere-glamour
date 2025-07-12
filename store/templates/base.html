@@ -578,6 +578,7 @@
                 href="#"
                 class="text-gray-300 hover:text-pink-500 transition duration-300"
                 >Brochas</a
+
               >
             </li>
             <li class="mb-2">
@@ -752,109 +753,99 @@
     </div>
 
     <script>
-      // JavaScript para el menú móvil (Hamburger)
-      const mobileMenuButton = document.getElementById("mobile-menu-button");
-      const mobileMenu = document.getElementById("mobile-menu");
-      const mobileCategoriesButton = document.getElementById(
-        "mobile-categories-button"
-      );
-      const mobileCategoriesDropdown = document.getElementById(
-        "mobile-categories-dropdown"
-      );
-
-      // Toggle del menú principal móvil
-      mobileMenuButton.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
-        // Cambiar el ícono del botón (hamburger <-> close)
-        const icon = mobileMenuButton.querySelector("svg");
-        if (mobileMenu.classList.contains("hidden")) {
-          icon.innerHTML =
-            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>'; // Ícono de menú
-        } else {
-          icon.innerHTML =
-            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; // Ícono de cerrar
-        }
-      });
-
-      // Toggle del dropdown de categorías en móvil
-      mobileCategoriesButton.addEventListener("click", () => {
-        mobileCategoriesDropdown.classList.toggle("hidden");
-        // Cambiar la flecha del botón de categorías
-        const icon = mobileCategoriesButton.querySelector("svg");
-        icon.classList.toggle("rotate-0");
-        icon.classList.toggle("rotate-180"); // Gira la flecha
-      });
-
-      // Toggle de submenús en móvil (para subcategorías)
-      function toggleSubmenu(button) {
-        const submenu = button.nextElementSibling; // El div que contiene las subcategorías
-        if (submenu) {
-          // Asegurarse de que el submenu exista
-          submenu.classList.toggle("hidden");
-          // Cambiar la flecha del botón del submenú
-          const icon = button.querySelector("svg");
-          icon.classList.toggle("rotate-90"); // Flecha hacia abajo
-          icon.classList.toggle("rotate-0"); // Flecha hacia la derecha
-        }
-      }
-
-      // --- Lógica del Carrito y WhatsApp ---
-      // Se define en el objeto window para asegurar accesibilidad global
+      // =====================================================================
+      // Funciones y variables globales (accesibles desde cualquier parte)
+      // =====================================================================
       window.cart = window.cart || []; // Inicializa el carrito si no existe
 
-      const mobileCartCountSpan = document.getElementById("mobile-cart-count");
-      const buyWhatsappButton = document.getElementById("buy-whatsapp-button"); // Botón flotante
-      const buyWhatsappCartCountSpan = document.getElementById(
-        "buy-whatsapp-cart-count"
-      ); // Contador botón flotante
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== "") {
+              const cookies = document.cookie.split(";");
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  if (cookie.substring(0, name.length + 1) === name + "=") {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
+          }
+          return cookieValue;
+      }
 
+      function showMessageModal(title, message) {
+          document.getElementById('message-modal-title').innerText = title;
+          document.getElementById('message-modal-content').innerText = message;
+          document.getElementById('message-modal').classList.remove('hidden');
+      }
+
+      function closeMessageModal() {
+          document.getElementById('message-modal').classList.add('hidden');
+      }
+
+      // Funciones del carrito (ahora globales)
       const cartModal = document.getElementById("cart-modal");
-      const cartItemsContainer = document.getElementById(
-        "cart-items-container"
-      );
+      const cartItemsContainer = document.getElementById("cart-items-container");
       const emptyCartMessage = document.getElementById("empty-cart-message");
       const cartTotalSpan = document.getElementById("cart-total");
-      const modalBuyWhatsappButton = document.getElementById(
-        "modal-buy-whatsapp-button"
-      ); // Botón dentro del modal
+      const buyWhatsappButton = document.getElementById("buy-whatsapp-button"); // Botón flotante
+      const buyWhatsappCartCountSpan = document.getElementById("buy-whatsapp-cart-count"); // Contador botón flotante
+      const modalBuyWhatsappButton = document.getElementById("modal-buy-whatsapp-button"); // Botón dentro del modal
 
-      // Función para abrir el modal del carrito
       function openCartModal() {
-        cartModal.classList.remove("hidden");
-        renderCartItems(); // Asegura que los ítems se rendericen al abrir
-      }
-
-      // Función para cerrar el modal del carrito
-      function closeCartModal() {
-        cartModal.classList.add("hidden");
-      }
-
-      // Función para actualizar el contador del carrito y la visibilidad del botón de compra
-      function updateCartDisplay() {
-        const itemCount = window.cart.length; // Usa window.cart
-        mobileCartCountSpan.textContent = itemCount;
-
-        if (itemCount > 0) {
-          mobileCartCountSpan.classList.remove("hidden");
-          buyWhatsappButton.classList.remove("hidden");
-          buyWhatsappCartCountSpan.textContent = itemCount;
-        } else {
-          mobileCartCountSpan.classList.add("hidden");
-          buyWhatsappButton.classList.add("hidden");
+        if (cartModal) {
+            cartModal.classList.remove("hidden");
+            renderCartItems(); // Asegura que los ítems se rendericen al abrir
         }
-        renderCartItems(); // Actualiza también el contenido del modal del carrito
       }
 
-      // Función para renderizar los ítems del carrito en el modal
+      function closeCartModal() {
+        if (cartModal) {
+            cartModal.classList.add("hidden");
+        }
+      }
+
+      function actualizarContadorCarrito() {
+          const cartCountElement = document.getElementById("cart-count");
+          const mobileCartCountElement = document.getElementById("mobile-cart-count");
+
+          if (cartCountElement) {
+              cartCountElement.innerText = window.cart.length;
+              if (window.cart.length > 0) {
+                  cartCountElement.classList.remove("hidden");
+              } else {
+                  cartCountElement.classList.add("hidden");
+              }
+          }
+          if (mobileCartCountElement) {
+              mobileCartCountElement.innerText = window.cart.length;
+              if (window.cart.length > 0) {
+                  mobileCartCountElement.classList.remove("hidden");
+              } else {
+                  mobileCartCountElement.classList.add("hidden");
+              }
+          }
+          if (buyWhatsappButton && buyWhatsappCartCountSpan) {
+              if (window.cart.length > 0) {
+                  buyWhatsappButton.classList.remove("hidden");
+                  buyWhatsappCartCountSpan.textContent = window.cart.length;
+              } else {
+                  buyWhatsappButton.classList.add("hidden");
+              }
+          }
+      }
+
       function renderCartItems() {
-        cartItemsContainer.innerHTML = ""; // Limpiar el contenedor actual
+        if (cartItemsContainer) {
+            cartItemsContainer.innerHTML = ""; // Limpiar el contenedor actual
+        }
         let total = 0;
 
-        if (window.cart.length === 0) { // Usa window.cart
-          emptyCartMessage.classList.remove("hidden");
+        if (window.cart.length === 0) {
+          if (emptyCartMessage) emptyCartMessage.classList.remove("hidden");
         } else {
-          emptyCartMessage.classList.add("hidden");
-          window.cart.forEach((item, index) => { // Usa window.cart
+          if (emptyCartMessage) emptyCartMessage.classList.add("hidden");
+          window.cart.forEach((item, index) => {
             const itemDiv = document.createElement("div");
             itemDiv.classList.add(
               "flex",
@@ -872,7 +863,7 @@
                             <p class="text-gray-600 text-sm">$${parseFloat(
                               item.price
                             ).toFixed(2)}</p>
-                            ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''} {# MODIFICACIÓN: Condición para mostrar el color #}
+                            ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
                         </div>
                         <button class="text-red-500 hover:text-red-700 ml-4" onclick="removeItemFromCart('${
                           item.variantId
@@ -880,30 +871,28 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     `;
-            cartItemsContainer.appendChild(itemDiv);
+            if (cartItemsContainer) cartItemsContainer.appendChild(itemDiv);
             total += parseFloat(item.price);
           });
         }
-        cartTotalSpan.textContent = `$${total.toFixed(2)}`;
+        if (cartTotalSpan) cartTotalSpan.textContent = `$${total.toFixed(2)}`;
       }
 
-      // Función para eliminar un ítem del carrito (ahora por variantId)
       function removeItemFromCart(variantIdToRemove) {
-        const indexToRemove = window.cart.findIndex( // Usa window.cart
+        const indexToRemove = window.cart.findIndex(
           (item) => item.variantId === variantIdToRemove
         );
         if (indexToRemove > -1) {
-          window.cart.splice(indexToRemove, 1); // Usa window.cart
-          alert('Producto Eliminado: Producto eliminado del carrito.'); // Usando alert()
+          window.cart.splice(indexToRemove, 1);
+          showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
           updateCartDisplay();
-          actualizarContadorCarrito(); // Llama a la función para actualizar el contador
+          actualizarContadorCarrito();
         }
       }
 
-      // Funcionalidad del botón "Comprar por WhatsApp" (para el carrito)
       function sendCartToWhatsApp() {
-        if (window.cart.length === 0) { // Usa window.cart
-          alert('Carrito Vacío: Tu carrito está vacío. Agrega productos antes de comprar.'); // Usando alert()
+        if (window.cart.length === 0) {
+          showMessageModal('Carrito Vacío', 'Tu carrito está vacío. Agrega productos antes de comprar.');
           return;
         }
 
@@ -912,9 +901,9 @@
           "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
         let total = 0;
 
-        window.cart.forEach((item, index) => { // Usa window.cart
+        window.cart.forEach((item, index) => {
           message += `${index + 1}. ${item.name}`;
-          if (item.color && item.color !== 'N/A') { // MODIFICACIÓN: Condición para añadir el color al mensaje
+          if (item.color && item.color !== 'N/A') {
               message += ` (Color: ${item.color})`;
           }
           message += ` - $${item.price}\n`;
@@ -931,48 +920,97 @@
         window.open(whatsappUrl, "_blank");
 
         // Opcional: Limpiar el carrito después de enviar el pedido
-        window.cart = []; // Usa window.cart
+        window.cart = [];
         updateCartDisplay();
-        alert('Pedido Enviado: Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.'); // Usando alert()
+        showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
         closeCartModal();
-        actualizarContadorCarrito(); // Llama a la función para actualizar el contador
+        actualizarContadorCarrito();
       }
 
-      // Asignar la función a los botones de WhatsApp
-      buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
-      modalBuyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
-
-      // Slider horizontal de productos
-      const slider = document.getElementById("slider");
-      const slideLeft = document.getElementById("slideLeft");
-      const slideRight = document.getElementById("slideRight");
-
-      if (slider) {
-        slideLeft.addEventListener("click", () => {
-          slider.scrollLeft -= 300;
-        });
-        slideRight.addEventListener("click", () => {
-          slider.scrollLeft += 300;
-        });
+      function updateCartDisplay() {
+        // Esta función ahora solo llama a renderCartItems y actualizarContadorCarrito
+        // para asegurar que el modal y los contadores se actualicen.
+        renderCartItems();
+        actualizarContadorCarrito();
       }
 
-      // Lógica del Carrusel de Anuncios (Mejorada)
+      // =====================================================================
+      // Lógica que se ejecuta cuando el DOM está completamente cargado
+      // =====================================================================
       document.addEventListener("DOMContentLoaded", function () {
+        // JavaScript para el menú móvil (Hamburger)
+        const mobileMenuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const mobileCategoriesButton = document.getElementById(
+          "mobile-categories-button"
+        );
+        const mobileCategoriesDropdown = document.getElementById(
+          "mobile-categories-dropdown"
+        );
+
+        // Toggle del menú principal móvil
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener("click", () => {
+                if (mobileMenu) mobileMenu.classList.toggle("hidden");
+                const icon = mobileMenuButton.querySelector("svg");
+                if (icon) {
+                    if (mobileMenu && mobileMenu.classList.contains("hidden")) {
+                        icon.innerHTML =
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>'; // Ícono de menú
+                    } else {
+                        icon.innerHTML =
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; // Ícono de cerrar
+                    }
+                }
+            });
+        }
+
+        // Toggle del dropdown de categorías en móvil
+        if (mobileCategoriesButton) {
+            mobileCategoriesButton.addEventListener("click", () => {
+                if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
+                const icon = mobileCategoriesButton.querySelector("svg");
+                if (icon) {
+                    icon.classList.toggle("rotate-0");
+                    icon.classList.toggle("rotate-180"); // Gira la flecha
+                }
+            });
+        }
+
+        // Slider horizontal de productos
+        const slider = document.getElementById("slider");
+        const slideLeft = document.getElementById("slideLeft");
+        const slideRight = document.getElementById("slideRight");
+
+        if (slider) {
+          if (slideLeft) {
+            slideLeft.addEventListener("click", () => {
+              slider.scrollLeft -= 300;
+            });
+          }
+          if (slideRight) {
+            slideRight.addEventListener("click", () => {
+              slider.scrollLeft += 300;
+            });
+          }
+        }
+
+        // Lógica del Carrusel de Anuncios (Mejorada)
         const carouselWrapper = document.getElementById(
-          "announcement-carousel-wrapper"
+            "announcement-carousel-wrapper"
         );
         const carousel = document.getElementById("announcement-carousel");
         const items = carousel
-          ? carousel.querySelectorAll(".carousel-item")
-          : [];
+            ? carousel.querySelectorAll(".carousel-item")
+            : [];
         const prevBtn = document.getElementById("prev-announcement");
         const nextBtn = document.getElementById("next-announcement");
         const indicatorsContainer = document.getElementById(
-          "carousel-indicators"
+            "carousel-indicators"
         );
         const indicators = indicatorsContainer
-          ? indicatorsContainer.querySelectorAll(".indicator")
-          : [];
+            ? indicatorsContainer.querySelectorAll(".indicator")
+            : [];
 
         let currentIndex = 0;
         let totalSlides = items.length;
@@ -980,59 +1018,59 @@
         let dragThreshold = 50;
 
         function updateCarousel() {
-          if (!carousel || totalSlides === 0) return;
+            if (!carousel || totalSlides === 0) return;
 
-          const offset = -currentIndex * 100;
-          carousel.style.transform = `translateX(${offset}%)`;
+            const offset = -currentIndex * 100;
+            carousel.style.transform = `translateX(${offset}%)`;
 
-          indicators.forEach((dot, i) => {
-            dot.classList.toggle("opacity-100", i === currentIndex);
-            dot.classList.toggle("opacity-50", i !== currentIndex);
-          });
+            indicators.forEach((dot, i) => {
+                dot.classList.toggle("opacity-100", i === currentIndex);
+                dot.classList.toggle("opacity-50", i !== currentIndex);
+            });
         }
 
         function goToSlide(index) {
-          currentIndex = (index + totalSlides) % totalSlides;
-          updateCarousel();
+            currentIndex = (index + totalSlides) % totalSlides;
+            updateCarousel();
         }
 
         function startAutoSlide() {
-          stopAutoSlide();
-          if (totalSlides > 1) {
-            autoSlideInterval = setInterval(() => {
-              goToSlide(currentIndex + 1);
-            }, 5000);
-          }
+            stopAutoSlide();
+            if (totalSlides > 1) {
+                autoSlideInterval = setInterval(() => {
+                    goToSlide(currentIndex + 1);
+                }, 5000);
+            }
         }
 
         function stopAutoSlide() {
-          clearInterval(autoSlideInterval);
+            clearInterval(autoSlideInterval);
         }
 
         if (prevBtn) {
-          prevBtn.addEventListener("click", () => {
-            stopAutoSlide();
-            goToSlide(currentIndex - 1);
-            startAutoSlide();
-          });
+            prevBtn.addEventListener("click", () => {
+                stopAutoSlide();
+                goToSlide(currentIndex - 1);
+                startAutoSlide();
+            });
         }
 
         if (nextBtn) {
-          nextBtn.addEventListener("click", () => {
-            stopAutoSlide();
-            goToSlide(currentIndex + 1);
-            startAutoSlide();
-          });
+            nextBtn.addEventListener("click", () => {
+                stopAutoSlide();
+                goToSlide(currentIndex + 1);
+                startAutoSlide();
+            });
         }
 
         if (indicatorsContainer) {
-          indicators.forEach((dot, i) => {
-            dot.addEventListener("click", () => {
-              stopAutoSlide();
-              goToSlide(i);
-              startAutoSlide();
+            indicators.forEach((dot, i) => {
+                dot.addEventListener("click", () => {
+                    stopAutoSlide();
+                    goToSlide(i);
+                    startAutoSlide();
+                });
             });
-          });
         }
 
         let startX = 0;
@@ -1077,7 +1115,10 @@
             updateCarousel();
           }
         });
-        resizeObserver.observe(carouselWrapper);
+        if (carouselWrapper) {
+            resizeObserver.observe(carouselWrapper);
+        }
+
 
         if (carousel && items.length > 0) {
           updateCarousel();
@@ -1088,7 +1129,7 @@
         document.querySelectorAll('.color-option').forEach(colorOption => {
             colorOption.addEventListener('click', function() {
                 const parentProductDiv = this.closest('[data-product-id]'); // Encuentra el contenedor del producto
-                const productId = parentProductDiv.dataset.productId;
+                const productId = parentProductDiv ? parentProductDiv.dataset.productId : null;
 
                 const selectedVariantId = this.dataset.variantId;
                 const selectedColorName = this.dataset.colorName;
@@ -1096,27 +1137,30 @@
                 const selectedVariantPrice = this.dataset.variantPrice;
 
                 // Actualizar la imagen del producto
-                const productImage = parentProductDiv.querySelector(`#product-image-${productId}`);
+                const productImage = productId ? parentProductDiv.querySelector(`#product-image-${productId}`) : null;
                 if (productImage) {
                     productImage.src = selectedVariantImage;
                 }
 
                 // Actualizar el precio del producto
-                const productPriceSpan = parentProductDiv.querySelector(`#product-price-${productId}`);
+                const productPriceSpan = productId ? parentProductDiv.querySelector(`#product-price-${productId}`) : null;
                 if (productPriceSpan) {
                     productPriceSpan.textContent = `$${selectedVariantPrice}`;
                 }
 
                 // Remover la clase 'selected' de todas las opciones de color para este producto
-                parentProductDiv.querySelectorAll('.color-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
+                if (parentProductDiv) {
+                    parentProductDiv.querySelectorAll('.color-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                }
+
 
                 // Añadir la clase 'selected' a la opción de color clickeada
                 this.classList.add('selected');
 
                 // Actualizar los data-attributes del botón "Agregar al Carrito"
-                const addToCartButton = parentProductDiv.querySelector('.btn-agregar-carrito'); // Usar la clase
+                const addToCartButton = parentProductDiv ? parentProductDiv.querySelector('.btn-agregar-carrito') : null; // Usar la clase
                 if (addToCartButton) {
                     addToCartButton.dataset.selectedVariantId = selectedVariantId;
                     addToCartButton.dataset.productPrice = selectedVariantPrice; // Actualiza el precio en el botón
@@ -1152,10 +1196,15 @@
 
             // Intentar obtener la cantidad del input si existe, de lo contrario, 1
             let quantity = 1;
-            const quantityInput = boton.closest('.flex.items-center.space-x-4')?.querySelector("input[type='number']");
-            if (quantityInput) {
-                quantity = parseInt(quantityInput.value);
+            // Buscar el input de cantidad dentro del mismo contenedor de producto o el más cercano
+            const parentContainer = boton.closest('.bg-white'); // Ajusta este selector si tu estructura es diferente
+            if (parentContainer) {
+                const quantityInput = parentContainer.querySelector("input[type='number']");
+                if (quantityInput) {
+                    quantity = parseInt(quantityInput.value);
+                }
             }
+
 
             console.log("🛒 Añadiendo:", productId, "Cantidad:", quantity, "Variante:", variantId, "Color:", color);
 
@@ -1176,76 +1225,37 @@
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.mensaje) {
-                        alert("✅ Producto añadido al carrito: " + productName); // Usando alert() como se solicitó
+                        showMessageModal("✅ Producto añadido", "Producto: " + productName + " ha sido añadido al carrito.");
                         // Guardar en window.cart (frontend)
                         for (let i = 0; i < quantity; i++) {
                             window.cart.push({ id: productId, name: productName, price: productPrice, color: color, variantId: variantId });
                         }
-                        updateCartDisplay(); // Para actualizar el modal del carrito
-                        actualizarContadorCarrito(); // Para actualizar el número en el header
+                        updateCartDisplay(); // Para actualizar el modal del carrito y contadores
                     } else if (data.error) {
-                        alert("❌ Error: " + data.error); // Usando alert()
+                        showMessageModal("❌ Error", "Error: " + data.error);
                     }
                 })
                 .catch((error) => {
                     console.error("❌ Error al agregar al carrito (fetch):", error);
-                    alert("❌ Hubo un problema al añadir el producto al carrito. Inténtalo de nuevo."); // Usando alert()
+                    showMessageModal("❌ Error de Conexión", "Hubo un problema al añadir el producto al carrito. Inténtalo de nuevo.");
                 });
             } else {
-                alert('Por favor, ingresa una cantidad válida.');
+                showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
             }
           });
         });
 
-        // Función para actualizar el contador del carrito en la interfaz
-        function actualizarContadorCarrito() {
-            const cartCountElement = document.getElementById("cart-count");
-            if (cartCountElement) {
-                cartCountElement.innerText = window.cart.length;
-            }
-            const mobileCartCountElement = document.getElementById("mobile-cart-count");
-            if (mobileCartCountElement) {
-                mobileCartCountElement.innerText = window.cart.length;
-            }
-            const buyWhatsappCartCountElement = document.getElementById("buy-whatsapp-cart-count");
-            if (buyWhatsappCartCountElement) {
-                buyWhatsappCartCountElement.innerText = window.cart.length;
-            }
-            // Mostrar/ocultar los spans de contador si el carrito está vacío/lleno
-            if (window.cart.length > 0) {
-                cartCountElement.classList.remove("hidden");
-                mobileCartCountElement.classList.remove("hidden");
-                buyWhatsappButton.classList.remove("hidden"); // Asegura que el botón flotante también se muestre
-                buyWhatsappCartCountSpan.textContent = window.cart.length; // Actualiza el contador del botón flotante
-            } else {
-                cartCountElement.classList.add("hidden");
-                mobileCartCountElement.classList.add("hidden");
-                buyWhatsappButton.classList.add("hidden"); // Oculta el botón flotante
-            }
+        // Asignar la función a los botones de WhatsApp
+        if (buyWhatsappButton) {
+            buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
+        }
+        if (modalBuyWhatsappButton) {
+            modalBuyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
         }
 
-        // Función para obtener CSRF
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== "") {
-                const cookies = document.cookie.split(";");
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === name + "=") {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
+        // Inicializar la visualización del carrito al cargar la página
+        updateCartDisplay();
       }); // Fin de DOMContentLoaded
-
-      // Inicializar la visualización del carrito al cargar la página
-      updateCartDisplay();
-      // Asegurar que el contador se actualice al cargar la página
-      document.addEventListener("DOMContentLoaded", actualizarContadorCarrito);
     </script>
     {% block extra_js %}{% endblock %} {# Este es el nuevo bloque para JS específico de cada página #}
   </body>

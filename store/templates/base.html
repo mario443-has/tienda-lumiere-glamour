@@ -809,7 +809,8 @@
       }
 
       // --- Lógica del Carrito y WhatsApp ---
-      let cart = []; // Array para almacenar los productos en el carrito
+      // Se define en el objeto window para asegurar accesibilidad global
+      window.cart = window.cart || []; // Inicializa el carrito si no existe
 
       const cartCountSpan = document.getElementById("cart-count");
       const mobileCartCountSpan = document.getElementById("mobile-cart-count");
@@ -841,7 +842,7 @@
 
       // Función para actualizar el contador del carrito y la visibilidad del botón de compra
       function updateCartDisplay() {
-        const itemCount = cart.length;
+        const itemCount = window.cart.length; // Usa window.cart
         cartCountSpan.textContent = itemCount;
         mobileCartCountSpan.textContent = itemCount;
 
@@ -863,11 +864,11 @@
         cartItemsContainer.innerHTML = ""; // Limpiar el contenedor actual
         let total = 0;
 
-        if (cart.length === 0) {
+        if (window.cart.length === 0) { // Usa window.cart
           emptyCartMessage.classList.remove("hidden");
         } else {
           emptyCartMessage.classList.add("hidden");
-          cart.forEach((item, index) => {
+          window.cart.forEach((item, index) => { // Usa window.cart
             const itemDiv = document.createElement("div");
             itemDiv.classList.add(
               "flex",
@@ -902,12 +903,12 @@
 
       // Función para eliminar un ítem del carrito (ahora por variantId)
       function removeItemFromCart(variantIdToRemove) {
-        const indexToRemove = cart.findIndex(
+        const indexToRemove = window.cart.findIndex( // Usa window.cart
           (item) => item.variantId === variantIdToRemove
         );
         if (indexToRemove > -1) {
-          cart.splice(indexToRemove, 1);
-          console.log("Producto (variante) eliminado del carrito.");
+          window.cart.splice(indexToRemove, 1); // Usa window.cart
+          showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.'); // Usando el nuevo modal
           updateCartDisplay();
         }
       }
@@ -923,11 +924,11 @@
 
           // Si no hay una variante seleccionada (ej. producto sin variantes), usa los datos del producto base
           if (!selectedVariantId || selectedVariantId === productId) { // MODIFICACIÓN: Comprueba si variantId es igual a productId para productos sin variantes
-              cart.push({ id: productId, name: productName, price: productPrice, color: 'N/A', variantId: productId });
-              console.log(`"${productName}" ha sido agregado al carrito.`);
+              window.cart.push({ id: productId, name: productName, price: productPrice, color: 'N/A', variantId: productId }); // Usa window.cart
+              showMessageModal('Producto Agregado', `"${productName}" ha sido agregado al carrito.`); // Usando el nuevo modal
           } else {
-              cart.push({ id: productId, name: productName, price: productPrice, color: selectedColor, variantId: selectedVariantId });
-              console.log(`"${productName}" (Variante ID: ${selectedVariantId}, Color: ${selectedColor}) ha sido agregado al carrito.`);
+              window.cart.push({ id: productId, name: productName, price: productPrice, color: selectedColor, variantId: selectedVariantId }); // Usa window.cart
+              showMessageModal('Producto Agregado', `"${productName}" (Variante ID: ${selectedVariantId}, Color: ${selectedColor}) ha sido agregado al carrito.`); // Usando el nuevo modal
           }
           
           updateCartDisplay();
@@ -936,10 +937,8 @@
 
       // Funcionalidad del botón "Comprar por WhatsApp" (para el carrito)
       function sendCartToWhatsApp() {
-        if (cart.length === 0) {
-          console.log(
-            "Tu carrito está vacío. Agrega productos antes de comprar."
-          );
+        if (window.cart.length === 0) { // Usa window.cart
+          showMessageModal('Carrito Vacío', 'Tu carrito está vacío. Agrega productos antes de comprar.'); // Usando el nuevo modal
           return;
         }
 
@@ -948,7 +947,7 @@
           "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
         let total = 0;
 
-        cart.forEach((item, index) => {
+        window.cart.forEach((item, index) => { // Usa window.cart
           message += `${index + 1}. ${item.name}`;
           if (item.color && item.color !== 'N/A') { // MODIFICACIÓN: Condición para añadir el color al mensaje
               message += ` (Color: ${item.color})`;
@@ -967,11 +966,9 @@
         window.open(whatsappUrl, "_blank");
 
         // Opcional: Limpiar el carrito después de enviar el pedido
-        cart = [];
+        window.cart = []; // Usa window.cart
         updateCartDisplay();
-        console.log(
-          "Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra."
-        );
+        showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.'); // Usando el nuevo modal
         closeCartModal();
       }
 

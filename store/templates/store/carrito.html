@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Tu Carrito{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold mb-6">🛒 Tu carrito de compras</h1>
+
+  {% if carrito %}
+    <ul class="space-y-4">
+      {% for item in carrito %}
+        <li class="border p-4 rounded-lg shadow">
+          <p><strong>ID Producto:</strong> {{ item.id }}</p>
+          <p><strong>Variante:</strong> {{ item.variant_id|default:"N/A" }}</p>
+          <p><strong>Color:</strong> {{ item.color|default:"N/A" }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="mt-6">
+      <a href="https://wa.me/573007221200?text=Quiero%20comprar%20estos%20productos" class="bg-green-500 text-white px-4 py-2 rounded-lg">
+        Finalizar pedido por WhatsApp
+      </a>
+    </div>
+  {% else %}
+    <p>Tu carrito está vacío.</p>
+  {% endif %}
+</div>
+{% endblock %}

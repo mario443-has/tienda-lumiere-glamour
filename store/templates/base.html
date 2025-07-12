@@ -910,6 +910,7 @@
           window.cart.splice(indexToRemove, 1); // Usa window.cart
           showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.'); // Usando el nuevo modal
           updateCartDisplay();
+          actualizarContadorCarrito(); // Llama a la función para actualizar el contador
         }
       }
 
@@ -932,6 +933,7 @@
           }
           
           updateCartDisplay();
+          actualizarContadorCarrito(); // Llama a la función para actualizar el contador
         });
       });
 
@@ -970,6 +972,7 @@
         updateCartDisplay();
         showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.'); // Usando el nuevo modal
         closeCartModal();
+        actualizarContadorCarrito(); // Llama a la función para actualizar el contador
       }
 
       // Asignar la función a los botones de WhatsApp
@@ -1182,24 +1185,91 @@
                 const productPrice = event.currentTarget.dataset.productPrice;
                 const quantityInput = document.getElementById('quantity'); // Obtener el input de cantidad
                 const quantity = quantityInput ? parseInt(quantityInput.value) : 1; // Usar 1 por defecto si no se encuentra el input
+                const selectedVariantId = event.currentTarget.dataset.selectedVariantId || productId; // Obtener variantId o usar productId
+                const selectedColor = event.currentTarget.dataset.selectedColor || 'N/A'; // Obtener color o usar 'N/A'
+
 
                 if (quantity > 0) {
-                    for (let i = 0; i < quantity; i++) {
-                        // Usamos window.cart para asegurar que se accede a la instancia global
-                        window.cart.push({ id: productId, name: productName, price: productPrice, variantId: productId }); 
-                    }
-                    showMessageModal('Producto Agregado', `${quantity} unidad(es) de "${productName}" ha(n) sido agregada(s) al carrito.`);
-                    updateCartDisplay();
+                    // Enviar al backend
+                    fetch("/agregar-al-carrito/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                        body: JSON.stringify({ 
+                            producto_id: productId, 
+                            quantity: quantity,
+                            variant_id: selectedVariantId // Enviar el ID de la variante
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.mensaje) {
+                            // Si la adición al backend fue exitosa, también actualiza el carrito del frontend
+                            for (let i = 0; i < quantity; i++) {
+                                window.cart.push({ 
+                                    id: productId, 
+                                    name: productName, 
+                                    price: productPrice, 
+                                    color: selectedColor, // Incluir el color
+                                    variantId: selectedVariantId 
+                                }); 
+                            }
+                            showMessageModal('Producto Agregado', data.mensaje);
+                            updateCartDisplay();
+                            actualizarContadorCarrito(); // Llama a la función para actualizar el contador
+                        } else if (data.error) {
+                            showMessageModal('Error', `No se pudo agregar el producto: ${data.error}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al añadir al carrito (fetch):", error);
+                        showMessageModal('Error', 'Hubo un problema al añadir el producto al carrito. Inténtalo de nuevo.');
+                    });
                 } else {
                     showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
                 }
             });
         }
 
+        // Función para obtener CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                const cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === name + "=") {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Función para actualizar el contador del carrito en la interfaz
+        function actualizarContadorCarrito() {
+            const cartCountElement = document.getElementById("cart-count");
+            if (cartCountElement) {
+                cartCountElement.innerText = window.cart.length;
+            }
+            const mobileCartCountElement = document.getElementById("mobile-cart-count");
+            if (mobileCartCountElement) {
+                mobileCartCountElement.innerText = window.cart.length;
+            }
+            const buyWhatsappCartCountElement = document.getElementById("buy-whatsapp-cart-count");
+            if (buyWhatsappCartCountElement) {
+                buyWhatsappCartCountElement.innerText = window.cart.length;
+            }
+        }
+
       }); // Fin de DOMContentLoaded
 
       // Inicializar la visualización del carrito al cargar la página
       updateCartDisplay();
+      actualizarContadorCarrito(); // Llama a la función al cargar la página
     </script>
     {% block extra_js %}{% endblock %} {# Este es el nuevo bloque para JS específico de cada página #}
   </body>

@@ -212,6 +212,36 @@ def agregar_al_carrito(request):
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
+# Nueva vista para ver el carrito
+def ver_carrito(request):
+    """
+    Vista para mostrar el contenido del carrito de la sesión.
+    """
+    carrito = request.session.get('cart', [])
+    # Opcional: Si necesitas detalles completos de los productos en el carrito,
+    # puedes recuperarlos de la base de datos aquí.
+    # Por ejemplo:
+    # productos_en_carrito = []
+    # for item in carrito:
+    #     try:
+    #         producto = Producto.objects.get(id=item['id'])
+    #         productos_en_carrito.append({
+    #             'producto': producto,
+    #             'quantity': item.get('quantity', 1),
+    #             'variant_id': item.get('variant_id')
+    #         })
+    #     except Producto.DoesNotExist:
+    #         # Manejar el caso donde el producto ya no existe
+    #         pass
+    # context = get_common_context()
+    # context['carrito_detalles'] = productos_en_carrito
+    # return render(request, 'store/carrito.html', context)
+
+    # Para una implementación simple, solo pasamos los IDs y variantes guardados en sesión
+    context = get_common_context()
+    context['carrito'] = carrito
+    return render(request, 'store/carrito.html', context)
+
 
 class CategoriaListView(ListView):
     """

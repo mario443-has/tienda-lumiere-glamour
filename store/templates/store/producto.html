@@ -70,7 +70,9 @@
                         data-product-name="{{ producto.nombre }}"
                         data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
                         data-selected-variant-id="{{ producto.id }}" {# Usar ID del producto como ID de variante por defecto #}
-                        data-selected-color="N/A"> {# Color por defecto si no hay variantes de color #}
+                        data-selected-color="N/A" {# Color por defecto si no hay variantes de color #}
+                        data-product-image-url="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}" {# AÑADIDO: URL de la imagen del producto #}
+                >
                     <i class="fas fa-cart-plus text-2xl"></i>
                     <span>Añadir al Carrito</span>
                 </button>

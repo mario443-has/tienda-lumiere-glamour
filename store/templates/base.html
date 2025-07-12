@@ -828,7 +828,7 @@
           const mobileCartCountElement = document.getElementById("mobile-cart-count");
 
           if (cartCountElement) {
-              cartCountElement.innerText = window.cart.length;
+              cartCountElement.innerText = window.cart.length; // Cantidad total de ítems (no de productos únicos)
               if (window.cart.length > 0) {
                   cartCountElement.classList.remove("hidden");
               } else {
@@ -836,7 +836,7 @@
               }
           }
           if (mobileCartCountElement) {
-              mobileCartCountElement.innerText = window.cart.length;
+              mobileCartCountElement.innerText = window.cart.length; // Cantidad total de ítems
               if (window.cart.length > 0) {
                   mobileCartCountElement.classList.remove("hidden");
               } else {
@@ -844,9 +844,15 @@
               }
           }
           if (buyWhatsappButton && buyWhatsappCartCountSpan) {
-              if (window.cart.length > 0) {
+              // Contar productos únicos con sus cantidades para el botón de WhatsApp
+              let uniqueProductCount = 0;
+              window.cart.forEach(item => {
+                  uniqueProductCount += item.quantity;
+              });
+
+              if (uniqueProductCount > 0) {
                   buyWhatsappButton.classList.remove("hidden");
-                  buyWhatsappCartCountSpan.textContent = window.cart.length;
+                  buyWhatsappCartCountSpan.textContent = uniqueProductCount;
               } else {
                   buyWhatsappButton.classList.add("hidden");
               }
@@ -867,47 +873,61 @@
             const itemDiv = document.createElement("div");
             itemDiv.classList.add(
               "flex",
-              "justify-between",
               "items-center",
               "py-2",
               "border-b",
-              "border-gray-100"
+              "border-gray-100",
+              "gap-4" // Espacio entre los elementos del ítem
             );
             itemDiv.innerHTML = `
+                        <img src="${item.imageUrl || '{% static "img/sin_imagen.jpg" %}'}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md shadow-sm">
                         <div class="flex-1">
-                            <p class="text-gray-800 font-medium">${
-                              item.name
-                            }</p>
-                            <p class="text-gray-600 text-sm">$${parseFloat(
-                              item.price
-                            ).toFixed(2)}</p>
+                            <p class="text-gray-800 font-medium">${item.name}</p>
                             ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
+                            <p class="text-gray-600 text-sm">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</p>
                         </div>
-                        <button class="text-red-500 hover:text-red-700 ml-4" onclick="removeItemFromCart('${
-                          item.variantId
-                        }')">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', -1)">
+                                <i class="fas fa-minus-circle"></i>
+                            </button>
+                            <span class="font-semibold">${item.quantity}</span>
+                            <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', 1)">
+                                <i class="fas fa-plus-circle"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700 ml-2" onclick="updateItemQuantity('${item.variantId}', 0)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     `;
             if (cartItemsContainer) cartItemsContainer.appendChild(itemDiv);
-            total += parseFloat(item.price);
+            total += parseFloat(item.price) * item.quantity;
           });
         }
         if (cartTotalSpan) cartTotalSpan.textContent = `$${total.toFixed(2)}`;
       }
 
-      function removeItemFromCart(variantIdToRemove) {
-        const indexToRemove = window.cart.findIndex(
-          (item) => item.variantId === variantIdToRemove
-        );
-        if (indexToRemove > -1) {
-          window.cart.splice(indexToRemove, 1);
-          guardarCarritoLocal(); // ✅ Guardar después de eliminar
-          showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
-          updateCartDisplay();
-          actualizarContadorCarrito();
-        }
+      // Nueva función para actualizar la cantidad de un ítem en el carrito
+      function updateItemQuantity(variantIdToUpdate, change) {
+          const itemIndex = window.cart.findIndex(item => item.variantId === variantIdToUpdate);
+
+          if (itemIndex > -1) {
+              if (change === 0) { // Eliminar el ítem completamente
+                  window.cart.splice(itemIndex, 1);
+                  showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
+              } else {
+                  window.cart[itemIndex].quantity += change;
+                  if (window.cart[itemIndex].quantity <= 0) {
+                      window.cart.splice(itemIndex, 1); // Eliminar si la cantidad llega a 0 o menos
+                      showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
+                  } else {
+                      showMessageModal('Cantidad Actualizada', `Cantidad de ${window.cart[itemIndex].name} actualizada a ${window.cart[itemIndex].quantity}.`);
+                  }
+              }
+              guardarCarritoLocal(); // Guardar cambios en localStorage
+              updateCartDisplay(); // Re-renderizar el carrito y actualizar contadores
+          }
       }
+
 
       function sendCartToWhatsApp() {
         if (window.cart.length === 0) {
@@ -925,8 +945,8 @@
           if (item.color && item.color !== 'N/A') {
               message += ` (Color: ${item.color})`;
           }
-          message += ` - $${item.price}\n`;
-          total += parseFloat(item.price);
+          message += ` - Cantidad: ${item.quantity} - $${(parseFloat(item.price) * item.quantity).toFixed(2)}\n`;
+          total += parseFloat(item.price) * item.quantity;
         });
 
         message += `\nTotal estimado: $${total.toFixed(2)}\n`;
@@ -944,7 +964,6 @@
         updateCartDisplay();
         showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
         closeCartModal();
-        actualizarContadorCarrito();
       }
 
       function updateCartDisplay() {
@@ -1213,6 +1232,7 @@
             const productPrice = boton.getAttribute("data-product-price");
             const variantId = boton.getAttribute("data-selected-variant-id") || productId; // Usar productId como fallback
             const color = boton.getAttribute("data-selected-color") || 'N/A'; // Usar N/A como fallback
+            const imageUrl = boton.getAttribute("data-product-image-url") || '{% static "img/sin_imagen.jpg" %}'; // Nueva: Obtener URL de la imagen
 
             // Intentar obtener la cantidad del input si existe, de lo contrario, 1
             let quantity = 1;
@@ -1226,7 +1246,7 @@
             }
 
 
-            console.log("🛒 Añadiendo:", productId, "Cantidad:", quantity, "Variante:", variantId, "Color:", color);
+            console.log("🛒 Añadiendo:", productId, "Cantidad:", quantity, "Variante:", variantId, "Color:", color, "Imagen:", imageUrl);
 
             if (quantity > 0) {
                 fetch("/agregar-al-carrito/", {
@@ -1246,10 +1266,23 @@
                 .then((data) => {
                     if (data.mensaje) {
                         showMessageModal("✅ Producto añadido", "Producto: " + productName + " ha sido añadido al carrito.");
-                        // Guardar en window.cart (frontend)
-                        for (let i = 0; i < quantity; i++) {
-                            window.cart.push({ id: productId, name: productName, price: productPrice, color: color, variantId: variantId });
+                        // Guardar en window.cart (frontend) - Ahora con cantidad e imagen
+                        const existingItemIndex = window.cart.findIndex(item => item.variantId === variantId);
+
+                        if (existingItemIndex > -1) {
+                            window.cart[existingItemIndex].quantity += quantity;
+                        } else {
+                            window.cart.push({
+                                id: productId,
+                                name: productName,
+                                price: productPrice,
+                                color: color,
+                                variantId: variantId,
+                                quantity: quantity, // Añadir la cantidad
+                                imageUrl: imageUrl // Añadir la URL de la imagen
+                            });
                         }
+
                         guardarCarritoLocal(); // ✅ Guardar después de añadir
                         updateCartDisplay(); // Para actualizar el modal del carrito y contadores
                     } else if (data.error) {

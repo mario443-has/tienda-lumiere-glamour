@@ -7,6 +7,11 @@ function cargarCarritoLocal() {
   const carritoGuardado = localStorage.getItem('carritoLumiere');
   if (carritoGuardado) {
     window.cart = JSON.parse(carritoGuardado);
+    // Asegurarse de que la cantidad sea un número válido para cada ítem
+    window.cart.forEach(item => {
+        item.quantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
+        item.price = parseFloat(item.price) || 0; // Asegurar que el precio sea un número
+    });
   } else {
     window.cart = [];
   }
@@ -82,7 +87,8 @@ function actualizarContadorCarrito() {
 
     let totalItemsInCart = 0;
     window.cart.forEach(item => {
-        totalItemsInCart += item.quantity;
+        // Asegura que item.quantity sea un número, por defecto 1 si es inválido
+        totalItemsInCart += (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
     });
 
     if (cartCountElement) {
@@ -113,6 +119,10 @@ function renderCartItems() {
     } else {
         if (emptyCartMessage) emptyCartMessage.classList.add("hidden");
         window.cart.forEach((item, index) => {
+            // Asegurar que price y quantity sean números para el cálculo y la visualización
+            const itemPrice = parseFloat(item.price) || 0; // Por defecto 0 si el parseo falla
+            const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1; // Por defecto 1 si es inválido
+
             const itemDiv = document.createElement("div");
             itemDiv.classList.add(
                 "flex",
@@ -127,13 +137,13 @@ function renderCartItems() {
                         <div class="flex-1">
                             <p class="text-gray-800 font-medium">${item.name}</p>
                             ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
-                            <p class="text-gray-600 text-sm">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</p>
+                            <p class="text-gray-600 text-sm">$${itemPrice.toFixed(2)} x ${itemQuantity}</p>
                         </div>
                         <div class="flex items-center space-x-2">
                             <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', -1)">
                                 <i class="fas fa-minus-circle"></i>
                             </button>
-                            <span class="font-semibold">${item.quantity}</span>
+                            <span class="font-semibold">${itemQuantity}</span>
                             <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', 1)">
                                 <i class="fas fa-plus-circle"></i>
                             </button>
@@ -143,7 +153,7 @@ function renderCartItems() {
                         </div>
                     `;
             if (cartItemsContainer) cartItemsContainer.appendChild(itemDiv);
-            total += parseFloat(item.price) * item.quantity;
+            total += itemPrice * itemQuantity;
         });
     }
     if (cartTotalSpan) cartTotalSpan.textContent = `$${total.toFixed(2)}`;
@@ -154,6 +164,9 @@ function updateItemQuantity(variantIdToUpdate, change) {
     const itemIndex = window.cart.findIndex(item => item.variantId === variantIdToUpdate);
 
     if (itemIndex > -1) {
+        // Asegurar que la cantidad sea un número antes de realizar operaciones aritméticas
+        window.cart[itemIndex].quantity = (typeof window.cart[itemIndex].quantity === 'number' && !isNaN(window.cart[itemIndex].quantity)) ? window.cart[itemIndex].quantity : 0;
+
         if (change === 0) { // Eliminar el ítem completamente
             window.cart.splice(itemIndex, 1);
             showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
@@ -178,18 +191,22 @@ function sendCartToWhatsApp() {
         return;
     }
 
-    const whatsappNumber = '{{ whatsapp_number|default:"573007221200" }}'; // Esta variable debe ser accesible globalmente o pasada
+    // Usar la variable global window.whatsappNumber
+    const whatsappNumber = window.whatsappNumber || '573007221200';
     let message =
         "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
     let total = 0;
 
     window.cart.forEach((item, index) => {
+        const itemPrice = parseFloat(item.price) || 0;
+        const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
+
         message += `${index + 1}. ${item.name}`;
         if (item.color && item.color !== 'N/A') {
             message += ` (Color: ${item.color})`;
         }
-        message += ` - Cantidad: ${item.quantity} - $${(parseFloat(item.price) * item.quantity).toFixed(2)}\n`;
-        total += parseFloat(item.price) * item.quantity;
+        message += ` - Cantidad: ${itemQuantity} - $${(itemPrice * itemQuantity).toFixed(2)}\n`;
+        total += itemPrice * itemQuantity;
     });
 
     message += `\nTotal estimado: $${total.toFixed(2)}\n`;
@@ -493,7 +510,8 @@ document.addEventListener("DOMContentLoaded", function () {
         boton.addEventListener("click", function () {
             const productId = boton.getAttribute("data-product-id");
             const productName = boton.getAttribute("data-product-name");
-            const productPrice = boton.getAttribute("data-product-price");
+            // Asegurar que productPrice sea un número
+            const productPrice = parseFloat(boton.getAttribute("data-product-price")) || 0;
             const variantId = boton.getAttribute("data-selected-variant-id") || productId; // Usar productId como fallback
             const color = boton.getAttribute("data-selected-color") || 'N/A'; // Usar N/A como fallback
             const imageUrl = boton.getAttribute("data-product-image-url") || '/static/img/sin_imagen.jpg'; // Obtener URL de la imagen
@@ -506,6 +524,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const quantityInput = parentContainer.querySelector("input[type='number']");
                 if (quantityInput) {
                     quantity = parseInt(quantityInput.value);
+                    if (isNaN(quantity) || quantity <= 0) { // Asegurar que la cantidad sea válida
+                        quantity = 1;
+                    }
                 }
             }
 
@@ -534,16 +555,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         const existingItemIndex = window.cart.findIndex(item => item.variantId === variantId);
 
                         if (existingItemIndex > -1) {
+                            // Asegurar que la cantidad existente sea un número antes de sumar
+                            window.cart[existingItemIndex].quantity = (typeof window.cart[existingItemIndex].quantity === 'number' && !isNaN(window.cart[existingItemIndex].quantity)) ? window.cart[existingItemIndex].quantity : 0;
                             window.cart[existingItemIndex].quantity += quantity;
                         } else {
                             window.cart.push({
                                 id: productId,
                                 name: productName,
-                                price: productPrice,
+                                price: productPrice, // Ya es un número
                                 color: color,
                                 variantId: variantId,
-                                quantity: quantity, // Añadir la cantidad
-                                imageUrl: imageUrl // Añadir la URL de la imagen
+                                quantity: quantity, // Ya es un número
+                                imageUrl: imageUrl
                             });
                         }
 

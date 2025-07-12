@@ -1,5 +1,6 @@
 <div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
-  <a href="{% url 'detalle_producto' producto.slug %}">
+  {# Corregido: Usar 'producto_detalle' y 'producto.id' #}
+  <a href="{% url 'producto_detalle' producto.id %}">
     <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
   </a>
   <div class="p-4">
@@ -10,12 +11,18 @@
     {% if producto.descuento %}
       <p class="text-pink-600 font-bold text-sm mt-1">
         ${{ producto.get_precio_final }} COP
-        <span class="line-through text-gray-400 text-xs">${{ producto.precio }}</span>
+      </p>
+      <p class="text-gray-500 text-xs line-through">
+        ${{ producto.precio }} COP
       </p>
     {% else %}
-      <p class="text-gray-800 font-semibold text-sm mt-1">
+      <p class="text-gray-900 font-bold text-sm mt-1">
         ${{ producto.precio }} COP
       </p>
     {% endif %}
+
+    <button class="mt-4 w-full bg-pink-600 text-white py-2 px-3 rounded-md text-xs font-semibold hover:bg-pink-700 transition">
+      Añadir al Carrito
+    </button>
   </div>
 </div>

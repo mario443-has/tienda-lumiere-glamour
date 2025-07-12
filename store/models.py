@@ -6,64 +6,6 @@ from cloudinary.models import CloudinaryField
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _ # Import para internacionalización de verbose_name
 
-class Categoria(models.Model):
-    # Se elimina unique=True del nombre, ya que el slug se encargará de la unicidad en la URL
-    nombre = models.CharField(max_length=255)
-    # Se elimina null=True, blank=True es suficiente si no se requiere el campo en la DB
-    descripcion = models.TextField(blank=True)
-    # Se elimina blank=True, ya que el slug se generará automáticamente y debe ser único
-    slug = models.SlugField(unique=True)
-    # Relación recursiva para categorías padre/hijo
-    padre = models.ForeignKey(
-        'self',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='subcategorias',
-        help_text="Categoría padre (opcional, para subcategorías)"
-    )
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_modificacion = models.DateTimeField(auto_now=True)
-    
-    # Asignar el manager personalizado al modelo Categoria
-    objects = CategoriaManager()
-
-    class Meta:
-        verbose_name = _('Categoría')
-        verbose_name_plural = _('Categorías')
-        # Añadir índices para mejorar el rendimiento de las consultas
-        indexes = [
-            models.Index(fields=['slug']),
-            models.Index(fields=['padre']),
-        ]
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.nombre)
-            # Lógica para asegurar la unicidad del slug si el nombre no es único
-            original_slug = self.slug
-            contador = 1
-            while Categoria.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
-                self.slug = f"{original_slug}-{contador}"
-                contador += 1
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.nombre
-
-    @property
-    def productos_count(self):
-        """Devuelve el número de productos asociados directamente a esta categoría."""
-        # Nota: Esto ejecuta una consulta a la DB cada vez que se accede.
-        # Para listas de categorías, usar el QuerySet con .annotate(Count('productos')) es más eficiente.
-        return self.productos.count()
-
-    @property
-    def ruta_completa(self):
-        """Devuelve la ruta completa de la categoría, ej: 'Electrónica > Smartphones'."""
-        if self.padre:
-            return f"{self.padre.ruta_completa} > {self.nombre}"
-        return self.nombre
 
 # Custom QuerySet para el modelo Categoria
 class CategoriaQuerySet(models.QuerySet):
@@ -88,6 +30,60 @@ class CategoriaManager(models.Manager):
         """Devuelve las categorías principales con su conteo de productos anotado."""
         return self.get_queryset().principales().con_productos()
 
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=255)
+    descripcion = models.TextField(blank=True)
+    slug = models.SlugField(unique=True)  # Este campo es importante
+    padre = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='subcategorias',
+        help_text="Categoría padre (opcional, para subcategorías)"
+    )
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+
+    # ESTE manager es necesario - Ahora definido después de CategoriaManager
+    objects = CategoriaManager()
+
+    class Meta:
+        verbose_name = _('Categoría')
+        verbose_name_plural = _('Categorías')
+        indexes = [
+            models.Index(fields=['slug']),
+            models.Index(fields=['padre']),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nombre)
+            # Lógica para asegurar la unicidad del slug si el nombre no es único
+            original_slug = self.slug
+            contador = 1
+            while Categoria.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = f"{original_slug}-{contador}"
+                contador += 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.nombre
+
+    @property
+    def productos_count(self):
+        """Devuelve el número de productos asociados directamente a esta categoría."""
+        return self.productos.count()
+
+    @property
+    def ruta_completa(self):
+        """Devuelve la ruta completa de la categoría, ej: 'Electrónica > Smartphones'."""
+        if self.padre:
+            return f"{self.padre.ruta_completa} > {self.nombre}"
+        return self.nombre
+
+
 class Producto(models.Model):
     nombre = models.CharField(max_length=255) # Aumentado a 255
     slug = models.SlugField(unique=True, blank=True)
@@ -104,7 +100,6 @@ class Producto(models.Model):
         related_name='productos',
         help_text="Categoría principal del producto"
     )
-    # Eliminado el campo subcategoria ya que la jerarquía se maneja en el modelo Categoria
     is_active = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     ultima_actualizacion = models.DateTimeField(auto_now=True)
@@ -156,7 +151,7 @@ class Variacion(models.Model):
     valor = models.CharField(max_length=100)
     color = models.CharField(max_length=50, blank=True, null=True)
     color_hex = models.CharField(max_length=7, blank=True, null=True, help_text="Código HEX del color (ej. #FF0000)")
-    tono = models.CharField(max_length=50, blank=True, null=True)
+    tono = models.CharField(max_length=50, blank=True, null=100)
     presentacion = models.CharField(max_length=50, blank=True, null=True)
     imagen = CloudinaryField('imagen_variacion', blank=True, null=True, help_text="Imagen específica para esta variación")
     price_override = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Opcional: Precio para esta variación. Si está vacío, usa el precio del producto principal.")
@@ -164,7 +159,7 @@ class Variacion(models.Model):
     class Meta:
         unique_together = ('producto', 'nombre', 'valor')
         verbose_name = "Variación"
-        verbose_name_plural = 'Variaciones'  
+        verbose_name_plural = "Variaciones"
 
     def __str__(self):
         parts = [self.producto.nombre]

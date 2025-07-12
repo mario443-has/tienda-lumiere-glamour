@@ -602,6 +602,8 @@
     <script>
         // Define el número de WhatsApp globalmente para que main.js pueda acceder a él
         window.whatsappNumber = "{{ whatsapp_number|default:'573007221200' }}";
+        // Define la URL de la imagen de placeholder globalmente
+        window.placeholderImageUrl = "{% static 'img/sin_imagen.jpg' %}";
     </script>
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %} {# Este es el bloque para JS específico de cada página #}

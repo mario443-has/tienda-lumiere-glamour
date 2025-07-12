@@ -1,37 +1,83 @@
-/* Enlaces de categoría principal */
-.categoria-link {
-  display: inline-block;
-  font-weight: 600;
-  color: #ec4899; /* rosa fuerte */
-  font-size: 1rem;
-  padding-bottom: 2px;
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: border-color 0.3s ease, color 0.3s ease;
+/* Estilos para la sección de categorías */
+.categorias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem; /* Espacio entre las tarjetas de categoría */
 }
 
-.categoria-link:hover {
-  border-bottom-color: #ec4899;
-  color: #db2777;
+.categoria-card {
+    background-color: #ffffff;
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+    padding: 1.5rem; /* p-6 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
-/* Contenedor de subcategorías */
-.subcategorias {
-  padding-left: 1rem;
-  margin-top: 0.25rem;
-  border-left: 2px solid #f3f4f6; /* gris claro */
+.categoria-card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15); /* shadow-lg */
 }
 
-/* Enlaces de subcategoría */
+.categoria-card-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: inherit; /* Hereda el color del texto */
+    width: 100%; /* Asegura que el enlace ocupe todo el ancho de la tarjeta */
+}
+
+.categoria-icon {
+    font-size: 3rem; /* text-5xl */
+    color: #db2777; /* pink-600 */
+    margin-bottom: 1rem; /* mb-4 */
+}
+
+.categoria-nombre {
+    font-size: 1.5rem; /* text-2xl */
+    font-weight: 700; /* font-bold */
+    color: #1f2937; /* gray-900 */
+    margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.categoria-count {
+    font-size: 1rem; /* text-base */
+    color: #6b7280; /* gray-500 */
+}
+
+/* Estilos para subcategorías dentro de la tarjeta (si decides mostrarlas) */
+.subcategorias-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.subcategorias-list li {
+    margin-bottom: 0.5rem;
+}
+
 .subcategoria-link {
-  display: block;
-  margin: 4px 0;
-  color: #6b7280; /* gris medio */
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: color 0.3s ease;
+    font-size: 0.875rem; /* text-sm */
+    color: #4b5563; /* gray-700 */
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 .subcategoria-link:hover {
-  color: #ec4899; /* rosa glamour */
+    color: #ec4899; /* pink-500 */
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+    .categoria-icon {
+        font-size: 2.5rem; /* Ajuste para móviles */
+    }
+    .categoria-nombre {
+        font-size: 1.25rem; /* Ajuste para móviles */
+    }
 }

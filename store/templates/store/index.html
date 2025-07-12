@@ -17,6 +17,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    <!-- Estilos personalizados para categorías -->
+    <link rel="stylesheet" href="{% static 'css/categorias.css' %}">
     <style>
       /* Estilo personalizado para la fuente del logo */
       .font-great-vibes {
@@ -123,6 +125,60 @@
       }
       .additional-colors-container.visible {
         display: flex; /* Visible cuando se activa */
+      }
+
+      /* Estilos Mejorados para Categorías (Añadidos aquí) */
+      .categorias-nav {
+          margin-bottom: 2rem;
+      }
+      .categoria-item {
+          margin-bottom: 1rem;
+      }
+      .categoria-link {
+          display: block;
+          padding: 0.5rem;
+          color: inherit;
+          text-decoration: none;
+          border-bottom: 2px solid transparent;
+          transition: border-color 0.3s ease;
+      }
+      .categoria-link:hover {
+          /* Usar un color que contraste con tu tema, por ejemplo, el rosa de tu logo */
+          border-bottom-color: #EC4899; /* Tailwind pink-500 */
+      }
+      .subcategorias {
+          margin-left: 1.5rem;
+          padding-left: 1.5rem;
+          /* Usar un color que contraste con tu tema */
+          border-left: 2px solid #D1D5DB; /* Tailwind gray-300 */
+      }
+      .subcategoria-link {
+          display: block;
+          margin-bottom: 0.5rem;
+          /* Usar un color que contraste con tu tema */
+          color: #4B5563; /* Tailwind gray-700 */
+          text-decoration: none;
+      }
+      .subcategoria-link:hover {
+          /* Usar un color que contraste con tu tema, por ejemplo, el rosa de tu logo */
+          color: #EC4899; /* Tailwind pink-500 */
+      }
+      @media (max-width: 768px) {
+          .categorias-container {
+              position: fixed;
+              left: 0;
+              top: 4rem; /* Ajustar si tu header tiene otra altura */
+              bottom: 0;
+              width: 250px;
+              overflow-y: auto;
+              /* Usar un color que contraste con tu tema */
+              background: #FFFFFF; /* Tailwind white */
+              box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+              z-index: 1000;
+          }
+          .categorias-lista {
+              padding: 1rem;
+          }
       }
     </style>
 
@@ -267,14 +323,15 @@
               class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top"
             >
               <div class="py-1">
-                {% for categoria in categorias %}
-                  {% if categoria.subcategorias.all %}
+                {# MODIFICACIÓN: Iterar sobre categorías principales para la nueva estructura jerárquica #}
+                {% for categoria_principal in categorias_principales %}
                   <div class="relative group/sub">
                     <a
-                      href="{% url 'home' %}"
+                      href="{% url 'categoria' categoria_principal.slug %}" {# Apunta a la categoría principal #}
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
                     >
-                      {{ categoria.nombre }}
+                      {{ categoria_principal.nombre }}
+                      {% if categoria_principal.subcategorias.all %} {# Comprueba si tiene subcategorías #}
                       <svg
                         class="w-4 h-4 transform rotate-90 group-hover/sub:rotate-0 transition-transform duration-200"
                         fill="none"
@@ -288,28 +345,26 @@
                           d="M9 5l7 7-7 7"
                         ></path>
                       </svg>
+                      {% endif %}
                     </a>
+                    {% if categoria_principal.subcategorias.all %} {# Si tiene subcategorías, crea el submenú #}
                     <div
                       class="absolute left-full top-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform scale-95 group-hover/sub:scale-100 origin-top-left"
                     >
-                      {% for sub in categoria.subcategorias.all %}
+                      {# Iterar sobre las subcategorías de la categoría principal #}
+                      {% for subcategoria in categoria_principal.subcategorias.all %}
                       <a
-                        href="{% url 'home' %}?subcategoria={{ sub.id }}"
+                        href="{% url 'categoria' subcategoria.slug %}" {# Apunta a la subcategoría #}
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
                       >
-                        {{ sub.nombre }}
+                        {{ subcategoria.nombre }}
                       </a>
                       {% endfor %}
                     </div>
+                    {% endif %}
                   </div>
-                  {% else %}
-                  <a
-                    href="{% url 'home' %}?categoria={{ categoria.id }}"
-                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
-                  >
-                    {{ categoria.nombre }}
-                  </a>
-                  {% endif %}
+                {% empty %}
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-500">No hay categorías disponibles.</a>
                 {% endfor %}
               </div>
             </div>
@@ -410,14 +465,15 @@
             id="mobile-categories-dropdown"
             class="hidden pl-8 py-1 bg-gray-50"
           >
-            <!-- Bucle para Categorías en Móvil -->
-            {% for categoria in categorias %}
+            {# MODIFICACIÓN: Bucle para Categorías en Móvil con jerarquía #}
+            {% for categoria_principal in categorias_principales %}
             <div class="relative">
               <button
                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
                 onclick="toggleSubmenu(this)"
               >
-                {{ categoria.nombre }} {% if categoria.subcategorias.all %}
+                <a href="{% url 'categoria' categoria_principal.slug %}" class="flex-grow">{{ categoria_principal.nombre }}</a> {# Enlace directo para la categoría principal #}
+                {% if categoria_principal.subcategorias.all %}
                 <svg
                   class="w-4 h-4 transform rotate-90 transition-transform duration-200"
                   fill="none"
@@ -434,11 +490,11 @@
                 </svg>
                 {% endif %}
               </button>
-              {% if categoria.subcategorias.all %}
+              {% if categoria_principal.subcategorias.all %}
               <div class="hidden pl-4 py-1 bg-gray-100">
-                {% for subcategoria in categoria.subcategorias.all %}
+                {% for subcategoria in categoria_principal.subcategorias.all %}
                 <a
-                  href="{% url 'home' %}"
+                  href="{% url 'categoria' subcategoria.slug %}" {# Apunta a la subcategoría #}
                   class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-200 hover:text-pink-600"
                   >{{ subcategoria.nombre }}</a
                 >
@@ -465,7 +521,6 @@
           href="{% url 'home' %}"
           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600"
           >Ofertas</a
-
         >
         <a
           href="#"
@@ -573,8 +628,35 @@
     </section>
     {% endif %}
 
-    <!-- Sección de Productos (MOVIDA ARRIBA) -->
     <main class="container mx-auto px-4 py-8">
+      <!-- Sección de Categorías (NUEVO) -->
+      <div class="mb-6">
+        <h2 class="text-lg font-bold text-gray-700 mb-2">Categorías</h2>
+
+        <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {% for categoria in categorias_principales %}
+            <div class="border-b pb-2">
+              <a href="{% url 'categoria' categoria.slug %}" class="text-pink-600 font-semibold hover:underline">
+                {{ categoria.nombre }} ({{ categoria.productos_count }})
+              </a>
+
+              {% if categoria.subcategorias.all %}
+                <ul class="pl-4 mt-1 text-sm text-gray-600">
+                  {% for sub in categoria.subcategorias.all %}
+                    <li>
+                      <a href="{% url 'categoria' sub.slug %}" class="hover:text-pink-500">
+                        {{ sub.nombre }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Sección de Productos -->
       <h2 class="text-3xl font-semibold text-center text-gray-900 mb-8">
         {% if query %} Resultados para "{{ query }}" {% if categoria_actual %}
         en {{ nombre_categoria_actual }} {% endif %} {% elif ofertas_activas %}
@@ -599,144 +681,144 @@
         </button>
 
         <!-- Contenedor deslizable -->
-<div
-  id="slider"
-  class="overflow-x-auto scroll-smooth whitespace-nowrap space-x-4 pb-4 px-2"
->
-  <div class="inline-flex space-x-4">
-    {% for producto in productos %}
-    <div
-      class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative"
-      data-product-id="{{ producto.id }}" {# Añadido para facilitar la selección de elementos #}
-    >
-      {% if producto.descuento > 0 %}
-      <div
-        class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10 shadow-md"
-      >
-        OFERTA
-      </div>
-      {% endif %}
-
-      <a href="{% url 'producto_detalle' producto.id %}">
-        {# La imagen inicial será la del primer variante o la imagen principal del producto #}
-        <img
-          id="product-image-{{ producto.id }}"
-          src="
-            {% if producto.variaciones.all and producto.variaciones.first.imagen %}
-              {{ producto.variaciones.first.imagen.url }}
-            {% elif producto.imagen %}
-              {{ producto.imagen.url }}
-            {% else %}
-              {% static 'img/sin_imagen.jpg' %}
-            {% endif %}
-          "
-          alt="{{ producto.nombre }}"
-          class="w-full h-48 object-cover"
-        />
-      </a>
-
-      <div class="p-5">
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">
-          {{ producto.nombre }}
-        </h3>
-        {# Eliminada la descripción del producto #}
-        <div class="flex justify-between items-center mb-4">
-          {# El precio inicial será el del primer variante o el precio principal del producto #}
-          <span id="product-price-{{ producto.id }}" class="text-2xl font-bold text-pink-600">
-            ${% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}
-          </span>
-          {% if producto.descuento > 0 %}
-          <span class="text-sm text-gray-500 line-through">
-            ${{ producto.precio|floatformat:0 }}
-          </span>
-          {% endif %}
-        </div>
-
-        <!-- Sección de selección de color (Variantes) -->
-        {% if producto.variaciones.all %} {# Solo muestra esta sección si hay variaciones #}
-        <div class="mb-4">
-            <p class="text-gray-700 text-sm mb-2">Color:</p>
-            <div class="flex items-center space-x-2">
-                {% for variante in producto.variaciones.all %}
-                    {% if forloop.counter0 < 3 %} {# Mostrar solo los primeros 3 colores #}
-                    <div
-                        class="color-option {% if forloop.first %}selected{% endif %}"
-                        style="background-color: {{ variante.color_hex }};"
-                        data-variant-id="{{ variante.id }}"
-                        data-color-name="{{ variante.color_name }}"
-                        data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
-                        data-variant-price="{{ variante.precio_final|floatformat:0 }}"
-                    ></div>
-                    {% elif forloop.counter0 == 3 %} {# Mostrar el botón '+' si hay más de 3 colores #}
-                    <div class="more-colors-button" data-product-id="{{ producto.id }}">
-                        <i class="fas fa-plus"></i> {# Ícono de Font Awesome #}
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {# Contenedor para los colores adicionales, oculto por defecto #}
-            <div id="additional-colors-{{ producto.id }}" class="additional-colors-container flex-wrap space-x-2 hidden">
-                {% for variante in producto.variaciones.all %}
-                    {% if forloop.counter0 >= 3 %} {# Mostrar los colores a partir del 4to #}
-                    <div
-                        class="color-option"
-                        style="background-color: {{ variante.color_hex }};"
-                        data-variant-id="{{ variante.id }}"
-                        data-color-name="{{ variante.color_name }}"
-                        data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
-                        data-variant-price="{{ variante.precio_final|floatformat:0 }}"
-                    ></div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <button
-          class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
-          data-product-id="{{ producto.id }}"
-          data-product-name="{{ producto.nombre }}"
-          data-product-price="{% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
-          data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color_name }}{% else %}N/A{% endif %}" {# Añadido 'N/A' si no hay variaciones #}
-          data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Usa product.id si no hay variaciones #}
+        <div
+          id="slider"
+          class="overflow-x-auto scroll-smooth whitespace-nowrap space-x-4 pb-4 px-2"
         >
-          <i class="fas fa-cart-plus"></i>
-          <span>Agregar al Carrito</span>
-        </button>
-      </div>
-    </div>
-    {% empty %}
-    <div
-      class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full"
-    >
-      {% if query %}
-      <p class="text-xl font-semibold mb-2">
-        No encontramos resultados para "<span class="text-pink-600"
-          >{{ query }}</span
-        >".
-      </p>
-      <p class="text-gray-500">
-        Intenta buscar con otras palabras clave o revisa nuestras categorías.
-      </p>
-      {% elif ofertas_activas %}
-      <p class="text-xl font-semibold mb-2">
-        No hay productos en oferta en este momento.
-      </p>
-      <p class="text-gray-500">
-        ¡Vuelve pronto para ver nuestras promociones!
-      </p>
-      {% else %}
-      <p class="text-xl font-semibold mb-2">
-        No hay productos disponibles en esta categoría.
-      </p>
-      <p class="text-gray-500">
-        ¡Pronto tendremos más novedades para ti!
-      </p>
-      {% endif %}
-    </div>
-    {% endfor %}
-  </div>
-</div>
+          <div class="inline-flex space-x-4">
+            {% for producto in productos %}
+            <div
+              class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative"
+              data-product-id="{{ producto.id }}" {# Añadido para facilitar la selección de elementos #}
+            >
+              {% if producto.descuento > 0 %}
+              <div
+                class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10 shadow-md"
+              >
+                OFERTA
+              </div>
+              {% endif %}
+
+              <a href="{% url 'producto_detalle' producto.id %}">
+                {# La imagen inicial será la del primer variante o la imagen principal del producto #}
+                <img
+                  id="product-image-{{ producto.id }}"
+                  src="
+                    {% if producto.variaciones.all and producto.variaciones.first.imagen %}
+                      {{ producto.variaciones.first.imagen.url }}
+                    {% elif producto.imagen %}
+                      {{ producto.imagen.url }}
+                    {% else %}
+                      {% static 'img/sin_imagen.jpg' %}
+                    {% endif %}
+                  "
+                  alt="{{ producto.nombre }}"
+                  class="w-full h-48 object-cover"
+                />
+              </a>
+
+              <div class="p-5">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                  {{ producto.nombre }}
+                </h3>
+                {# Eliminada la descripción del producto #}
+                <div class="flex justify-between items-center mb-4">
+                  {# El precio inicial será el del primer variante o el precio principal del producto #}
+                  <span id="product-price-{{ producto.id }}" class="text-2xl font-bold text-pink-600">
+                    ${% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}
+                  </span>
+                  {% if producto.descuento > 0 %}
+                  <span class="text-sm text-gray-500 line-through">
+                    ${{ producto.precio|floatformat:0 }}
+                  </span>
+                  {% endif %}
+                </div>
+
+                <!-- Sección de selección de color (Variantes) -->
+                {% if producto.variaciones.all %} {# Solo muestra esta sección si hay variaciones #}
+                <div class="mb-4">
+                    <p class="text-gray-700 text-sm mb-2">Color:</p>
+                    <div class="flex items-center space-x-2">
+                        {% for variante in producto.variaciones.all %}
+                            {% if forloop.counter0 < 3 %} {# Mostrar solo los primeros 3 colores #}
+                            <div
+                                class="color-option {% if forloop.first %}selected{% endif %}"
+                                style="background-color: {{ variante.color_hex }};"
+                                data-variant-id="{{ variante.id }}"
+                                data-color-name="{{ variante.color }}" {# MODIFICACIÓN: Usar variante.color para el nombre #}
+                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                                data-variant-price="{{ variante.precio_final|floatformat:0 }}"
+                            ></div>
+                            {% elif forloop.counter0 == 3 %} {# Mostrar el botón '+' si hay más de 3 colores #}
+                            <div class="more-colors-button" data-product-id="{{ producto.id }}">
+                                <i class="fas fa-plus"></i> {# Ícono de Font Awesome #}
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {# Contenedor para los colores adicionales, oculto por defecto #}
+                    <div id="additional-colors-{{ producto.id }}" class="additional-colors-container flex-wrap space-x-2 hidden">
+                        {% for variante in producto.variaciones.all %}
+                            {% if forloop.counter0 >= 3 %} {# Mostrar los colores a partir del 4to #}
+                            <div
+                                class="color-option"
+                                style="background-color: {{ variante.color_hex }};"
+                                data-variant-id="{{ variante.id }}"
+                                data-color-name="{{ variante.color }}" {# MODIFICACIÓN: Usar variante.color para el nombre #}
+                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                                data-variant-price="{{ variante.precio_final|floatformat:0 }}"
+                            ></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <button
+                  class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+                  data-product-id="{{ producto.id }}"
+                  data-product-name="{{ producto.nombre }}"
+                  data-product-price="{% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
+                  data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color }}{% else %}N/A{% endif %}" {# MODIFICACIÓN: Usar variante.color #}
+                  data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Usa product.id si no hay variaciones #}
+                >
+                  <i class="fas fa-cart-plus"></i>
+                  <span>Agregar al Carrito</span>
+                </button>
+              </div>
+            </div>
+            {% empty %}
+            <div
+              class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full"
+            >
+              {% if query %}
+              <p class="text-xl font-semibold mb-2">
+                No encontramos resultados para "<span class="text-pink-600"
+                  >{{ query }}</span
+                >".
+              </p>
+              <p class="text-gray-500">
+                Intenta buscar con otras palabras clave o revisa nuestras categorías.
+              </p>
+              {% elif ofertas_activas %}
+              <p class="text-xl font-semibold mb-2">
+                No hay productos en oferta en este momento.
+              </p>
+              <p class="text-gray-500">
+                ¡Vuelve pronto para ver nuestras promociones!
+              </p>
+              {% else %}
+              <p class="text-xl font-semibold mb-2">
+                No hay productos disponibles en esta categoría.
+              </p>
+              <p class="text-gray-500">
+                ¡Pronto tendremos más novedades para ti!
+              </p>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
     </main>
 
     <!-- Sección de Beneficios (MOVIDA ABAJO) -->
@@ -1072,7 +1154,7 @@
                             <p class="text-gray-600 text-sm">$${parseFloat(
                               item.price
                             ).toFixed(2)}</p>
-                            ${item.color ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
+                            ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''} {# MODIFICACIÓN: Condición para mostrar el color #}
                         </div>
                         <button class="text-red-500 hover:text-red-700 ml-4" onclick="removeItemFromCart('${
                           item.variantId
@@ -1109,7 +1191,7 @@
           const selectedVariantId = event.currentTarget.dataset.selectedVariantId; // ID de la variante seleccionada
 
           // Si no hay una variante seleccionada (ej. producto sin variantes), usa los datos del producto base
-          if (!selectedVariantId) {
+          if (!selectedVariantId || selectedVariantId === productId) { // MODIFICACIÓN: Comprueba si variantId es igual a productId para productos sin variantes
               cart.push({ id: productId, name: productName, price: productPrice, color: 'N/A', variantId: productId });
               console.log(`"${productName}" ha sido agregado al carrito.`);
           } else {
@@ -1137,7 +1219,7 @@
 
         cart.forEach((item, index) => {
           message += `${index + 1}. ${item.name}`;
-          if (item.color && item.color !== 'N/A') {
+          if (item.color && item.color !== 'N/A') { // MODIFICACIÓN: Condición para añadir el color al mensaje
               message += ` (Color: ${item.color})`;
           }
           message += ` - $${item.price}\n`;

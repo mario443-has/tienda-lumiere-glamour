@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+  <!-- Título de la categoría -->
+  <h1 class="text-2xl font-bold mb-4 text-gray-800">
+    {{ categoria.nombre }}
+  </h1>
+
+  <!-- Subcategorías -->
+  {% if categoria.subcategorias.all %}
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Subcategorías</h2>
+      <div class="flex flex-wrap gap-2">
+        {% for sub in categoria.subcategorias.all %}
+          <a href="{% url 'categoria' sub.slug %}"
+             class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full hover:bg-pink-200 text-sm">
+            {{ sub.nombre }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Lista de productos -->
+  {% if productos %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      {% for producto in productos %}
+        {% include 'store/components/product_card.html' with producto=producto %}
+      {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    <div class="mt-6 flex justify-center items-center gap-4">
+      {% if productos.has_previous %}
+        <a href="?page={{ productos.previous_page_number }}" class="text-sm text-gray-600 hover:text-pink-500">← Anterior</a>
+      {% endif %}
+
+      <span class="text-sm text-gray-700">
+        Página {{ productos.number }} de {{ productos.paginator.num_pages }}
+      </span>
+
+      {% if productos.has_next %}
+        <a href="?page={{ productos.next_page_number }}" class="text-sm text-gray-600 hover:text-pink-500">Siguiente →</a>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <p class="text-gray-500">No hay productos en esta categoría.</p>
+  {% endif %}
+</div>
+{% endblock %}

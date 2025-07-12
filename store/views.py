@@ -1,8 +1,9 @@
 import json # Importa el módulo json
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
-# Asegúrate de que todos estos modelos estén definidos en tu models.py
-from .models import Producto, Categoria, MenuItem, SiteSetting, SubCategoria, Anuncio
+from django.views.generic import ListView # Importa ListView
+from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio # Asegúrate de importar Producto y Categoria
+from django.http import Http404
 
 
 def get_common_context():
@@ -14,8 +15,9 @@ def get_common_context():
     # Obtener todas las categorías, pre-cargando las subcategorías para evitar consultas N+1.
     # Es crucial que en tu modelo Categoria, el related_name para SubCategoria sea 'subcategorias'
     # o ajusta 'subcategorias' aquí al nombre de tu related_name si es diferente.
-    categorias = Categoria.objects.prefetch_related('subcategorias').all() 
-    
+    # Usamos el manager personalizado para obtener las categorías principales con conteo de productos
+    categorias = Categoria.objects.principales_con_productos()
+
     # Obtener los elementos de menú configurables desde el modelo MenuItem.
     # Se ordenan por el campo 'order' para controlar su posición en la navegación.
     menu_items = MenuItem.objects.all().order_by('order')
@@ -65,8 +67,8 @@ def inicio(request):
         productos_queryset = productos_queryset.filter(
             Q(nombre__icontains=query) |
             Q(descripcion__icontains=query) |
-            Q(categoria__nombre__icontains=query) | # Filtra también por nombre de categoría
-            Q(subcategoria__nombre__icontains=query) # Filtra también por nombre de subcategoría
+            Q(categoria__nombre__icontains=query) # Filtra también por nombre de categoría
+            # Q(subcategoria__nombre__icontains=query) # Eliminado: la subcategoría ahora es parte de la jerarquía de Categoria
         ).distinct() # `distinct()` para evitar duplicados si un producto coincide en varios campos
 
     # 3. Aplicar filtro por categoría si se proporciona `categoria_id`
@@ -78,15 +80,22 @@ def inicio(request):
             nombre_categoria_actual = categoria_actual_obj.nombre
         except Categoria.DoesNotExist:
             # Si la categoría no existe, no se filtra y se mantiene el nombre en None
-            pass 
+            pass
 
     # 4. Aplicar filtro por subcategoría si se proporciona `subcategoria_id`
     # Este filtro se aplica DESPUÉS del filtro de ofertas y categoría.
+    # NOTA: Con la nueva estructura de categorías, `subcategoria_id` ahora se refiere a una Categoria
+    # que tiene un `padre`.
     if subcategoria_id:
         try:
-            subcategoria_actual_obj = SubCategoria.objects.get(id=subcategoria_id)
-            productos_queryset = productos_queryset.filter(subcategoria=subcategoria_actual_obj)
-            
+            # Busca la subcategoría por su ID
+            subcategoria_actual_obj = Categoria.objects.get(id=subcategoria_id)
+            # Filtra productos cuya categoría es la subcategoría actual o una de sus subcategorías anidadas
+            productos_queryset = productos_queryset.filter(
+                Q(categoria=subcategoria_actual_obj) |
+                Q(categoria__padre=subcategoria_actual_obj) # Para incluir productos de sub-subcategorías
+            ).distinct()
+
             # Ajusta el título de la sección de productos:
             # Si ya se había filtrado por categoría, combina los nombres.
             # Si no, usa solo el nombre de la subcategoría.
@@ -94,15 +103,15 @@ def inicio(request):
                 nombre_categoria_actual = f"{subcategoria_actual_obj.nombre} ({nombre_categoria_actual})"
             else:
                 nombre_categoria_actual = subcategoria_actual_obj.nombre
-            
+
             # Establece la categoría padre de la subcategoría como la "actual" para la navegación
             # Esto ayuda a que el elemento de menú de la categoría padre se vea activo.
-            if subcategoria_actual_obj.categoria:
-                categoria_actual_obj = subcategoria_actual_obj.categoria
+            if subcategoria_actual_obj.padre:
+                categoria_actual_obj = subcategoria_actual_obj.padre # Ahora usamos 'padre' en lugar de 'categoria'
 
-        except SubCategoria.DoesNotExist:
+        except Categoria.DoesNotExist: # Ahora se busca en Categoria, no SubCategoria
             # Si la subcategoría no existe, no se filtra
-            pass 
+            pass
 
     # Convertir el QuerySet de productos a una lista de diccionarios
     # para que sea serializable a JSON y pueda ser usada por JavaScript.
@@ -116,7 +125,7 @@ def inicio(request):
             'descripcion': producto.descripcion,
             'precio': str(producto.precio), # Convertir Decimal a string
             'descuento': str(producto.descuento), # Convertir Decimal a string
-            'get_precio_final': str(producto.get_precio_final), # Llamar al método y convertir a string
+            'get_precio_final': str(producto.get_precio_final()), # Llamar al método y convertir a string
             'imagen': producto.imagen.url if producto.imagen else '', # Obtener la URL de la imagen
         })
 
@@ -135,12 +144,13 @@ def inicio(request):
         'nombre_categoria_actual': nombre_categoria_actual, # Pasa el nombre para el título de la sección
         'ofertas_activas': ofertas_activas == 'true', # Pasa un booleano para el estado de ofertas
         'anuncios': anuncios, # Añadir anuncios al contexto
+        'categorias_principales': Categoria.objects.principales_con_productos(), # Agrega esta línea
     })
-    
+
     # Renderiza la plantilla principal. Asegúrate de que el nombre de la plantilla sea correcto,
     # por ejemplo, 'index.html' si está en la raíz de tu carpeta templates,
     # o 'store/index.html' si está dentro de una subcarpeta 'store'.
-    return render(request, 'store/index.html', context) 
+    return render(request, 'store/index.html', context)
 
 def producto_detalle(request, producto_id):
     """
@@ -149,12 +159,12 @@ def producto_detalle(request, producto_id):
     """
     # Obtiene el producto por su ID, o devuelve un 404 si no se encuentra.
     producto = get_object_or_404(Producto, id=producto_id)
-    
+
     # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
     context = get_common_context()
-    
+
     # Añadir el producto específico al contexto
-    context['producto'] = producto 
+    context['producto'] = producto
 
     # Renderiza la plantilla de detalle del producto.
     # Asegúrate de que 'store/producto.html' sea la ruta correcta a tu plantilla de detalle.
@@ -164,3 +174,42 @@ from django.http import HttpResponse
 
 def google_verification(request):
     return HttpResponse("google-site-verification: google1e60e56990e838db.html", content_type="text/plain")
+
+class CategoriaListView(ListView):
+    model = Producto
+    template_name = 'store/categoria.html'  # Este será el HTML de la categoría
+    context_object_name = 'productos'
+    paginate_by = 12  # Puedes cambiar este número si quieres mostrar más o menos
+
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        self.categoria = Categoria.objects.filter(slug=slug).first()
+        if not self.categoria:
+            raise Http404("Categoría no encontrada")
+
+        # Filtra productos que pertenecen a esta categoría o a cualquiera de sus subcategorías
+        # Esto es crucial para la nueva estructura jerárquica de categorías
+        categorias_a_incluir = [self.categoria]
+        # Obtener todas las subcategorías de la categoría actual de forma recursiva
+        def get_all_subcategories(category):
+            subcategories = []
+            for sub in category.subcategorias.all():
+                subcategories.append(sub)
+                subcategories.extend(get_all_subcategories(sub))
+            return subcategories
+
+        categorias_a_incluir.extend(get_all_subcategories(self.categoria))
+
+        return Producto.objects.filter(
+            categoria__in=categorias_a_incluir
+        ).select_related('categoria')  # Mejora de rendimiento
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categoria'] = self.categoria
+        # Usamos el manager personalizado para obtener las categorías principales con conteo de productos
+        context['categorias_principales'] = Categoria.objects.principales_con_productos()
+        # Puedes añadir más contexto si lo necesitas, por ejemplo, los anuncios
+        context['anuncios'] = Anuncio.objects.filter(is_active=True).order_by('order')
+        context.update(get_common_context()) # Asegura que el contexto común esté disponible
+        return context

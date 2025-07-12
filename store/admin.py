@@ -1,6 +1,7 @@
 from django.contrib import admin
 # Asegúrate de que todos estos modelos estén importados correctamente desde tu models.py
-from .models import Categoria, SubCategoria, Producto, Variacion, MenuItem, SiteSetting, ProductImage, Anuncio
+# Eliminado SubCategoria ya que ahora Categoria maneja la jerarquía
+from .models import Categoria, Producto, Variacion, MenuItem, SiteSetting, ProductImage, Anuncio
 
 # Inline para ProductImage: permite añadir y editar imágenes de un producto
 # directamente desde la página de edición del producto en el admin.
@@ -17,30 +18,41 @@ class VariacionInline(admin.TabularInline):
     # Campos a mostrar en el inline, ahora incluyendo los nuevos campos de imagen y precio
     fields = ['nombre', 'valor', 'color', 'color_hex', 'tono', 'presentacion', 'imagen', 'price_override']
 
-# Admin de Categoría
+# Admin de Categoría (ahora con soporte para jerarquía)
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'slug',)
-    search_fields = ('nombre',)
+    # Añadido 'padre' y 'descripcion' para visualizar la jerarquía y el nuevo campo
+    list_display = ('nombre', 'slug', 'padre', 'descripcion', 'fecha_creacion', 'fecha_modificacion')
+    search_fields = ('nombre', 'descripcion')
     prepopulated_fields = {'slug': ('nombre',)}
+    # Permite filtrar por categoría padre
+    list_filter = ('padre',)
+    # Organiza los campos en el formulario de edición de Categoría
+    fieldsets = (
+        (None, {
+            'fields': ('nombre', 'slug', 'descripcion', 'padre')
+        }),
+    )
 
-# Admin de SubCategoría
-@admin.register(SubCategoria)
-class SubCategoriaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'categoria', 'slug',)
-    list_filter = ('categoria',)
-    search_fields = ('nombre',)
-    prepopulated_fields = {'slug': ('nombre',)}
+# Eliminado el Admin de SubCategoría ya que el modelo SubCategoria fue eliminado.
+# @admin.register(SubCategoria)
+# class SubCategoriaAdmin(admin.ModelAdmin):
+#     list_display = ('nombre', 'categoria', 'slug',)
+#     list_filter = ('categoria',)
+#     search_fields = ('nombre',)
+#     prepopulated_fields = {'slug': ('nombre',)}
 
 # Admin de Producto
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'precio', 'descuento', 'get_precio_final', 'categoria', 'subcategoria', 'is_active', 'stock')
-    list_filter = ('categoria', 'subcategoria', 'is_active')
+    # Eliminado 'subcategoria' de list_display
+    list_display = ('nombre', 'precio', 'descuento', 'get_precio_final', 'categoria', 'is_active', 'stock')
+    # Eliminado 'subcategoria' de list_filter
+    list_filter = ('categoria', 'is_active')
     search_fields = ('nombre', 'descripcion', 'long_description')
     prepopulated_fields = {'slug': ('nombre',)}
 
-    # CORRECCIÓN: date_hierarchy ahora apunta a 'fecha_creacion'
+    # date_hierarchy ahora apunta a 'fecha_creacion'
     date_hierarchy = 'fecha_creacion'
 
     # Añade los inlines para que ProductImage y Variacion se puedan gestionar desde el Producto
@@ -49,7 +61,8 @@ class ProductoAdmin(admin.ModelAdmin):
     # Organiza los campos en el formulario de edición del producto en el admin
     fieldsets = (
         (None, {
-            'fields': ('nombre', 'slug', 'categoria', 'subcategoria', 'is_active', 'stock', 'imagen')
+            # Eliminado 'subcategoria' de fields
+            'fields': ('nombre', 'slug', 'categoria', 'is_active', 'stock', 'imagen')
         }),
         ('Precios y Descuentos', {
             'fields': ('precio', 'descuento')
@@ -76,11 +89,11 @@ class SiteSettingAdmin(admin.ModelAdmin):
 @admin.register(Anuncio)
 class AnuncioAdmin(admin.ModelAdmin):
     list_display_links = ('fecha_creacion',)
-    # CORRECCIÓN: Asegúrate de que 'titulo' esté en el modelo Anuncio
+    # Asegúrate de que 'titulo' esté en el modelo Anuncio
     list_display = ('titulo', 'is_active', 'order', 'url', 'fecha_creacion')
     list_filter = ('is_active',)
     list_editable = ('is_active', 'order', 'url')
-    # CORRECCIÓN: date_hierarchy ahora apunta a 'fecha_creacion'
+    # date_hierarchy ahora apunta a 'fecha_creacion'
     date_hierarchy = 'fecha_creacion'
-    # CORRECCIÓN: Asegúrate de que 'titulo' esté en los campos
+    # Asegúrate de que 'titulo' esté en los campos
     fields = ('titulo', 'imagen', 'url', 'is_active', 'order')

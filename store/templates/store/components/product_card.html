@@ -1,0 +1,21 @@
+<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
+  <a href="{% url 'detalle_producto' producto.slug %}">
+    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
+  </a>
+  <div class="p-4">
+    <h3 class="text-sm font-medium text-gray-700">
+      {{ producto.nombre|truncatechars:40 }}
+    </h3>
+
+    {% if producto.descuento %}
+      <p class="text-pink-600 font-bold text-sm mt-1">
+        ${{ producto.get_precio_final }} COP
+        <span class="line-through text-gray-400 text-xs">${{ producto.precio }}</span>
+      </p>
+    {% else %}
+      <p class="text-gray-800 font-semibold text-sm mt-1">
+        ${{ producto.precio }} COP
+      </p>
+    {% endif %}
+  </div>
+</div>

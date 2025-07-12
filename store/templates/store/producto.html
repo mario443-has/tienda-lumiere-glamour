@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {# Asegúrate de que esta ruta sea correcta #}
 {% load static %}
 
 {% block title %}{{ producto.nombre }} - Lumière Glamour{% endblock %}
@@ -64,8 +64,8 @@
                     <input type="number" id="quantity" value="1" min="1" class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-center">
                 </div>
 
-                <!-- Botón Añadir al Carrito -->
-                <button id="add-to-cart-button-detail"
+                <!-- Botón Añadir al Carrito - ID CAMBIADO A 'add-to-cart-btn' -->
+                <button id="add-to-cart-btn" {# ID CAMBIADO AQUÍ #}
                         class="w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
                         data-product-id="{{ producto.id }}"
                         data-product-name="{{ producto.nombre }}"
@@ -114,41 +114,4 @@
     </main>
 {% endblock %}
 
-{% block extra_js %}
-    <script>
-        // Lógica específica de producto.html
-        const mainProductImage = document.getElementById('main-product-image');
-        function changeMainImage(newSrc) {
-            mainProductImage.src = newSrc;
-        }
-
-        // Lógica para añadir al carrito desde la página de detalle
-        const addToCartButtonDetail = document.getElementById('add-to-cart-button-detail');
-        if (addToCartButtonDetail) {
-            addToCartButtonDetail.addEventListener('click', (event) => {
-                // Obtener los datos del producto directamente de los data-attributes del botón
-                // Esto es más robusto que usar directamente las variables de Django en JS
-                const productId = event.currentTarget.dataset.productId; 
-                const productName = event.currentTarget.dataset.productName;
-                const productPrice = event.currentTarget.dataset.productPrice;
-                const quantity = parseInt(document.getElementById('quantity').value);
-
-                if (quantity > 0) {
-                    for (let i = 0; i < quantity; i++) {
-                        // Se asume que 'cart' y 'updateCartDisplay' están definidos en base.html
-                        // y son accesibles globalmente o a través de un patrón de módulo.
-                        // Si 'cart' no es global, necesitarías pasarlo o usar un patrón de estado.
-                        // Por ahora, asumimos que es global para simplificar.
-                        cart.push({ id: productId, name: productName, price: productPrice, variantId: productId }); // Usamos productId como variantId si no hay variaciones
-                    }
-                    // Usando la función showMessageModal definida en base.html
-                    showMessageModal('Producto Agregado', `${quantity} unidad(es) de "${productName}" ha(n) sido agregada(s) al carrito.`);
-                    updateCartDisplay();
-                } else {
-                    // Usando la función showMessageModal definida en base.html
-                    showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
-                }
-            });
-        }
-    </script>
-{% endblock %}
+{# ELIMINADO: El bloque extra_js ya no es necesario aquí, la lógica se maneja en base.html #}

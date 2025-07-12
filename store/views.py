@@ -3,7 +3,8 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.views.generic import ListView # Importa ListView
 from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio # Asegúrate de importar Producto y Categoria
-from django.http import Http404
+from django.http import Http404, JsonResponse # Importa JsonResponse para respuestas JSON
+from django.views.decorators.csrf import csrf_exempt # Importa csrf_exempt para deshabilitar CSRF en la vista (solo para pruebas/desarrollo)
 
 
 def get_common_context():
@@ -28,10 +29,14 @@ def get_common_context():
     whatsapp_setting = SiteSetting.objects.filter(key='whatsapp_number').first()
     whatsapp_number_value = whatsapp_setting.value if whatsapp_setting else '573007221200' # Número por defecto
 
+    # Obtener anuncios activos y ordenarlos por el campo 'order'
+    anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
+
     return {
-        'categorias': categorias,
+        'categorias_principales': categorias, # Cambiado a categorias_principales para consistencia
         'menu_items': menu_items,
         'whatsapp_number': whatsapp_number_value,
+        'anuncios': anuncios, # Añadir anuncios al contexto común
     }
 
 def inicio(request):
@@ -85,7 +90,7 @@ def inicio(request):
     # 4. Aplicar filtro por subcategoría si se proporciona `subcategoria_id`
     # Este filtro se aplica DESPUÉS del filtro de ofertas y categoría.
     # NOTA: Con la nueva estructura de categorías, `subcategoria_id` ahora se refiere a una Categoria
-    # que tiene un `padre`.
+    # que tiene un un `padre`.
     if subcategoria_id:
         try:
             # Busca la subcategoría por su ID
@@ -132,9 +137,6 @@ def inicio(request):
     # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
     context = get_common_context()
 
-    # NUEVO: Obtener anuncios activos y ordenarlos
-    anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
-
     # Añadir los datos específicos de esta vista al contexto que se pasará a la plantilla
     context.update({
         'productos': productos_queryset, # Mantenemos esto para el bucle principal de la plantilla Django
@@ -143,8 +145,6 @@ def inicio(request):
         'categoria_actual': categoria_actual_obj.id if categoria_actual_obj else None, # Pasa el ID para el estado 'active' en la navegación
         'nombre_categoria_actual': nombre_categoria_actual, # Pasa el nombre para el título de la sección
         'ofertas_activas': ofertas_activas == 'true', # Pasa un booleano para el estado de ofertas
-        'anuncios': anuncios, # Añadir anuncios al contexto
-        'categorias_principales': Categoria.objects.principales_con_productos(), # Agrega esta línea
     })
 
     # Renderiza la plantilla principal. Asegúrate de que el nombre de la plantilla sea correcto,
@@ -159,12 +159,12 @@ def producto_detalle(request, producto_id):
     """
     # Obtiene el producto por su ID, o devuelve un 404 si no se encuentra.
     producto = get_object_or_404(Producto, id=producto_id)
-
+    
     # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
     context = get_common_context()
-
+    
     # Añadir el producto específico al contexto
-    context['producto'] = producto
+    context['producto'] = producto 
 
     # Renderiza la plantilla de detalle del producto.
     # Asegúrate de que 'store/producto.html' sea la ruta correcta a tu plantilla de detalle.
@@ -175,11 +175,52 @@ from django.http import HttpResponse
 def google_verification(request):
     return HttpResponse("google-site-verification: google1e60e56990e838db.html", content_type="text/plain")
 
+@csrf_exempt # Solo para desarrollo/pruebas. En producción, deberías usar el token CSRF.
+def agregar_al_carrito(request):
+    """
+    Vista para manejar las peticiones AJAX para añadir productos al carrito.
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            producto_id = data.get('producto_id')
+            quantity = data.get('quantity', 1) # Cantidad, por defecto 1
+            variant_id = data.get('variant_id') # Si manejas variantes
+
+            # Aquí puedes añadir la lógica para buscar el producto/variante
+            # y agregarlo a la sesión del carrito o a la base de datos.
+            # Por ahora, solo imprimiremos para verificar.
+            print(f"Producto recibido: ID={producto_id}, Cantidad={quantity}, Variante ID={variant_id}")
+
+            # Ejemplo: Guardar en la sesión (esto es una implementación básica)
+            if 'cart' not in request.session:
+                request.session['cart'] = []
+            
+            # Para la demostración, solo añadimos el ID y la cantidad.
+            # En una aplicación real, buscarías el producto en la DB
+            # para obtener su nombre, precio, etc., y lo añadirías al carrito.
+            for _ in range(quantity):
+                item_to_add = {'id': producto_id, 'variant_id': variant_id if variant_id else producto_id}
+                request.session['cart'].append(item_to_add)
+
+            request.session.modified = True # Marca la sesión como modificada para que se guarde
+
+            return JsonResponse({"mensaje": "Producto agregado al carrito", "producto_id": producto_id, "quantity": quantity})
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Formato JSON inválido"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
 class CategoriaListView(ListView):
+    """
+    Vista basada en clase para mostrar productos por categoría.
+    """
     model = Producto
-    template_name = 'store/categoria.html'  # Este será el HTML de la categoría
+    template_name = 'store/categoria.html' # Asegúrate de que esta plantilla exista
     context_object_name = 'productos'
-    paginate_by = 12  # Puedes cambiar este número si quieres mostrar más o menos
+    paginate_by = 12 # Número de productos por página
 
     def get_queryset(self):
         slug = self.kwargs.get('slug')

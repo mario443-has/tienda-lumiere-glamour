@@ -1173,6 +1173,29 @@
             });
         });
 
+        // Lógica para añadir al carrito desde la página de detalle (botón con ID 'add-to-cart-btn')
+        const addToCartButtonDetail = document.getElementById('add-to-cart-btn');
+        if (addToCartButtonDetail) {
+            addToCartButtonDetail.addEventListener('click', (event) => {
+                const productId = event.currentTarget.dataset.productId;
+                const productName = event.currentTarget.dataset.productName;
+                const productPrice = event.currentTarget.dataset.productPrice;
+                const quantityInput = document.getElementById('quantity'); // Obtener el input de cantidad
+                const quantity = quantityInput ? parseInt(quantityInput.value) : 1; // Usar 1 por defecto si no se encuentra el input
+
+                if (quantity > 0) {
+                    for (let i = 0; i < quantity; i++) {
+                        // Usamos window.cart para asegurar que se accede a la instancia global
+                        window.cart.push({ id: productId, name: productName, price: productPrice, variantId: productId }); 
+                    }
+                    showMessageModal('Producto Agregado', `${quantity} unidad(es) de "${productName}" ha(n) sido agregada(s) al carrito.`);
+                    updateCartDisplay();
+                } else {
+                    showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
+                }
+            });
+        }
+
       }); // Fin de DOMContentLoaded
 
       // Inicializar la visualización del carrito al cargar la página

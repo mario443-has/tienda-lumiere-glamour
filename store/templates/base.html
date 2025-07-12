@@ -756,7 +756,25 @@
       // =====================================================================
       // Funciones y variables globales (accesibles desde cualquier parte)
       // =====================================================================
-      window.cart = window.cart || []; // Inicializa el carrito si no existe
+
+      // ✅ Cargar el carrito desde localStorage cuando se inicia
+      function cargarCarritoLocal() {
+        const carritoGuardado = localStorage.getItem('carritoLumiere');
+        if (carritoGuardado) {
+          window.cart = JSON.parse(carritoGuardado);
+        } else {
+          window.cart = [];
+        }
+      }
+
+      // ✅ Guardar el carrito en localStorage después de modificarlo
+      function guardarCarritoLocal() {
+        localStorage.setItem('carritoLumiere', JSON.stringify(window.cart));
+      }
+
+      // ✅ Llamar esta función apenas cargue la página
+      cargarCarritoLocal();
+
 
       function getCookie(name) {
           let cookieValue = null;
@@ -884,6 +902,7 @@
         );
         if (indexToRemove > -1) {
           window.cart.splice(indexToRemove, 1);
+          guardarCarritoLocal(); // ✅ Guardar después de eliminar
           showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
           updateCartDisplay();
           actualizarContadorCarrito();
@@ -921,6 +940,7 @@
 
         // Opcional: Limpiar el carrito después de enviar el pedido
         window.cart = [];
+        guardarCarritoLocal(); // ✅ Guardar después de limpiar el carrito
         updateCartDisplay();
         showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
         closeCartModal();
@@ -1230,6 +1250,7 @@
                         for (let i = 0; i < quantity; i++) {
                             window.cart.push({ id: productId, name: productName, price: productPrice, color: color, variantId: variantId });
                         }
+                        guardarCarritoLocal(); // ✅ Guardar después de añadir
                         updateCartDisplay(); // Para actualizar el modal del carrito y contadores
                     } else if (data.error) {
                         showMessageModal("❌ Error", "Error: " + data.error);

@@ -55,8 +55,11 @@ ROOT_URLCONF = 'lumiere_glamour.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # Asegúrate de que esta ruta sea correcta para tus templates
-        'APP_DIRS': True,
+        'DIRS': [
+            BASE_DIR / 'templates', # Para plantillas a nivel de proyecto (ej. si tuvieras un base.html aquí)
+            BASE_DIR / 'store' / 'templates', # ¡NUEVO! Añade explícitamente la carpeta de plantillas de tu app 'store'
+        ],
+        'APP_DIRS': True, # Esto le dice a Django que busque en la carpeta 'templates' de cada app instalada
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

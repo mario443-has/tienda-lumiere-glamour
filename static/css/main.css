@@ -1,0 +1,160 @@
+/* Estilo personalizado para la fuente del logo */
+.font-great-vibes {
+  font-family: "Great Vibes", cursive;
+}
+/* Estilos para el scrollbar (opcional, para una estética más limpia) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+/* Ocultar scrollbar pero mantener funcionalidad de scroll */
+#slider::-webkit-scrollbar {
+  display: none;
+}
+#slider {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Estilos específicos para el carrusel de anuncios */
+#announcement-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 12rem; /* Altura para móviles */
+  overflow: hidden;
+}
+@media (min-width: 640px) { /* sm breakpoint */
+  #announcement-carousel-wrapper {
+    height: 16rem; /* Altura para tablets */
+  }
+}
+@media (min-width: 768px) { /* md breakpoint */
+  #announcement-carousel-wrapper {
+    height: 20rem; /* Altura para escritorio */
+  }
+}
+
+#announcement-carousel {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease-in-out;
+}
+.carousel-item {
+  flex: 0 0 100%;
+  height: 100%;
+  position: relative;
+}
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Estilos para los círculos de color */
+.color-option {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+.color-option.selected {
+  border-color: #f687b3; /* Un rosa más oscuro para el borde seleccionado */
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f687b3; /* Borde doble para resaltar */
+}
+.color-option:hover {
+  transform: scale(1.1);
+}
+/* Estilo para el botón de "más colores" */
+.more-colors-button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #f687b3; /* Color de fondo rosa */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+.more-colors-button:hover {
+  background-color: #d85c8e; /* Rosa más oscuro al pasar el ratón */
+}
+/* Contenedor para colores adicionales */
+.additional-colors-container {
+  display: none; /* Oculto por defecto */
+  flex-wrap: wrap; /* Permite que los colores se envuelvan si hay muchos */
+  gap: 8px; /* Espacio entre los círculos de color */
+  margin-top: 8px; /* Espacio superior para separar de los primeros 3 */
+}
+.additional-colors-container.visible {
+  display: flex; /* Visible cuando se activa */
+}
+
+/* Estilos Mejorados para Categorías (Añadidos aquí) */
+.categorias-nav {
+    margin-bottom: 2rem;
+}
+.categoria-item {
+    margin-bottom: 1rem;
+}
+.categoria-link {
+    display: block;
+    padding: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+.categoria-link:hover {
+    /* Usar un color que contraste con tu tema, por ejemplo, el rosa de tu logo */
+    border-bottom-color: #EC4899; /* Tailwind pink-500 */
+}
+.subcategorias {
+    margin-left: 1.5rem;
+    padding-left: 1.5rem;
+    /* Usar un color que contraste con tu tema */
+    border-left: 2px solid #D1D5DB; /* Tailwind gray-300 */
+}
+.subcategoria-link {
+    display: block;
+    margin-bottom: 0.5rem;
+    /* Usar un color que contraste con tu tema */
+    color: #4B5563; /* Tailwind gray-700 */
+    text-decoration: none;
+}
+.subcategoria-link:hover {
+    /* Usar un color que contraste con tu tema, por ejemplo, el rosa de tu logo */
+    color: #EC4899; /* Tailwind pink-500 */
+}
+@media (max-width: 768px) {
+    .categorias-container {
+        position: fixed;
+        left: 0;
+        top: 4rem; /* Ajustar si tu header tiene otra altura */
+        bottom: 0;
+        width: 250px;
+        overflow-y: auto;
+        /* Usar un color que contraste con tu tema */
+        background: #FFFFFF; /* Tailwind white */
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    .categorias-lista {
+        padding: 1rem;
+    }
+}

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {# CORREGIDO: Ahora extiende directamente 'base.html' #}
 {% load static %}
 
 {% block title %}Inicio - Lumière Glamour{% endblock %}
@@ -220,12 +220,13 @@
                 {% endif %}
 
                 <button
-                  class="add-to-cart-button w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
+                  class="btn-agregar-carrito w-full bg-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl" {# CLASE CAMBIADA #}
                   data-product-id="{{ producto.id }}"
                   data-product-name="{{ producto.nombre }}"
                   data-product-price="{% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
                   data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color }}{% else %}N/A{% endif %}" {# MODIFICACIÓN: Usar variante.color #}
                   data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Usa product.id si no hay variaciones #}
+                  data-product-image-url="{% if producto.variaciones.all and producto.variaciones.first.imagen %}{{ producto.variaciones.first.imagen.url }}{% elif producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}" {# AÑADIDO: URL de la imagen del producto/variante #}
                 >
                   <i class="fas fa-cart-plus"></i>
                   <span>Agregar al Carrito</span>

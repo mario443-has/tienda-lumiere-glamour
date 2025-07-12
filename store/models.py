@@ -24,6 +24,9 @@ class Categoria(models.Model):
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
+    
+    # Asignar el manager personalizado al modelo Categoria
+    objects = CategoriaManager()
 
     class Meta:
         verbose_name = _('Categoría')
@@ -84,9 +87,6 @@ class CategoriaManager(models.Manager):
     def principales_con_productos(self):
         """Devuelve las categorías principales con su conteo de productos anotado."""
         return self.get_queryset().principales().con_productos()
-
-# Asignar el manager personalizado al modelo Categoria
-objects = CategoriaManager()
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=255) # Aumentado a 255

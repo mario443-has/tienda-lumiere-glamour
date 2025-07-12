@@ -10,19 +10,28 @@
 
     {% if producto.descuento %}
       <p class="text-pink-600 font-bold text-sm mt-1">
-        ${{ producto.get_precio_final }} COP
+        ${{ producto.get_precio_final|floatformat:2 }} COP {# Asegúrate de usar floatformat para el precio final #}
       </p>
       <p class="text-gray-500 text-xs line-through">
-        ${{ producto.precio }} COP
+        ${{ producto.precio|floatformat:2 }} COP {# Asegúrate de usar floatformat para el precio original #}
       </p>
     {% else %}
       <p class="text-gray-900 font-bold text-sm mt-1">
-        ${{ producto.precio }} COP
+        ${{ producto.precio|floatformat:2 }} COP {# Asegúrate de usar floatformat #}
       </p>
     {% endif %}
 
-    <button class="mt-4 w-full bg-pink-600 text-white py-2 px-3 rounded-md text-xs font-semibold hover:bg-pink-700 transition">
-      Añadir al Carrito
+    <!-- Botón Añadir al Carrito - Ahora con clase 'btn-agregar-carrito' y data-attributes -->
+    <button
+      class="btn-agregar-carrito mt-4 w-full bg-pink-600 text-white py-2 px-3 rounded-md text-xs font-semibold hover:bg-pink-700 transition flex items-center justify-center space-x-2"
+      data-product-id="{{ producto.id }}"
+      data-product-name="{{ producto.nombre }}"
+      data-product-price="{{ producto.get_precio_final|floatformat:2 }}" {# Usar el precio final #}
+      data-selected-variant-id="{{ producto.id }}" {# Por defecto, el ID del producto si no hay variantes #}
+      data-selected-color="N/A" {# Por defecto, "N/A" si no hay variantes de color #}
+    >
+      <i class="fas fa-cart-plus"></i>
+      <span>Añadir al Carrito</span>
     </button>
   </div>
 </div>

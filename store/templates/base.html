@@ -254,18 +254,9 @@
           <!-- <a href="#" class="text-gray-700 hover:text-pink-600 transition duration-300" title="Mi Cuenta">
                     <i class="fas fa-user text-xl"></i>
                 </a> -->
-          <a
-            href="#"
-            class="relative text-gray-700 hover:text-pink-600 transition duration-300"
-            title="Mi Carrito"
-            onclick="openCartModal()"
-          >
+          <a href="{% url 'ver_carrito' %}" class="relative text-gray-700 hover:text-pink-600 transition duration-300" title="Mi Carrito">
             <i class="fas fa-shopping-bag text-xl"></i>
-            <span
-              id="cart-count"
-              class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"
-              >0</span
-            >
+            <span id="cart-count" class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
           </a>
         </div>
 
@@ -548,10 +539,9 @@
         <i class="fas fa-user text-xl"></i> Mi Cuenta
     </a> -->
           <a
-            href="#"
+            href="{% url 'ver_carrito' %}" {# Enlace al carrito #}
             class="relative text-gray-700 hover:text-pink-600 transition duration-300"
             title="Mi Carrito"
-            onclick="openCartModal()"
           >
             <i class="fas fa-shopping-bag text-xl"></i>
             <span
@@ -812,7 +802,6 @@
       // Se define en el objeto window para asegurar accesibilidad global
       window.cart = window.cart || []; // Inicializa el carrito si no existe
 
-      const cartCountSpan = document.getElementById("cart-count");
       const mobileCartCountSpan = document.getElementById("mobile-cart-count");
       const buyWhatsappButton = document.getElementById("buy-whatsapp-button"); // Botón flotante
       const buyWhatsappCartCountSpan = document.getElementById(
@@ -843,16 +832,13 @@
       // Función para actualizar el contador del carrito y la visibilidad del botón de compra
       function updateCartDisplay() {
         const itemCount = window.cart.length; // Usa window.cart
-        cartCountSpan.textContent = itemCount;
         mobileCartCountSpan.textContent = itemCount;
 
         if (itemCount > 0) {
-          cartCountSpan.classList.remove("hidden");
           mobileCartCountSpan.classList.remove("hidden");
           buyWhatsappButton.classList.remove("hidden");
           buyWhatsappCartCountSpan.textContent = itemCount;
         } else {
-          cartCountSpan.classList.add("hidden");
           mobileCartCountSpan.classList.add("hidden");
           buyWhatsappButton.classList.add("hidden");
         }
@@ -908,39 +894,16 @@
         );
         if (indexToRemove > -1) {
           window.cart.splice(indexToRemove, 1); // Usa window.cart
-          showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.'); // Usando el nuevo modal
+          alert('Producto Eliminado: Producto eliminado del carrito.'); // Usando alert()
           updateCartDisplay();
           actualizarContadorCarrito(); // Llama a la función para actualizar el contador
         }
       }
 
-      // Añadir producto al carrito (listener para botones en tarjetas)
-      document.querySelectorAll(".add-to-cart-button").forEach((button) => {
-        button.addEventListener("click", (event) => {
-          const productId = event.currentTarget.dataset.productId;
-          const productName = event.currentTarget.dataset.productName;
-          const productPrice = event.currentTarget.dataset.productPrice; // Precio actual mostrado
-          const selectedColor = event.currentTarget.dataset.selectedColor; // Color actual mostrado
-          const selectedVariantId = event.currentTarget.dataset.selectedVariantId; // ID de la variante seleccionada
-
-          // Si no hay una variante seleccionada (ej. producto sin variantes), usa los datos del producto base
-          if (!selectedVariantId || selectedVariantId === productId) { // MODIFICACIÓN: Comprueba si variantId es igual a productId para productos sin variantes
-              window.cart.push({ id: productId, name: productName, price: productPrice, color: 'N/A', variantId: productId }); // Usa window.cart
-              showMessageModal('Producto Agregado', `"${productName}" ha sido agregado al carrito.`); // Usando el nuevo modal
-          } else {
-              window.cart.push({ id: productId, name: productName, price: productPrice, color: selectedColor, variantId: selectedVariantId }); // Usa window.cart
-              showMessageModal('Producto Agregado', `"${productName}" (Variante ID: ${selectedVariantId}, Color: ${selectedColor}) ha sido agregado al carrito.`); // Usando el nuevo modal
-          }
-          
-          updateCartDisplay();
-          actualizarContadorCarrito(); // Llama a la función para actualizar el contador
-        });
-      });
-
       // Funcionalidad del botón "Comprar por WhatsApp" (para el carrito)
       function sendCartToWhatsApp() {
         if (window.cart.length === 0) { // Usa window.cart
-          showMessageModal('Carrito Vacío', 'Tu carrito está vacío. Agrega productos antes de comprar.'); // Usando el nuevo modal
+          alert('Carrito Vacío: Tu carrito está vacío. Agrega productos antes de comprar.'); // Usando alert()
           return;
         }
 
@@ -970,7 +933,7 @@
         // Opcional: Limpiar el carrito después de enviar el pedido
         window.cart = []; // Usa window.cart
         updateCartDisplay();
-        showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.'); // Usando el nuevo modal
+        alert('Pedido Enviado: Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.'); // Usando alert()
         closeCartModal();
         actualizarContadorCarrito(); // Llama a la función para actualizar el contador
       }
@@ -1153,7 +1116,7 @@
                 this.classList.add('selected');
 
                 // Actualizar los data-attributes del botón "Agregar al Carrito"
-                const addToCartButton = parentProductDiv.querySelector('.add-to-cart-button');
+                const addToCartButton = parentProductDiv.querySelector('.btn-agregar-carrito'); // Usar la clase
                 if (addToCartButton) {
                     addToCartButton.dataset.selectedVariantId = selectedVariantId;
                     addToCartButton.dataset.productPrice = selectedVariantPrice; // Actualiza el precio en el botón
@@ -1176,61 +1139,89 @@
             });
         });
 
-        // Lógica para añadir al carrito desde la página de detalle (botón con ID 'add-to-cart-btn')
-        const addToCartButtonDetail = document.getElementById('add-to-cart-btn');
-        if (addToCartButtonDetail) {
-            addToCartButtonDetail.addEventListener('click', (event) => {
-                const productId = event.currentTarget.dataset.productId;
-                const productName = event.currentTarget.dataset.productName;
-                const productPrice = event.currentTarget.dataset.productPrice;
-                const quantityInput = document.getElementById('quantity'); // Obtener el input de cantidad
-                const quantity = quantityInput ? parseInt(quantityInput.value) : 1; // Usar 1 por defecto si no se encuentra el input
-                const selectedVariantId = event.currentTarget.dataset.selectedVariantId || productId; // Obtener variantId o usar productId
-                const selectedColor = event.currentTarget.dataset.selectedColor || 'N/A'; // Obtener color o usar 'N/A'
+        // Lógica para añadir al carrito (unificada para todos los botones .btn-agregar-carrito)
+        const botonesAgregar = document.querySelectorAll(".btn-agregar-carrito");
 
+        botonesAgregar.forEach(function (boton) {
+          boton.addEventListener("click", function () {
+            const productId = boton.getAttribute("data-product-id");
+            const productName = boton.getAttribute("data-product-name");
+            const productPrice = boton.getAttribute("data-product-price");
+            const variantId = boton.getAttribute("data-selected-variant-id") || productId; // Usar productId como fallback
+            const color = boton.getAttribute("data-selected-color") || 'N/A'; // Usar N/A como fallback
 
-                if (quantity > 0) {
-                    // Enviar al backend
-                    fetch("/agregar-al-carrito/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": getCookie("csrftoken"),
-                        },
-                        body: JSON.stringify({ 
-                            producto_id: productId, 
-                            quantity: quantity,
-                            variant_id: selectedVariantId // Enviar el ID de la variante
-                        }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.mensaje) {
-                            // Si la adición al backend fue exitosa, también actualiza el carrito del frontend
-                            for (let i = 0; i < quantity; i++) {
-                                window.cart.push({ 
-                                    id: productId, 
-                                    name: productName, 
-                                    price: productPrice, 
-                                    color: selectedColor, // Incluir el color
-                                    variantId: selectedVariantId 
-                                }); 
-                            }
-                            showMessageModal('Producto Agregado', data.mensaje);
-                            updateCartDisplay();
-                            actualizarContadorCarrito(); // Llama a la función para actualizar el contador
-                        } else if (data.error) {
-                            showMessageModal('Error', `No se pudo agregar el producto: ${data.error}`);
+            // Intentar obtener la cantidad del input si existe, de lo contrario, 1
+            let quantity = 1;
+            const quantityInput = boton.closest('.flex.items-center.space-x-4')?.querySelector("input[type='number']");
+            if (quantityInput) {
+                quantity = parseInt(quantityInput.value);
+            }
+
+            console.log("🛒 Añadiendo:", productId, "Cantidad:", quantity, "Variante:", variantId, "Color:", color);
+
+            if (quantity > 0) {
+                fetch("/agregar-al-carrito/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"),
+                    },
+                    body: JSON.stringify({
+                        producto_id: productId,
+                        quantity: quantity,
+                        variant_id: variantId,
+                        color: color // Enviar el color al backend si es necesario
+                    }),
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.mensaje) {
+                        alert("✅ Producto añadido al carrito: " + productName); // Usando alert() como se solicitó
+                        // Guardar en window.cart (frontend)
+                        for (let i = 0; i < quantity; i++) {
+                            window.cart.push({ id: productId, name: productName, price: productPrice, color: color, variantId: variantId });
                         }
-                    })
-                    .catch(error => {
-                        console.error("Error al añadir al carrito (fetch):", error);
-                        showMessageModal('Error', 'Hubo un problema al añadir el producto al carrito. Inténtalo de nuevo.');
-                    });
-                } else {
-                    showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
-                }
-            });
+                        updateCartDisplay(); // Para actualizar el modal del carrito
+                        actualizarContadorCarrito(); // Para actualizar el número en el header
+                    } else if (data.error) {
+                        alert("❌ Error: " + data.error); // Usando alert()
+                    }
+                })
+                .catch((error) => {
+                    console.error("❌ Error al agregar al carrito (fetch):", error);
+                    alert("❌ Hubo un problema al añadir el producto al carrito. Inténtalo de nuevo."); // Usando alert()
+                });
+            } else {
+                alert('Por favor, ingresa una cantidad válida.');
+            }
+          });
+        });
+
+        // Función para actualizar el contador del carrito en la interfaz
+        function actualizarContadorCarrito() {
+            const cartCountElement = document.getElementById("cart-count");
+            if (cartCountElement) {
+                cartCountElement.innerText = window.cart.length;
+            }
+            const mobileCartCountElement = document.getElementById("mobile-cart-count");
+            if (mobileCartCountElement) {
+                mobileCartCountElement.innerText = window.cart.length;
+            }
+            const buyWhatsappCartCountElement = document.getElementById("buy-whatsapp-cart-count");
+            if (buyWhatsappCartCountElement) {
+                buyWhatsappCartCountElement.innerText = window.cart.length;
+            }
+            // Mostrar/ocultar los spans de contador si el carrito está vacío/lleno
+            if (window.cart.length > 0) {
+                cartCountElement.classList.remove("hidden");
+                mobileCartCountElement.classList.remove("hidden");
+                buyWhatsappButton.classList.remove("hidden"); // Asegura que el botón flotante también se muestre
+                buyWhatsappCartCountSpan.textContent = window.cart.length; // Actualiza el contador del botón flotante
+            } else {
+                cartCountElement.classList.add("hidden");
+                mobileCartCountElement.classList.add("hidden");
+                buyWhatsappButton.classList.add("hidden"); // Oculta el botón flotante
+            }
         }
 
         // Función para obtener CSRF
@@ -1249,27 +1240,12 @@
             return cookieValue;
         }
 
-        // Función para actualizar el contador del carrito en la interfaz
-        function actualizarContadorCarrito() {
-            const cartCountElement = document.getElementById("cart-count");
-            if (cartCountElement) {
-                cartCountElement.innerText = window.cart.length;
-            }
-            const mobileCartCountElement = document.getElementById("mobile-cart-count");
-            if (mobileCartCountElement) {
-                mobileCartCountElement.innerText = window.cart.length;
-            }
-            const buyWhatsappCartCountElement = document.getElementById("buy-whatsapp-cart-count");
-            if (buyWhatsappCartCountElement) {
-                buyWhatsappCartCountElement.innerText = window.cart.length;
-            }
-        }
-
       }); // Fin de DOMContentLoaded
 
       // Inicializar la visualización del carrito al cargar la página
       updateCartDisplay();
-      actualizarContadorCarrito(); // Llama a la función al cargar la página
+      // Asegurar que el contador se actualice al cargar la página
+      document.addEventListener("DOMContentLoaded", actualizarContadorCarrito);
     </script>
     {% block extra_js %}{% endblock %} {# Este es el nuevo bloque para JS específico de cada página #}
   </body>

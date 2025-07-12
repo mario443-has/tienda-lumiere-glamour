@@ -64,12 +64,13 @@
                     <input type="number" id="quantity" value="1" min="1" class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-center">
                 </div>
 
-                <!-- Botón Añadir al Carrito - ID CAMBIADO A 'add-to-cart-btn' -->
-                <button id="add-to-cart-btn" {# ID CAMBIADO AQUÍ #}
-                        class="w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
+                <!-- Botón Añadir al Carrito - Ahora con clase 'btn-agregar-carrito' -->
+                <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
                         data-product-id="{{ producto.id }}"
                         data-product-name="{{ producto.nombre }}"
-                        data-product-price="{{ producto.get_precio_final|floatformat:2 }}">
+                        data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
+                        data-selected-variant-id="{{ producto.id }}" {# Usar ID del producto como ID de variante por defecto #}
+                        data-selected-color="N/A"> {# Color por defecto si no hay variantes de color #}
                     <i class="fas fa-cart-plus text-2xl"></i>
                     <span>Añadir al Carrito</span>
                 </button>

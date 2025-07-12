@@ -11,7 +11,8 @@ from django.utils.translation import gettext_lazy as _ # Import para internacion
 class CategoriaQuerySet(models.QuerySet):
     def con_productos(self):
         """Anota el QuerySet con el conteo de productos para cada categoría."""
-        return self.annotate(productos_count=Count('productos'))
+        # Cambiado 'productos_count' a 'num_productos' para evitar conflicto con la propiedad
+        return self.annotate(num_productos=Count('productos'))
 
     def principales(self):
         """Devuelve solo las categorías de nivel superior (sin padre)."""
@@ -71,10 +72,11 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
 
-    @property
-    def productos_count(self):
-        """Devuelve el número de productos asociados directamente a esta categoría."""
-        return self.productos.count()
+    # @property productos_count ELIMINADO para evitar conflicto con el setter del ORM.
+    # Ahora se accederá al conteo directamente a través del atributo 'num_productos'
+    # cuando se use el manager 'principales_con_productos()'.
+    # Si necesitas el conteo en una instancia de Categoria que no viene de una consulta anotada,
+    # deberías hacer categoria_instance.productos.count() directamente.
 
     @property
     def ruta_completa(self):
@@ -151,7 +153,7 @@ class Variacion(models.Model):
     valor = models.CharField(max_length=100)
     color = models.CharField(max_length=50, blank=True, null=True)
     color_hex = models.CharField(max_length=7, blank=True, null=True, help_text="Código HEX del color (ej. #FF0000)")
-    tono = models.CharField(max_length=50, blank=True, null=100)
+    tono = models.CharField(max_length=50, blank=True, null=True)
     presentacion = models.CharField(max_length=50, blank=True, null=True)
     imagen = CloudinaryField('imagen_variacion', blank=True, null=True, help_text="Imagen específica para esta variación")
     price_override = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Opcional: Precio para esta variación. Si está vacío, usa el precio del producto principal.")

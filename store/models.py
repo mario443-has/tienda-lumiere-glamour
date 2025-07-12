@@ -86,8 +86,7 @@ class CategoriaManager(models.Manager):
         return self.get_queryset().principales().con_productos()
 
 # Asignar el manager personalizado al modelo Categoria
-Categoria.add_to_class('objects', CategoriaManager())
-
+objects = CategoriaManager()
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=255) # Aumentado a 255

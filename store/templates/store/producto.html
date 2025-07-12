@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'store/base.html' %}
 {% load static %}
 
 {% block title %}{{ producto.nombre }} - Lumière Glamour{% endblock %}
@@ -141,11 +141,12 @@
                         // Por ahora, asumimos que es global para simplificar.
                         cart.push({ id: productId, name: productName, price: productPrice, variantId: productId }); // Usamos productId como variantId si no hay variaciones
                     }
-                    // Reemplazado alert() por console.log() para evitar pop-ups en el iframe
-                    console.log(`${quantity} unidad(es) de "${productName}" ha(n) sido agregada(s) al carrito.`);
+                    // Usando la función showMessageModal definida en base.html
+                    showMessageModal('Producto Agregado', `${quantity} unidad(es) de "${productName}" ha(n) sido agregada(s) al carrito.`);
                     updateCartDisplay();
                 } else {
-                    console.log('Por favor, ingresa una cantidad válida.');
+                    // Usando la función showMessageModal definida en base.html
+                    showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
                 }
             });
         }

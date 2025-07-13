@@ -180,7 +180,7 @@
               class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top"
             >
               <div class="py-1">
-                {# Iterar sobre categorias_principales para la nueva estructura jerárquica #}
+                {# Iterar sobre categorías principales para la nueva estructura jerárquica #}
                 {% for categoria_principal in categorias_principales %}
                   <div class="relative group/sub">
                     <a
@@ -324,7 +324,7 @@
             class="hidden pl-8 py-1 bg-gray-50"
           >
             {# Bucle para Categorías en Móvil con jerarquía #}
-            {% for categoria_principal in categorias_principales %} {# Asegúrate de que esta variable exista y contenga datos #}
+            {% for categoria_principal in categorias_principales %}
             <div class="relative">
               <button
                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
@@ -597,5 +597,15 @@
             </div>
         </div>
     </div>
+
+    <!-- Enlace a tu archivo JavaScript principal externo -->
+    <script>
+        // Define el número de WhatsApp globalmente para que main.js pueda acceder a él
+        window.whatsappNumber = "{{ whatsapp_number|default:'573007221200' }}";
+        // Define la URL de la imagen de placeholder globalmente
+        window.placeholderImageUrl = "{% static 'img/sin_imagen.jpg' %}";
+    </script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %} {# Este es el bloque para JS específico de cada página #}
   </body>
 </html>

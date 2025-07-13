@@ -209,15 +209,6 @@
                                 data-variant-price="{{ variante.precio_final|floatformat:0 }}"
                             ></div>
                             {% endif %}
-                        {% for variante in producto.variaciones.all %} {# CAMBIADO: Iterar sobre todas las variaciones para las opciones de color #}
-                            <div
-                                class="color-option {% if forloop.first %}selected{% endif %}"
-                                style="background-color: {{ variante.color_hex }};"
-                                data-variant-id="{{ variante.id }}"
-                                data-color-name="{{ variante.color }}"
-                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{{ producto.get_primary_image_url }}{% endif %}" {# CAMBIADO: Usar get_primary_image_url como fallback para la variante #}
-                                data-variant-price="{{ variante.precio_final|floatformat:0 }}"
-                            ></div>
                         {% endfor %}
                     </div>
                 </div>

@@ -56,7 +56,7 @@ def inicio(request):
     context['query'] = query
     context['ofertas_activas'] = ofertas_activas
     context['anuncios'] = Anuncio.objects.filter(is_active=True).order_by('order') # Obtener anuncios
-    return render(request, 'index.html', context) # La plantilla ahora es 'index.html'
+    return render(request, 'store/index.html', context) # CORREGIDO: Ruta de la plantilla
 
 
 def producto_detalle(request, product_id):
@@ -64,7 +64,7 @@ def producto_detalle(request, product_id):
     producto = get_object_or_404(Producto.objects.prefetch_related('variaciones__imagen', 'images'), pk=product_id)
     context = get_common_context()
     context['producto'] = producto
-    return render(request, 'producto.html', context) # La plantilla ahora es 'producto.html'
+    return render(request, 'store/producto.html', context) # CORREGIDO: Ruta de la plantilla
 
 
 def categoria_view(request, slug):
@@ -96,7 +96,8 @@ def categoria_view(request, slug):
     context['nombre_categoria_actual'] = categoria.nombre
     context['productos'] = productos
     context['anuncios'] = Anuncio.objects.filter(is_active=True).order_by('order') # Obtener anuncios
-    return render(request, 'categoria.html', context) # Asumiendo que tienes una plantilla categoria.html
+    return render(request, 'store/categoria.html', context) # CORREGIDO: Ruta de la plantilla
+
 
 @csrf_exempt # Solo para desarrollo/pruebas, considera usar @require_POST y verificar CSRF en producción
 def agregar_al_carrito(request):
@@ -119,7 +120,7 @@ def agregar_al_carrito(request):
 
 class CategoriaListView(ListView):
     model = Producto
-    template_name = 'index.html'  # O la plantilla que uses para mostrar productos en categorías
+    template_name = 'store/index.html'  # CORREGIDO: Ruta de la plantilla (asumiendo que muestra productos como la página de inicio)
     context_object_name = 'productos'
     paginate_by = 10 # Opcional: para paginación
 

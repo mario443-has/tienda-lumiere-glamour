@@ -603,26 +603,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // Inicializar la visualización del carrito al cargar la página
     updateCartDisplay();
 
-    // Lógica para la galería de imágenes del producto (NUEVO)
-    const mainProductImage = document.getElementById('main-product-image');
-    const productThumbnails = document.querySelectorAll('.product-thumbnail');
+    // ===============================
+    // Miniaturas que cambian imagen principal
+    // ===============================
+    const mainImage = document.getElementById("main-product-image");
+    const thumbnails = document.querySelectorAll(".thumbnail-image");
 
-    if (mainProductImage && productThumbnails.length > 0) {
-        productThumbnails.forEach(thumbnail => {
-            thumbnail.addEventListener('click', function() {
-                // Remover la clase 'selected' de todas las miniaturas
-                productThumbnails.forEach(t => t.classList.remove('selected'));
-                // Añadir la clase 'selected' a la miniatura clickeada
-                this.classList.add('selected');
-                // Actualizar la imagen principal con la URL de la miniatura clickeada
-                mainProductImage.src = this.src;
-            });
-        });
-
-        // Opcional: Asegurarse de que la primera miniatura esté seleccionada al cargar la página
-        if (productThumbnails[0]) {
-            productThumbnails[0].classList.add('selected');
+    thumbnails.forEach((thumbnail) => {
+      thumbnail.addEventListener("click", function () {
+        if (mainImage) {
+          mainImage.src = this.src;
         }
-    }
+        thumbnails.forEach(t => t.classList.remove("ring-2", "ring-pink-500"));
+        this.classList.add("ring-2", "ring-pink-500");
+      });
+    });
 
 }); // Fin de DOMContentLoaded

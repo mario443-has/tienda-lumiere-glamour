@@ -28,21 +28,18 @@
             <!-- Product Image Section -->
             <div class="md:w-1/2 flex flex-col items-center">
                 <div class="w-full max-w-md h-96 flex items-center justify-center overflow-hidden rounded-lg shadow-md mb-4">
-                    {% if producto.imagen %}
-                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="max-w-full max-h-full object-contain" id="main-product-image">
-                    {% else %}
-                        <img src="{% static 'img/sin_imagen.jpg' %}" alt="Sin imagen" class="max-w-full max-h-full object-contain" id="main-product-image">
-                    {% endif %}
+                    {# Usar get_primary_image_url para la imagen principal #}
+                    <img src="{{ producto.get_primary_image_url }}" alt="{{ producto.nombre }}" class="max-w-full max-h-full object-contain" id="main-product-image">
                 </div>
                 <!-- Thumbnail Images -->
                 <div class="flex space-x-2 mt-2">
-                    {# Muestra la imagen principal como miniatura #}
+                    {# Muestra la imagen principal como miniatura si existe #}
                     {% if producto.imagen %}
-                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }} principal" class="w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition" onclick="changeMainImage('{{ producto.imagen.url }}')">
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }} principal" class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if not producto.images.all %}ring-2 ring-pink-500{% endif %}">
                     {% endif %}
                     {# Itera sobre las imágenes adicionales del producto #}
                     {% for img in producto.images.all %}
-                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:producto.nombre }}" class="w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition" onclick="changeMainImage('{{ img.image.url }}')">
+                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:producto.nombre }}" class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if forloop.first and not producto.imagen %}ring-2 ring-pink-500{% endif %}">
                     {% endfor %}
                 </div>
             </div>

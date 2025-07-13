@@ -17,7 +17,6 @@ def get_common_context():
     # Es crucial que en tu modelo Categoria, el related_name para SubCategoria sea 'subcategorias'
     # o ajusta 'subcategorias' aquí al nombre de tu related_name si es diferente.
     # Usamos el manager personalizado para obtener las categorías principales con conteo de productos
-    # y ahora seleccionamos la imagen_circular
     # CORREGIDO: Eliminado .select_related('imagen_circular') porque no es un campo relacional.
     categorias_principales = Categoria.objects.principales_con_productos()
 
@@ -41,7 +40,8 @@ def inicio(request):
     ofertas_activas = request.GET.get('ofertas', 'false').lower() == 'true'
 
     # Pre-carga variaciones y sus imágenes, y las imágenes adicionales del producto
-    productos = Producto.objects.filter(is_active=True).select_related('categoria').prefetch_related('variaciones__imagen', 'images')
+    # CORREGIDO: Cambiado 'variaciones__imagen' a solo 'variaciones'
+    productos = Producto.objects.filter(is_active=True).select_related('categoria').prefetch_related('variaciones', 'images')
 
     if query:
         productos = productos.filter(
@@ -62,7 +62,8 @@ def inicio(request):
 
 def producto_detalle(request, product_id):
     # Pre-carga variaciones y sus imágenes, y las imágenes adicionales del producto
-    producto = get_object_or_404(Producto.objects.prefetch_related('variaciones__imagen', 'images'), pk=product_id)
+    # CORREGIDO: Cambiado 'variaciones__imagen' a solo 'variaciones'
+    producto = get_object_or_404(Producto.objects.prefetch_related('variaciones', 'images'), pk=product_id)
     context = get_common_context()
     context['producto'] = producto
     return render(request, 'store/producto.html', context) # CORREGIDO: Ruta de la plantilla
@@ -87,10 +88,11 @@ def categoria_view(request, slug):
     categorias_a_incluir.extend(get_all_subcategories(categoria))
 
     # Pre-carga variaciones y sus imágenes, y las imágenes adicionales del producto
+    # CORREGIDO: Cambiado 'variaciones__imagen' a solo 'variaciones'
     productos = Producto.objects.filter(
         categoria__in=categorias_a_incluir,
         is_active=True
-    ).select_related('categoria').prefetch_related('variaciones__imagen', 'images')
+    ).select_related('categoria').prefetch_related('variaciones', 'images')
 
     context = get_common_context()
     context['categoria_actual'] = categoria
@@ -145,9 +147,10 @@ class CategoriaListView(ListView):
         categorias_a_incluir.extend(get_all_subcategories(self.categoria))
 
         # Pre-carga variaciones y sus imágenes, y las imágenes adicionales del producto
+        # CORREGIDO: Cambiado 'variaciones__imagen' a solo 'variaciones'
         return Producto.objects.filter(
             categoria__in=categorias_a_incluir
-        ).select_related('categoria').prefetch_related('variaciones__imagen', 'images')
+        ).select_related('categoria').prefetch_related('variaciones', 'images')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

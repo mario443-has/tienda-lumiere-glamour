@@ -5,7 +5,7 @@ from ckeditor.fields import RichTextField
 from cloudinary.models import CloudinaryField
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _ # Import para internacionalización de verbose_name
-
+from django.templatetags.static import static # Importar static para el fallback de imagen
 
 # Custom QuerySet para el modelo Categoria
 class CategoriaQuerySet(models.QuerySet):
@@ -33,7 +33,7 @@ class CategoriaManager(models.Manager):
 
 
 class Categoria(models.Model):
-    nombre = models.CharField(max_length=255)
+    nombre = models.CharField(max_length=255) # Aumentado a 255
     descripcion = models.TextField(blank=True)
     slug = models.SlugField(unique=True)  # Este campo es importante
     padre = models.ForeignKey(
@@ -127,6 +127,22 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def get_primary_image_url(self):
+        """
+        Devuelve la URL de la imagen principal del producto.
+        Prioriza la imagen principal del producto, luego la primera imagen de la galería,
+        y finalmente una imagen por defecto si no hay ninguna.
+        """
+        if self.imagen:
+            return self.imagen.url
+        elif self.images.exists():
+            # Devuelve la primera imagen de la galería si no hay imagen principal
+            return self.images.first().image.url
+        else:
+            # Imagen por defecto si no hay ninguna
+            return static('img/sin_imagen.jpg')
+
 
 class ProductImage(models.Model):
     producto = models.ForeignKey(Producto, related_name='images', on_delete=models.CASCADE)

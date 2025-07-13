@@ -1,7 +1,8 @@
 <div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
   {# Corregido: Usar 'producto_detalle' y 'producto.id' #}
   <a href="{% url 'producto_detalle' producto.id %}">
-    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
+    {# CAMBIO: Usar get_primary_image_url para obtener la imagen principal del producto #}
+    <img src="{{ producto.get_primary_image_url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
   </a>
   <div class="p-4">
     <h3 class="text-sm font-medium text-gray-700">
@@ -27,8 +28,9 @@
       data-product-id="{{ producto.id }}"
       data-product-name="{{ producto.nombre }}"
       data-product-price="{{ producto.get_precio_final|floatformat:2 }}" {# Usar el precio final #}
-      data-selected-variant-id="{{ producto.id }}" {# Por defecto, el ID del producto si no hay variantes #}
-      data-selected-color="N/A" {# Por defecto, "N/A" si no hay variantes de color #}
+      data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Por defecto, el ID del producto si no hay variantes #}
+      data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color }}{% else %}N/A{% endif %}" {# Por defecto, "N/A" si no hay variantes de color #}
+      data-product-image-url="{{ producto.get_primary_image_url }}" {# NUEVO: Pasa la URL de la imagen principal al carrito #}
     >
       <i class="fas fa-cart-plus"></i>
       <span>Añadir al Carrito</span>

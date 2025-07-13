@@ -186,7 +186,7 @@
                                 style="background-color: {{ variante.color_hex }};"
                                 data-variant-id="{{ variante.id }}"
                                 data-color-name="{{ variante.color }}" {# MODIFICACIÓN: Usar variante.color para el nombre #}
-                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{{ producto.get_primary_image_url }}{% endif %}" {# CAMBIO: Usar get_primary_image_url como fallback #}
                                 data-variant-price="{{ variante.precio_final|floatformat:0 }}"
                             ></div>
                             {% elif forloop.counter0 == 3 %} {# Mostrar el botón '+' si hay más de 3 colores #}
@@ -205,7 +205,7 @@
                                 style="background-color: {{ variante.color_hex }};"
                                 data-variant-id="{{ variante.id }}"
                                 data-color-name="{{ variante.color }}" {# MODIFICACIÓN: Usar variante.color para el nombre #}
-                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                                data-variant-image="{% if variante.imagen %}{{ variante.imagen.url }}{% else %}{{ producto.get_primary_image_url }}{% endif %}" {# CAMBIO: Usar get_primary_image_url como fallback #}
                                 data-variant-price="{{ variante.precio_final|floatformat:0 }}"
                             ></div>
                             {% endif %}

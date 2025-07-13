@@ -18,7 +18,8 @@ def get_common_context():
     # o ajusta 'subcategorias' aquí al nombre de tu related_name si es diferente.
     # Usamos el manager personalizado para obtener las categorías principales con conteo de productos
     # y ahora seleccionamos la imagen_circular
-    categorias_principales = Categoria.objects.principales_con_productos().select_related('imagen_circular') # Cambiado el nombre de la variable
+    # CORREGIDO: Eliminado .select_related('imagen_circular') porque no es un campo relacional.
+    categorias_principales = Categoria.objects.principales_con_productos()
 
     # Obtener los elementos de menú configurables desde el modelo MenuItem.
     # Se ordenan por el campo 'order' para controlar su posición en la navegación.

@@ -65,8 +65,9 @@ let cartTotalSpan;
 let buyWhatsappButton;
 let buyWhatsappCartCountSpan;
 let modalBuyWhatsappButton;
-let cartCountElement; // Contador superior
-let mobileCartCountElement; // Contador móvil
+let cartCountElement; // Contador superior (desktop)
+let mobileCartCountElement; // Contador móvil (header)
+let bottomNavCartCountElement; // Contador móvil (bottom nav)
 
 function openCartModal() {
     // Asegurarse de que las referencias a los elementos del DOM estén inicializadas
@@ -100,6 +101,11 @@ function actualizarContadorCarrito() {
     if (mobileCartCountElement) {
         mobileCartCountElement.innerText = totalItemsInCart;
         mobileCartCountElement.classList.toggle("hidden", totalItemsInCart === 0);
+    }
+    // NUEVO: Actualizar contador de la barra de navegación inferior
+    if (bottomNavCartCountElement) {
+        bottomNavCartCountElement.innerText = totalItemsInCart;
+        bottomNavCartCountElement.classList.toggle("hidden", totalItemsInCart === 0);
     }
     if (buyWhatsappButton && buyWhatsappCartCountSpan) {
         buyWhatsappCartCountSpan.textContent = totalItemsInCart;
@@ -249,6 +255,7 @@ function initializeCartDomElements() {
     modalBuyWhatsappButton = document.getElementById("modal-buy-whatsapp-button");
     cartCountElement = document.getElementById("cart-count");
     mobileCartCountElement = document.getElementById("mobile-cart-count");
+    bottomNavCartCountElement = document.getElementById("bottom-nav-cart-count"); // NUEVO
 }
 
 
@@ -619,4 +626,31 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+    // NUEVO: Lógica para la barra de navegación inferior
+    const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+    const mobileMenu = document.getElementById('mobile-menu'); // Tu menú móvil existente
+    const mobileMenuButton = document.getElementById("mobile-menu-button"); // Asegúrate de que este botón esté definido
+
+    // Manejar el botón "Más" en la barra inferior
+    const bottomNavMoreButton = document.getElementById('bottom-nav-more-button');
+    if (bottomNavMoreButton) {
+        bottomNavMoreButton.addEventListener('click', () => {
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+                // Opcional: Cerrar el menú móvil si se hace clic en "Más" y ya está abierto
+                if (!mobileMenu.classList.contains('hidden')) {
+                    // Solo simular el clic en el botón de hamburguesa si el menú *está* visible
+                    // para asegurar que el ícono de hamburguesa también se actualice.
+                    if (mobileMenuButton && !mobileMenu.classList.contains('hidden')) {
+                        mobileMenuButton.click();
+                    }
+                }
+            }
+        });
+    }
+
+    // Asegurar que el elemento de navegación inferior se active correctamente al cargar
+    // La función activateBottomNavItem ya está en base.html script, pero la llamamos aquí también
+    // para asegurar que se ejecute después de que todos los elementos DOM estén inicializados.
+    // activateBottomNavItem(); // Ya se llama en el script de base.html
 }); // Fin de DOMContentLoaded

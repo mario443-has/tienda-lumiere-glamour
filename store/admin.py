@@ -36,7 +36,7 @@ class CategoriaAdmin(admin.ModelAdmin):
 admin.site.register(Categoria, CategoriaAdmin)
 
 
-# Admin para Producto
+# Inline para ProductImage (usado en ProductoAdmin)
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
@@ -49,31 +49,7 @@ class ProductImageInline(admin.TabularInline):
         return "No Image"
     image_preview.short_description = 'Preview'
 
-class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'categoria', 'precio', 'descuento', 'is_active', 'etiqueta', 'stock', 'fecha_creacion')
-    list_filter = ('categoria', 'is_active', 'etiqueta')
-    search_fields = ('nombre', 'descripcion')
-    prepopulated_fields = {'slug': ('nombre',)}
-    inlines = [ProductImageInline]
-    fieldsets = (
-        ('Información Básica', {
-            'fields': ('nombre', 'slug', 'descripcion', 'long_description', 'categoria')
-        }),
-        ('Precios y Stock', {
-            'fields': ('precio', 'descuento', 'stock')
-        }),
-        ('Estado y Etiqueta', {
-            'fields': ('is_active', 'etiqueta'),
-            'description': 'Define si el producto está activo y su etiqueta principal'
-        }),
-        ('Imagen Principal', {
-            'fields': ('imagen',)
-        }),
-    )
-
-admin.site.register(Producto, ProductoAdmin)
-
-
+# Inline para Variacion (usado en ProductoAdmin)
 class VariacionInline(admin.TabularInline):
     model = Variacion
     extra = 1
@@ -86,15 +62,30 @@ class VariacionInline(admin.TabularInline):
         return "No Image"
     imagen_preview.short_description = 'Preview'
 
-
+# Admin para Producto (definición única y completa)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'categoria', 'precio', 'descuento', 'is_active', 'stock', 'fecha_creacion')
     prepopulated_fields = {'slug': ('nombre',)}
     search_fields = ('nombre', 'descripcion', 'categoria__nombre')
     list_filter = ('is_active', 'categoria')
-    inlines = [ProductImageInline, VariacionInline]
+    inlines = [ProductImageInline, VariacionInline] # Incluye ambos inlines
     date_hierarchy = 'fecha_creacion'
     ordering = ('-fecha_creacion',)
+    fieldsets = ( # Puedes mantener o ajustar los fieldsets según tus necesidades
+        ('Información Básica', {
+            'fields': ('nombre', 'slug', 'descripcion', 'long_description', 'categoria')
+        }),
+        ('Precios y Stock', {
+            'fields': ('precio', 'descuento', 'stock')
+        }),
+        ('Estado y Etiqueta', {
+            'fields': ('is_active', 'etiqueta'), # Asegúrate de que 'etiqueta' está en tu modelo Producto
+            'description': 'Define si el producto está activo y su etiqueta principal'
+        }),
+        ('Imagen Principal', {
+            'fields': ('imagen',) # Asegúrate de que 'imagen' está en tu modelo Producto
+        }),
+    )
 
 admin.site.register(Producto, ProductoAdmin)
 

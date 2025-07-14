@@ -49,6 +49,30 @@ class ProductImageInline(admin.TabularInline):
         return "No Image"
     image_preview.short_description = 'Preview'
 
+class ProductoAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'categoria', 'precio', 'descuento', 'is_active', 'etiqueta', 'stock', 'fecha_creacion')
+    list_filter = ('categoria', 'is_active', 'etiqueta')
+    search_fields = ('nombre', 'descripcion')
+    prepopulated_fields = {'slug': ('nombre',)}
+    inlines = [ProductImageInline]
+    fieldsets = (
+        ('Información Básica', {
+            'fields': ('nombre', 'slug', 'descripcion', 'long_description', 'categoria')
+        }),
+        ('Precios y Stock', {
+            'fields': ('precio', 'descuento', 'stock')
+        }),
+        ('Estado y Etiqueta', {
+            'fields': ('is_active', 'etiqueta'),
+            'description': 'Define si el producto está activo y su etiqueta principal'
+        }),
+        ('Imagen Principal', {
+            'fields': ('imagen',)
+        }),
+    )
+
+admin.site.register(Producto, ProductoAdmin)
+
 
 class VariacionInline(admin.TabularInline):
     model = Variacion

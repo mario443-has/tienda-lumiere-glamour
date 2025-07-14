@@ -18,6 +18,42 @@
 
 .search-results > div {
   padding: 0.75rem;
+}
+
+/* Estilos para el botón de favoritos */
+.btn-favorito {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-favorito i {
+  font-size: 1.5rem;
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+.btn-favorito:hover i {
+  transform: scale(1.1);
+  color: #ff4b4b;
+}
+
+.btn-favorito.active i {
+  color: #ff4b4b;
+}
+
+/* Animación para cuando se añade/quita de favoritos */
+.btn-favorito.animate i {
+  animation: heartPop 0.3s ease-in-out;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -118,17 +154,23 @@
   width: 100%;
   height: 100%;
   transition: transform 0.5s ease-in-out;
+  will-change: transform;
 }
 .carousel-item {
   flex: 0 0 100%;
   height: 100%;
   position: relative;
+  user-select: none;
+}
+.carousel-item.clone {
+  pointer-events: none;
 }
 .carousel-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 /* Estilos para los círculos de color */
 .color-option {
@@ -174,56 +216,158 @@
   display: flex; /* Visible cuando se activa */
 }
 
-/* Estilos Mejorados para Categorías (Añadidos aquí) */
+/* Estilos Mejorados para Categorías */
 .categorias-nav {
+    position: relative;
     margin-bottom: 2rem;
 }
+
+/* Estilo del botón desplegable en móvil */
+.categorias-dropdown-btn {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    color: #374151;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.categorias-dropdown-btn:hover {
+    background: #f9fafb;
+}
+
+.categorias-dropdown-btn i {
+    transition: transform 0.2s;
+}
+
+.categorias-dropdown-btn.active i {
+    transform: rotate(180deg);
+}
+
+/* Lista de categorías */
+.categorias-lista {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
 .categoria-item {
-    margin-bottom: 1rem;
+    position: relative;
 }
+
 .categoria-link {
-    display: block;
-    padding: 0.5rem;
-    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: #374151;
     text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s ease;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+    font-weight: 500;
 }
+
 .categoria-link:hover {
-    /* Usar un color que contraste con tu tema, por ejemplo, el rosa de tu logo */
-    border-bottom-color: #EC4899; /* Tailwind pink-500 */
+    background: #f3f4f6;
+    color: #EC4899;
 }
+
+/* Subcategorías */
 .subcategorias {
-    margin-left: 1.5rem;
-    padding-left: 1.5rem;
-    /* Usar un color que contraste con tu tema */
-    border-left: 2px solid #D1D5DB; /* Tailwind gray-300 */
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    z-index: 50;
+    padding: 0.5rem;
 }
+
+.categoria-item:hover .subcategorias {
+    display: block;
+}
+
 .subcategoria-link {
     display: block;
-    margin-bottom: 0.5rem;
-    /* Usar un color que contraste con tu tema */
-    color: #4B5563; /* Tailwind gray-700 */
+    padding: 0.5rem 1rem;
+    color: #4B5563;
     text-decoration: none;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
 }
+
 .subcategoria-link:hover {
-    /* Usar un color que contraste con tu tema, por ejemplo, el rosa de tu logo */
-    color: #EC4899; /* Tailwind pink-500 */
+    background: #f3f4f6;
+    color: #EC4899;
 }
+
+/* Estilos móviles */
 @media (max-width: 768px) {
-    .categorias-container {
-        position: fixed;
-        left: 0;
-        top: 4rem; /* Ajustar si tu header tiene otra altura */
-        bottom: 0;
-        width: 250px;
-        overflow-y: auto;
-        /* Usar un color que contraste con tu tema */
-        background: #FFFFFF; /* Tailwind white */
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        z-index: 1000;
+    .categorias-dropdown-btn {
+        display: flex;
     }
+
     .categorias-lista {
-        padding: 1rem;
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        padding: 0.5rem;
+        z-index: 40;
+        gap: 0;
     }
+
+    .categorias-lista.show {
+        display: flex;
+    }
+
+    .categoria-item {
+        width: 100%;
+    }
+
+    .categoria-link {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .subcategorias {
+        position: static;
+        display: none;
+        box-shadow: none;
+        border: none;
+        border-left: 2px solid #e5e7eb;
+        margin-left: 1rem;
+        min-width: auto;
+    }
+
+    .categoria-item.active .subcategorias {
+        display: block;
+    }
+}
+
+/* Estilos para botones de añadir al carrito en tarjetas de productos */
+.add-to-cart-btn {
+    background-color: white !important;
+    color: #374151 !important;
+    border: 2px solid #e5e7eb !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.add-to-cart-btn:hover {
+    background-color: #EC4899 !important;
+    color: white !important;
+    border-color: #EC4899 !important;
 }

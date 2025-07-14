@@ -1,0 +1,143 @@
+/* Estilos base para todas las modales */
+.modal-notification {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    max-width: 24rem;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    background: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateX(150%);
+    opacity: 0;
+    z-index: 9999;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Clase para activar la animación */
+.modal-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Diferentes tipos de modales */
+.modal-success {
+    border-left: 4px solid #059669;
+    background: linear-gradient(to right, #f0fdf4, white);
+}
+
+.modal-error {
+    border-left: 4px solid #dc2626;
+    background: linear-gradient(to right, #fef2f2, white);
+}
+
+.modal-info {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(to right, #eff6ff, white);
+}
+
+/* Contenido de la modal */
+.modal-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-icon {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+}
+
+.modal-text {
+    flex-grow: 1;
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.modal-message {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+/* Botón de cerrar */
+.modal-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.modal-close:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #111827;
+}
+
+/* Animación de entrada */
+@keyframes slideIn {
+    from {
+        transform: translateX(150%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Animación de salida */
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(150%);
+        opacity: 0;
+    }
+}
+
+/* Animación de progreso */
+.modal-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.modal-progress-bar {
+    height: 100%;
+    background: currentColor;
+    border-radius: inherit;
+    width: 100%;
+    transform-origin: left;
+    animation: progress 3s linear;
+}
+
+@keyframes progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}

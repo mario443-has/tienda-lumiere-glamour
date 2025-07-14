@@ -2,6 +2,84 @@
 // Funciones y variables globales (accesibles desde cualquier parte)
 // =====================================================================
 
+// Función para mostrar/ocultar la barra de búsqueda móvil
+function toggleMobileSearch() {
+    const searchBar = document.getElementById('mobile-search-bar');
+    const isHidden = searchBar.classList.contains('hidden');
+    
+    if (isHidden) {
+        searchBar.classList.remove('hidden');
+        // Enfocar el input de búsqueda
+        searchBar.querySelector('input').focus();
+    } else {
+        searchBar.classList.add('hidden');
+    }
+}
+
+// Función para manejar favoritos
+function toggleFavorito(button, productoId) {
+    // Añadir clase de animación
+    button.classList.add('animate');
+    
+    fetch('/toggle-favorito/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            producto_id: productoId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.is_favorito) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+        
+        // Si estamos en la página de favoritos y se removió el favorito
+        if (!data.is_favorito && window.location.pathname === '/favoritos/') {
+            const card = button.closest('.col');
+            if (card) {
+                card.style.transition = 'opacity 0.3s';
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.remove();
+                    // Si no quedan más favoritos, recargar la página
+                    if (document.querySelectorAll('.col').length === 0) {
+                        location.reload();
+                    }
+                }, 300);
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error))
+    .finally(() => {
+        // Remover clase de animación después de la transición
+        setTimeout(() => {
+            button.classList.remove('animate');
+        }, 300);
+    });
+}
+
+// Función para obtener el token CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // Función para manejar la búsqueda en vivo
 function handleLiveSearch(searchInput, resultsContainer) {
     let debounceTimer;
@@ -39,7 +117,7 @@ function handleLiveSearch(searchInput, resultsContainer) {
                                  class="w-12 h-12 object-cover rounded-md mr-3">
                             <div class="flex-1">
                                 <div class="font-medium text-gray-800">${producto.nombre}</div>
-                                <div class="text-sm text-pink-600">$${producto.precio}</div>
+                                <div class="text-sm text-pink-600">${producto.precio}</div>
                             </div>
                         `;
                         
@@ -431,6 +509,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const indicatorsContainer = document.getElementById("carousel-indicators");
     const indicators = indicatorsContainer ? indicatorsContainer.querySelectorAll(".indicator") : [];
 
+    let currentIndex = 1; // Comenzamos en 1 debido al clon
+    let totalSlides = items.length;
+    let autoSlideInterval;
+    let isTransitioning = false;
+
+    // Inicializar el carrusel
+    if (carousel && items.length > 0) {
+        cloneSlides();
+        carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        // Escuchar el evento transitionend
+        carousel.addEventListener('transitionend', () => {
+            isTransitioning = false;
+        });
+
 
     // Toggle del menú principal móvil
     function toggleMobileMenu() {
@@ -514,30 +607,73 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentIndex = 0;
     let totalSlides = items.length;
     let autoSlideInterval;
-    let dragThreshold = 50;
+    let dragThreshold = 50;    let isTransitioning = false;
 
-    function updateCarousel() {
-        if (!carousel || totalSlides === 0) return;
+    function cloneSlides() {
+        if (!carousel || items.length === 0) return;
+        
+        // Clonar el primer y último slide
+        const firstClone = items[0].cloneNode(true);
+        const lastClone = items[items.length - 1].cloneNode(true);
+        
+        // Añadir clases para identificarlos
+        firstClone.classList.add('clone');
+        lastClone.classList.add('clone');
+        
+        // Añadir los clones al carrusel
+        carousel.appendChild(firstClone);
+        carousel.insertBefore(lastClone, items[0]);
+        
+        // Posicionar el carrusel en el primer slide real
+        currentIndex = 1;
+        carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
 
+    function updateCarousel(animate = true) {
+        if (!carousel || items.length === 0) return;
+        
+        carousel.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none';
         const offset = -currentIndex * 100;
         carousel.style.transform = `translateX(${offset}%)`;
 
+        // Actualizar indicadores (mostrar el índice real, no el de los clones)
+        const realIndex = (currentIndex - 1 + totalSlides) % totalSlides;
         indicators.forEach((dot, i) => {
-            dot.classList.toggle("opacity-100", i === currentIndex);
-            dot.classList.toggle("opacity-50", i !== currentIndex);
+            dot.classList.toggle("opacity-100", i === realIndex);
+            dot.classList.toggle("opacity-50", i !== realIndex);
         });
+
+        if (!animate) return;
+
+        // Manejar el efecto infinito
+        setTimeout(() => {
+            if (currentIndex === 0) {
+                carousel.style.transition = 'none';
+                currentIndex = totalSlides;
+                carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+            } else if (currentIndex === totalSlides + 1) {
+                carousel.style.transition = 'none';
+                currentIndex = 1;
+                carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+            isTransitioning = false;
+        }, 500);
     }
 
-    function goToSlide(index) {
-        currentIndex = (index + totalSlides) % totalSlides;
-        updateCarousel();
+    function goToSlide(index, animate = true) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+        currentIndex = index;
+        updateCarousel(animate);
     }
 
     function startAutoSlide() {
         stopAutoSlide();
         if (totalSlides > 1) {
             autoSlideInterval = setInterval(() => {
-                goToSlide(currentIndex + 1);
+                if (!isTransitioning) {
+                    goToSlide(currentIndex + 1);
+                }
             }, 5000);
         }
     }
@@ -548,17 +684,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (prevBtn) {
         prevBtn.addEventListener("click", () => {
-            stopAutoSlide();
-            goToSlide(currentIndex - 1);
-            startAutoSlide();
+            if (!isTransitioning) {
+                stopAutoSlide();
+                goToSlide(currentIndex - 1);
+                startAutoSlide();
+            }
         });
     }
 
     if (nextBtn) {
         nextBtn.addEventListener("click", () => {
-            stopAutoSlide();
-            goToSlide(currentIndex + 1);
-            startAutoSlide();
+            if (!isTransitioning) {
+                stopAutoSlide();
+                goToSlide(currentIndex + 1);
+                startAutoSlide();
+            }
         });
     }
 

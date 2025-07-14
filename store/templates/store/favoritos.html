@@ -1,0 +1,93 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Mis Favoritos - Lumière Glamour{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Mis Favoritos</h1>
+    
+    {% if favoritos %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for favorito in favoritos %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="position-relative">
+                            {% if favorito.producto.get_primary_image_url %}
+                                <img src="{{ favorito.producto.get_primary_image_url }}" class="card-img-top" alt="{{ favorito.producto.nombre }}">
+                            {% else %}
+                                <img src="{% static 'img/sin_imagen.jpg' %}" class="card-img-top" alt="Sin imagen">
+                            {% endif %}
+                            <button class="btn-favorito active position-absolute top-0 end-0 m-2"
+                                    data-producto-id="{{ favorito.producto.id }}"
+                                    onclick="toggleFavorito(this, {{ favorito.producto.id }})">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ favorito.producto.nombre }}</h5>
+                            <p class="card-text">{{ favorito.producto.get_precio_final|floatformat:0|intcomma }}</p>
+                            <a href="{% url 'producto_detalle' favorito.producto.id %}" class="btn btn-primary">Ver Detalles</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center">
+            <p>No tienes productos favoritos aún.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">Explorar Productos</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFavorito(button, productoId) {
+    fetch('/toggle-favorito/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            producto_id: productoId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.is_favorito === false) {
+            // Remover la tarjeta del producto con una animación
+            const card = button.closest('.col');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.remove();
+                // Si no quedan más favoritos, recargar la página
+                if (document.querySelectorAll('.col').length === 0) {
+                    location.reload();
+                }
+            }, 300);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Función para obtener el token CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

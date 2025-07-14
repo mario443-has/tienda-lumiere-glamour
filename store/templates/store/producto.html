@@ -46,7 +46,14 @@
 
             <!-- Product Details Section -->
             <div class="md:w-1/2 flex flex-col">
-                <h1 class="text-4xl font-bold text-gray-900 mb-3">{{ producto.nombre }}</h1>
+                <div class="flex justify-between items-start mb-3">
+                    <h1 class="text-4xl font-bold text-gray-900">{{ producto.nombre }}</h1>
+                    <button class="btn-favorito {% if is_favorito %}active{% endif %}"
+                            data-producto-id="{{ producto.id }}"
+                            onclick="toggleFavorito(this, {{ producto.id }})">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </div>
                 <div class="flex items-baseline mb-4">
                     <span class="text-5xl font-extrabold text-pink-600 mr-4">${{ producto.get_precio_final|floatformat:2 }}</span>
                     {% if producto.descuento > 0 %}

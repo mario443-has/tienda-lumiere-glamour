@@ -83,21 +83,15 @@
       {% endif %}
     </h2>
 
-    <div class="relative">
-      <button id="slideLeft" aria-label="Deslizar a la izquierda"
-        class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2 hover:bg-pink-500 hover:text-white transition">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button id="slideRight" aria-label="Deslizar a la derecha"
-        class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md rounded-full p-2 hover:bg-pink-500 hover:text-white transition">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-
-      <div id="slider" class="overflow-x-auto scroll-smooth whitespace-nowrap space-x-4 pb-4 px-2">
-        <div class="inline-flex space-x-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {% for producto in productos %}
           <div
-            class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative"
+            class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative">
+            <button class="btn-favorito absolute top-2 right-2 z-10 {% if producto.is_favorito %}active{% endif %}"
+                    data-producto-id="{{ producto.id }}"
+                    onclick="toggleFavorito(this, {{ producto.id }})">
+              <i class="fas fa-heart"></i>
+            </button>
             data-product-id="{{ producto.id }}">
             {% if producto.descuento > 0 %}
             <div
@@ -196,6 +190,56 @@
           </div>
           {% endfor %}
         </div>
+
+        {% if pagina_productos.paginator.num_pages > 1 %}
+        <div class="flex justify-center mt-8">
+            <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+                {% if pagina_productos.has_previous %}
+                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}" 
+                       class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
+                        <span class="sr-only">Primera</span>
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ pagina_productos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}" 
+                       class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
+                        <span class="sr-only">Anterior</span>
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                {% endif %}
+
+                {% for num in pagina_productos.paginator.page_range %}
+                    {% if num == pagina_productos.number %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-pink-500 bg-pink-50 text-sm font-medium text-pink-700">
+                            {{ num }}
+                        </span>
+                    {% elif num > pagina_productos.number|add:'-3' and num < pagina_productos.number|add:'3' %}
+                        <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}" 
+                           class="relative inline-flex items-center px-4 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
+                            {{ num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagina_productos.has_next %}
+                    <a href="?page={{ pagina_productos.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}" 
+                       class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
+                        <span class="sr-only">Siguiente</span>
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ pagina_productos.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}" 
+                       class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
+                        <span class="sr-only">Última</span>
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+            <p class="text-sm text-gray-700 mt-4 text-center">
+                Mostrando <span class="font-medium">{{ pagina_productos.start_index }}</span> a 
+                <span class="font-medium">{{ pagina_productos.end_index }}</span> de 
+                <span class="font-medium">{{ pagina_productos.paginator.count }}</span> productos
+            </p>
+        </div>
+        {% endif %}
       </div>
     </div>
   </main>

@@ -48,7 +48,7 @@ class Categoria(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
 
-    # ESTE manager es necesario - Ahora definido después de CategoriaManager
+    # ESTE manager es necesario
     objects = CategoriaManager()
 
     class Meta:
@@ -80,14 +80,48 @@ class Categoria(models.Model):
             return f"{self.padre.ruta_completa} > {self.nombre}"
         return self.nombre
 
+class Favorito(models.Model):
+    """
+    Modelo para guardar los productos favoritos de un usuario
+    """
+    session_key = models.CharField(max_length=40)  # Para usuarios no autenticados
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE, related_name='favoritos')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('session_key', 'producto')
+        verbose_name = 'Favorito'
+        verbose_name_plural = 'Favoritos'
+
+    def __str__(self):
+        return f"Favorito: {self.producto.nombre} - Session: {self.session_key}"
+
 
 class Producto(models.Model):
+    # Opciones para la etiqueta del producto
+    ETIQUETA_CHOICES = [
+        ('', 'Sin etiqueta'),
+        ('nuevo', 'Nuevo'),
+        ('tendencia', 'Tendencia'),
+        ('oferta', 'Oferta')
+    ]
+    
     nombre = models.CharField(max_length=255) # Aumentado a 255
     slug = models.SlugField(unique=True, blank=True)
     descripcion = models.TextField(blank=True, null=True)
     long_description = RichTextField(blank=True, null=True, verbose_name="Descripción Larga (con formato)")
-    precio = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
-    descuento = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'), help_text="Porcentaje de descuento (ej. 0.10 para 10%)")
+    precio = models.DecimalField(
+        max_digits=10, 
+        decimal_places=0, 
+        default=Decimal('0'),
+        help_text="Ingrese el precio sin puntos ni comas (ej. 30000 para $30.000)"
+    )
+    descuento = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=Decimal('0.00'), 
+        help_text="Porcentaje de descuento (ej. 0.10 para 10%)"
+    )
     imagen = CloudinaryField('imagen', blank=True, null=True)
     # Ahora Producto se relaciona directamente con Categoria (jerárquica)
     # on_delete=models.CASCADE: Si la categoría se elimina, los productos asociados también se eliminan.
@@ -101,6 +135,14 @@ class Producto(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     ultima_actualizacion = models.DateTimeField(auto_now=True)
     stock = models.IntegerField(default=0)
+    etiqueta = models.CharField(
+        max_length=10,
+        choices=ETIQUETA_CHOICES,
+        default='',
+        blank=True,
+        verbose_name="Etiqueta",
+        help_text="Selecciona una etiqueta para mostrar en el producto (solo se mostrará una)"
+    )
 
     class Meta:
         verbose_name = "Producto"

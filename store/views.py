@@ -2,6 +2,7 @@ import json # Importa el módulo json
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.views.generic import ListView # Importa ListView
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio # Asegúrate de importar Producto y Categoria
 import locale
 
@@ -28,6 +29,7 @@ def format_precio(precio):
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from .models import Favorito
 
 
 def api_buscar_productos(request):
@@ -154,16 +156,16 @@ def inicio(request):
     - Filtrado de productos por categoría.
     - Filtrado de productos por subcategoría.
     - **Nuevo:** Filtrado de productos en oferta.
+    - Paginación de productos.
     - Pasa datos comunes (categorías, menú, WhatsApp) a la plantilla.
     """
     query = request.GET.get('q') # Obtiene el término de búsqueda de la URL
     categoria_id = request.GET.get('categoria') # Obtiene el ID de la categoría para filtrar
     subcategoria_id = request.GET.get('subcategoria') # Obtiene el ID de la subcategoría para filtrar
     ofertas_activas = request.GET.get('ofertas') # Nuevo: Obtiene el parámetro 'ofertas'
+    page = request.GET.get('page', 1) # Obtiene el número de página, por defecto 1
 
     # Inicia con todos los productos activos.
-    # Asume que tu modelo Producto tiene un campo `is_active = models.BooleanField(default=True)`.
-    # Si no lo tienes, puedes quitar `.filter(is_active=True)`.
     productos_queryset = Producto.objects.filter(is_active=True)
 
     nombre_categoria_actual = None # Variable para el título de la sección de productos
@@ -172,26 +174,23 @@ def inicio(request):
     # 1. Aplicar filtro de ofertas si se proporciona el parámetro 'ofertas=true'
     if ofertas_activas == 'true':
         productos_queryset = productos_queryset.filter(descuento__gt=0) # Filtra productos con descuento > 0
-        # No se establece nombre_categoria_actual aquí, se usará 'Ofertas Especiales' en la plantilla
+        nombre_categoria_actual = 'Ofertas Especiales'
 
     # 2. Aplicar filtro de búsqueda si se proporciona un `query`
     if query:
         productos_queryset = productos_queryset.filter(
             Q(nombre__icontains=query) |
             Q(descripcion__icontains=query) |
-            Q(categoria__nombre__icontains=query) # Filtra también por nombre de categoría
-            # Q(subcategoria__nombre__icontains=query) # Eliminado: la subcategoría ahora es parte de la jerarquía de Categoria
-        ).distinct() # `distinct()` para evitar duplicados si un producto coincide en varios campos
+            Q(categoria__nombre__icontains=query)
+        ).distinct()
 
     # 3. Aplicar filtro por categoría si se proporciona `categoria_id`
-    # Este filtro se aplica DESPUÉS del filtro de ofertas, por si se combinan.
     if categoria_id:
         try:
             categoria_actual_obj = Categoria.objects.get(id=categoria_id)
             productos_queryset = productos_queryset.filter(categoria=categoria_actual_obj)
             nombre_categoria_actual = categoria_actual_obj.nombre
         except Categoria.DoesNotExist:
-            # Si la categoría no existe, no se filtra y se mantiene el nombre en None
             pass
 
     # 4. Aplicar filtro por subcategoría si se proporciona `subcategoria_id`
@@ -225,53 +224,90 @@ def inicio(request):
             # Si la subcategoría no existe, no se filtra
             pass
 
-    # Convertir el QuerySet de productos a una lista de diccionarios
-    # para que sea serializable a JSON y pueda ser usada por JavaScript.
-    # Aunque el `all_products_data_for_js` no se usa en la plantilla final, se mantiene aquí
-    # por si futuras implementaciones de JavaScript lo requieren.
-    products_for_js = []
-    for producto in productos_queryset:
-        products_for_js.append({
-            'id': str(producto.id), # Asegúrate de que el ID sea string
-            'nombre': producto.nombre,
-            'descripcion': producto.descripcion,
-            'precio': format_precio(producto.precio), # Formatear precio en pesos colombianos
-            'descuento': format_precio(producto.descuento) if producto.descuento else '0', # Formatear descuento
-            'get_precio_final': format_precio(producto.get_precio_final()), # Formatear precio final
-            'imagen': producto.imagen.url if producto.imagen else '', # Obtener la URL de la imagen
-        })
-
-    # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
+    # Configurar la paginación
+    paginator = Paginator(productos_queryset, 12)  # 12 productos por página
+    
+    try:
+        productos_paginados = paginator.page(page)
+    except PageNotAnInteger:
+        productos_paginados = paginator.page(1)
+    except EmptyPage:
+        productos_paginados = paginator.page(paginator.num_pages)
+    
+    # Obtener el contexto común
     context = get_common_context()
 
-    # Añadir los datos específicos de esta vista al contexto que se pasará a la plantilla
+    # Verificar productos en favoritos si hay una sesión activa
+    favoritos_ids = set()
+    if request.session.session_key:
+        favoritos_ids = set(
+            Favorito.objects.filter(
+                session_key=request.session.session_key,
+                producto__in=productos_paginados
+            ).values_list('producto_id', flat=True)
+        )
+
+    # Procesar los productos para la plantilla
+    productos_procesados = []
+    for producto in productos_paginados:
+        productos_procesados.append({
+            'id': producto.id,
+            'nombre': producto.nombre,
+            'descripcion': producto.descripcion,
+            'precio': format_precio(producto.precio),
+            'descuento': format_precio(producto.descuento) if producto.descuento else '0',
+            'get_precio_final': format_precio(producto.get_precio_final()),
+            'imagen': producto.get_primary_image_url(),
+            'is_favorito': producto.id in favoritos_ids,
+        })
+
+    # Añadir los datos específicos de esta vista al contexto
     context.update({
-        'productos': productos_queryset, # Mantenemos esto para el bucle principal de la plantilla Django
-        # 'all_products_data_for_js': products_for_js, # Esto se pasará al JavaScript vía json_script (se omite si no se usa en plantilla)
-        'query': query or '', # Pasa el query para mostrarlo en el título si aplica
-        'categoria_actual': categoria_actual_obj.id if categoria_actual_obj else None, # Pasa el ID para el estado 'active' en la navegación
-        'nombre_categoria_actual': nombre_categoria_actual, # Pasa el nombre para el título de la sección
-        'ofertas_activas': ofertas_activas == 'true', # Pasa un booleano para el estado de ofertas
+        'productos': productos_procesados,
+        'pagina_productos': productos_paginados,  # Para acceder a la paginación en la plantilla
+        'query': query or '',
+        'categoria_actual': categoria_actual_obj.id if categoria_actual_obj else None,
+        'nombre_categoria_actual': nombre_categoria_actual or 'Todos los productos',
+        'ofertas_activas': ofertas_activas == 'true',
     })
 
-    # Renderiza la plantilla principal. Asegúrate de que el nombre de la plantilla sea correcto,
-    # por ejemplo, 'index.html' si está en la raíz de tu carpeta templates,
-    # o 'store/index.html' si está dentro de una subcarpeta 'store'.
+    # Renderizar la plantilla con el contexto actualizado
     return render(request, 'store/index.html', context)
 
-def producto_detalle(request, product_id): # CAMBIO: 'producto_id' cambiado a 'product_id'
+def producto_detalle(request, product_id):
     """
     Vista para mostrar los detalles de un producto específico.
     También pasa el contexto común para la barra de navegación y el footer.
     """
     # Obtiene el producto por su ID, o devuelve un 404 si no se encuentra.
-    producto = get_object_or_404(Producto, id=product_id) # CAMBIO: 'producto_id' cambiado a 'product_id'
+    producto = get_object_or_404(Producto, id=product_id)
     
     # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
     context = get_common_context()
     
     # Añadir el producto específico al contexto
-    context['producto'] = producto 
+    context['producto'] = producto
+    
+    # Verificar si el producto está en favoritos
+    is_favorito = False
+    if request.session.session_key:
+        is_favorito = Favorito.objects.filter(
+            session_key=request.session.session_key,
+            producto=producto
+        ).exists()
+    context['is_favorito'] = is_favorito
+    
+    # Obtener las variaciones del producto
+    variaciones = producto.variacion_set.all()
+    
+    # Preparar las variaciones para el contexto
+    context['variaciones'] = [{
+        'id': var.id,
+        'tono': var.tono,
+        'color_hex': var.color_hex,
+        'imagen': var.imagen.url if var.imagen else '',
+        'precio_formateado': format_precio(producto.get_precio_final())
+    } for var in variaciones]
 
     # Renderiza la plantilla de detalle del producto.
     # Asegúrate de que 'store/producto.html' sea la ruta correcta a tu plantilla de detalle.
@@ -281,6 +317,73 @@ from django.http import HttpResponse
 
 def google_verification(request):
     return HttpResponse("google-site-verification: google1e60e56990e838db.html", content_type="text/plain")
+
+@csrf_exempt
+def toggle_favorito(request):
+    """
+    Vista para añadir o quitar un producto de favoritos
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            producto_id = data.get('producto_id')
+            
+            if not producto_id:
+                return JsonResponse({'error': 'ID de producto no proporcionado'}, status=400)
+            
+            # Obtener o crear una clave de sesión
+            if not request.session.session_key:
+                request.session.create()
+                
+            session_key = request.session.session_key
+            
+            # Intentar obtener el favorito existente
+            favorito = Favorito.objects.filter(
+                session_key=session_key,
+                producto_id=producto_id
+            ).first()
+            
+            if favorito:
+                # Si existe, eliminarlo
+                favorito.delete()
+                return JsonResponse({
+                    'mensaje': 'Producto eliminado de favoritos',
+                    'is_favorito': False
+                })
+            else:
+                # Si no existe, crearlo
+                Favorito.objects.create(
+                    session_key=session_key,
+                    producto_id=producto_id
+                )
+                return JsonResponse({
+                    'mensaje': 'Producto añadido a favoritos',
+                    'is_favorito': True
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Formato JSON inválido'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+            
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def ver_favoritos(request):
+    """
+    Vista para mostrar todos los productos favoritos
+    """
+    context = get_common_context()
+    
+    if not request.session.session_key:
+        context['favoritos'] = []
+        return render(request, 'store/favoritos.html', context)
+        
+    favoritos = Favorito.objects.filter(
+        session_key=request.session.session_key
+    ).select_related('producto')
+    
+    context['favoritos'] = favoritos
+    return render(request, 'store/favoritos.html', context)
 
 @csrf_exempt # Solo para desarrollo/pruebas. En producción, deberías usar el token CSRF.
 def agregar_al_carrito(request):
@@ -355,9 +458,9 @@ class CategoriaListView(ListView):
     Vista basada en clase para mostrar productos por categoría.
     """
     model = Producto
-    template_name = 'store/categoria.html' # Asegúrate de que esta plantilla exista
+    template_name = 'store/categoria.html'
     context_object_name = 'productos'
-    paginate_by = 12 # Número de productos por página
+    paginate_by = 12
 
     def get_queryset(self):
         slug = self.kwargs.get('slug')
@@ -366,9 +469,8 @@ class CategoriaListView(ListView):
             raise Http404("Categoría no encontrada")
 
         # Filtra productos que pertenecen a esta categoría o a cualquiera de sus subcategorías
-        # Esto es crucial para la nueva estructura jerárquica de categorías
         categorias_a_incluir = [self.categoria]
-        # Obtener todas las subcategorías de la categoría actual de forma recursiva
+        
         def get_all_subcategories(category):
             subcategories = []
             for sub in category.subcategorias.all():
@@ -378,16 +480,46 @@ class CategoriaListView(ListView):
 
         categorias_a_incluir.extend(get_all_subcategories(self.categoria))
 
+        # Filtra solo productos activos y ordena por fecha de creación
         return Producto.objects.filter(
-            categoria__in=categorias_a_incluir
-        ).select_related('categoria')  # Mejora de rendimiento
+            categoria__in=categorias_a_incluir,
+            is_active=True
+        ).select_related('categoria').order_by('-fecha_creacion')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categoria'] = self.categoria
-        # Usamos el manager personalizado para obtener las categorías principales con conteo de productos
-        context['categorias_principales'] = Categoria.objects.principales_con_productos()
-        # Puedes añadir más contexto si lo necesitas, por ejemplo, los anuncios
-        context['anuncios'] = Anuncio.objects.filter(is_active=True).order_by('order')
-        context.update(get_common_context()) # Asegura que el contexto común esté disponible
+        context.update(get_common_context())
+        
+        # Obtener los productos paginados
+        productos_paginados = context['productos']
+        
+        # Verificar productos en favoritos si hay una sesión activa
+        favoritos_ids = set()
+        if self.request.session.session_key:
+            favoritos_ids = set(
+                Favorito.objects.filter(
+                    session_key=self.request.session.session_key,
+                    producto__in=productos_paginados
+                ).values_list('producto_id', flat=True)
+            )
+        
+        # Procesar los productos para la plantilla
+        productos_procesados = []
+        for producto in productos_paginados:
+            productos_procesados.append({
+                'id': producto.id,
+                'nombre': producto.nombre,
+                'descripcion': producto.descripcion,
+                'precio': format_precio(producto.precio),
+                'descuento': format_precio(producto.descuento) if producto.descuento else '0',
+                'get_precio_final': format_precio(producto.get_precio_final()),
+                'imagen': producto.get_primary_image_url(),
+                'is_favorito': producto.id in favoritos_ids,
+            })
+        
+        # Actualizar el contexto con los productos procesados
+        context['productos_procesados'] = productos_procesados
+        context['pagina_productos'] = productos_paginados
+        
         return context

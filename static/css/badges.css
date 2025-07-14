@@ -1,0 +1,42 @@
+/* Estilos para las etiquetas de producto */
+.product-badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+.badge-oferta {
+    background-color: #dc2626; /* Rojo */
+    color: white;
+}
+
+.badge-tendencia {
+    background-color: #9333ea; /* Lila */
+    color: white;
+}
+
+.badge-nuevo {
+    background-color: #60a5fa; /* Azul claro */
+    color: white;
+}
+
+/* Para múltiples etiquetas en el mismo producto */
+.product-badges {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 10;
+}
+
+.product-badges .product-badge {
+    position: static;
+}

@@ -158,3 +158,44 @@
         padding: 1rem;
     }
 }
+/* =================== */
+/* 🟢 MEJORAS PARA MÓVIL */
+/* =================== */
+
+@media (max-width: 768px) {
+  .navbar-menu ul {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .navbar-menu a {
+    padding: 0.75rem;
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .productos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .producto-imagen {
+    height: 150px;
+  }
+
+  .carousel-item img {
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+  }
+
+  .content,
+  .productos-grid,
+  .beneficio {
+    padding: 1rem;
+  }
+}
+

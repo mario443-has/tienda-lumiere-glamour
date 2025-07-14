@@ -2,6 +2,84 @@
 // Funciones y variables globales (accesibles desde cualquier parte)
 // =====================================================================
 
+// Función para manejar la búsqueda en vivo
+function handleLiveSearch(searchInput, resultsContainer) {
+    let debounceTimer;
+    const minLength = 2; // Mínimo de caracteres para comenzar la búsqueda
+
+    return async function() {
+        const query = searchInput.value.trim();
+        
+        // Limpiar el temporizador anterior
+        clearTimeout(debounceTimer);
+
+        // Ocultar resultados si la búsqueda está vacía
+        if (query.length < minLength) {
+            resultsContainer.classList.add('hidden');
+            return;
+        }
+
+        // Esperar 300ms después de que el usuario deje de escribir
+        debounceTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/buscar-productos/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                // Limpiar resultados anteriores
+                resultsContainer.innerHTML = '';
+
+                if (data.productos && data.productos.length > 0) {
+                    // Mostrar nuevos resultados
+                    data.productos.forEach(producto => {
+                        const resultItem = document.createElement('div');
+                        resultItem.className = 'flex items-center p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 transition-colors duration-200';
+                        resultItem.innerHTML = `
+                            <img src="${producto.imagen || window.placeholderImageUrl}" 
+                                 alt="${producto.nombre}" 
+                                 class="w-12 h-12 object-cover rounded-md mr-3">
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-800">${producto.nombre}</div>
+                                <div class="text-sm text-pink-600">$${producto.precio}</div>
+                            </div>
+                        `;
+                        
+                        // Agregar evento de clic para ir al producto
+                        resultItem.addEventListener('click', () => {
+                            window.location.href = `/producto/${producto.id}/`;
+                        });
+                        
+                        resultsContainer.appendChild(resultItem);
+                    });
+                    
+                    // Mostrar el contenedor de resultados
+                    resultsContainer.classList.remove('hidden');
+                } else {
+                    // Mostrar mensaje de no resultados
+                    resultsContainer.innerHTML = `
+                        <div class="p-4 text-center text-gray-500">
+                            No se encontraron productos que coincidan con "${query}"
+                        </div>
+                    `;
+                    resultsContainer.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error en la búsqueda:', error);
+            }
+        }, 300);
+    };
+}
+
+// Función para posicionar el contenedor de resultados
+function positionSearchResults(searchInput, resultsContainer) {
+    const inputRect = searchInput.getBoundingClientRect();
+    
+    resultsContainer.style.position = 'absolute';
+    resultsContainer.style.top = `${inputRect.bottom + window.scrollY}px`;
+    resultsContainer.style.left = `${inputRect.left}px`;
+    resultsContainer.style.width = `${inputRect.width}px`;
+    resultsContainer.style.zIndex = '50';
+}
+
 // ✅ Cargar el carrito desde localStorage cuando se inicia
 function cargarCarritoLocal() {
   const carritoGuardado = localStorage.getItem('carritoLumiere');
@@ -67,6 +145,8 @@ let buyWhatsappCartCountSpan;
 let modalBuyWhatsappButton;
 let cartCountElement; // Contador superior
 let mobileCartCountElement; // Contador móvil
+let bottomNavCartCount; // Contador en la barra de navegación inferior
+let mobileNavbar; // Referencia a la barra de navegación inferior
 
 function openCartModal() {
     // Asegurarse de que las referencias a los elementos del DOM estén inicializadas
@@ -93,17 +173,18 @@ function actualizarContadorCarrito() {
         totalItemsInCart += (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
     });
 
-    if (cartCountElement) {
-        cartCountElement.innerText = totalItemsInCart;
-        cartCountElement.classList.toggle("hidden", totalItemsInCart === 0);
-    }
-    if (mobileCartCountElement) {
-        mobileCartCountElement.innerText = totalItemsInCart;
-        mobileCartCountElement.classList.toggle("hidden", totalItemsInCart === 0);
-    }
+    // Actualizar todos los contadores del carrito
+    [cartCountElement, mobileCartCountElement, bottomNavCartCount].forEach(counter => {
+        if (counter) {
+            counter.textContent = totalItemsInCart;
+            counter.classList.toggle('hidden', totalItemsInCart === 0);
+        }
+    });
+
+    // Actualizar el contador del botón de WhatsApp
     if (buyWhatsappButton && buyWhatsappCartCountSpan) {
         buyWhatsappCartCountSpan.textContent = totalItemsInCart;
-        buyWhatsappButton.classList.toggle("hidden", totalItemsInCart === 0);
+        buyWhatsappButton.classList.toggle('hidden', totalItemsInCart === 0);
     }
 }
 
@@ -249,15 +330,90 @@ function initializeCartDomElements() {
     modalBuyWhatsappButton = document.getElementById("modal-buy-whatsapp-button");
     cartCountElement = document.getElementById("cart-count");
     mobileCartCountElement = document.getElementById("mobile-cart-count");
+    bottomNavCartCount = document.getElementById("bottom-nav-cart-count");
+    mobileNavbar = document.querySelector('.mobile-navbar');
 }
 
 
 // =====================================================================
 // Lógica que se ejecuta cuando el DOM está completamente cargado
 // =====================================================================
+// Función para manejar el feedback táctil en la barra de navegación inferior
+function addTouchFeedback(element) {
+    element.addEventListener('touchstart', () => {
+        element.classList.add('active');
+    }, { passive: true });
+
+    element.addEventListener('touchend', () => {
+        element.classList.remove('active');
+    }, { passive: true });
+}
+
+// Función para manejar la visibilidad de la barra de navegación al hacer scroll
+function handleNavbarVisibility() {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                if (mobileNavbar) {
+                    // Mostrar/ocultar navbar basado en la dirección del scroll
+                    if (window.scrollY > lastScrollY) {
+                        // Scrolling hacia abajo - ocultar navbar
+                        mobileNavbar.classList.add('navbar-hidden');
+                    } else {
+                        // Scrolling hacia arriba - mostrar navbar
+                        mobileNavbar.classList.remove('navbar-hidden');
+                    }
+                    lastScrollY = window.scrollY;
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     // Inicializar elementos del DOM
     initializeCartDomElements();
+
+    // Inicializar búsqueda en vivo
+    const searchInputs = document.querySelectorAll('.search-input');
+    searchInputs.forEach(searchInput => {
+        // Crear el contenedor de resultados para este input
+        const resultsContainer = document.createElement('div');
+        resultsContainer.className = 'search-results hidden absolute bg-white rounded-lg shadow-lg max-h-96 overflow-y-auto w-full';
+        searchInput.parentNode.style.position = 'relative';
+        searchInput.parentNode.appendChild(resultsContainer);
+
+        // Configurar el manejador de búsqueda
+        const searchHandler = handleLiveSearch(searchInput, resultsContainer);
+        searchInput.addEventListener('input', searchHandler);
+
+        // Actualizar posición de resultados al hacer scroll o redimensionar
+        window.addEventListener('scroll', () => positionSearchResults(searchInput, resultsContainer));
+        window.addEventListener('resize', () => positionSearchResults(searchInput, resultsContainer));
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.add('hidden');
+            }
+        });
+
+        // Prevenir cierre al hacer clic en los resultados
+        resultsContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
+    
+    // Agregar feedback táctil a los botones de la barra de navegación
+    document.querySelectorAll('.mobile-navbar button, .mobile-navbar a').forEach(addTouchFeedback);
+    
+    // Inicializar el manejo de visibilidad de la barra de navegación
+    handleNavbarVisibility();
 
     // JavaScript para el menú móvil (Hamburger)
     const mobileMenuButton = document.getElementById("mobile-menu-button");
@@ -277,20 +433,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // Toggle del menú principal móvil
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener("click", () => {
-            if (mobileMenu) mobileMenu.classList.toggle("hidden");
+    function toggleMobileMenu() {
+        if (mobileMenu) {
+            const isHidden = mobileMenu.classList.contains("hidden");
+            mobileMenu.classList.toggle("hidden");
+            
+            // Añadir animación de deslizamiento
+            if (!isHidden) {
+                mobileMenu.style.transform = "translateX(-100%)";
+                setTimeout(() => {
+                    mobileMenu.classList.add("hidden");
+                    mobileMenu.style.transform = "";
+                }, 300);
+            } else {
+                mobileMenu.style.transform = "translateX(-100%)";
+                mobileMenu.classList.remove("hidden");
+                setTimeout(() => {
+                    mobileMenu.style.transform = "translateX(0)";
+                }, 10);
+            }
+            
+            // Actualizar ícono
             const icon = mobileMenuButton.querySelector("svg");
             if (icon) {
-                if (mobileMenu && mobileMenu.classList.contains("hidden")) {
-                    icon.innerHTML =
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>'; // Ícono de menú
+                if (isHidden) {
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
                 } else {
-                    icon.innerHTML =
-                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; // Ícono de cerrar
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
                 }
             }
-        });
+        }
+    }
+
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener("click", toggleMobileMenu);
     }
 
     // Toggle del dropdown de categorías en móvil

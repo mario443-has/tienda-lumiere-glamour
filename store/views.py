@@ -3,8 +3,115 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.views.generic import ListView # Importa ListView
 from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio # Asegúrate de importar Producto y Categoria
-from django.http import Http404, JsonResponse # Importa JsonResponse para respuestas JSON
-from django.views.decorators.csrf import csrf_exempt # Importa csrf_exempt para deshabilitar CSRF en la vista (solo para pruebas/desarrollo)
+import locale
+
+def format_precio(precio):
+    """
+    Formatea un precio en el formato de pesos colombianos
+    Ejemplo: 1000 -> $ 1.000
+    """
+    if precio is None or precio == '':
+        return "$ 0"
+    
+    # Convertir el precio a float si es necesario
+    if not isinstance(precio, (int, float)):
+        try:
+            precio = float(precio)
+        except (ValueError, TypeError):
+            return "$ 0"
+    
+    # Formatear el número con separador de miles
+    precio_formateado = "{:,.0f}".format(precio).replace(",", ".")
+    
+    # Agregar el símbolo de pesos
+    return f"$ {precio_formateado}"
+from django.http import Http404, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
+
+
+def api_buscar_productos(request):
+    """
+    API endpoint para búsqueda en vivo de productos
+    """
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse({
+            'productos': [],
+            'mensaje': 'La búsqueda debe tener al menos 2 caracteres.'
+        })
+
+    try:
+        # Realizar búsqueda en varios campos
+        productos = Producto.objects.filter(
+            Q(nombre__icontains=query) |
+            Q(descripcion__icontains=query) |
+            Q(categoria__nombre__icontains=query),
+            is_active=True  # Solo productos activos
+        ).distinct()[:8]  # Limitar a 8 resultados
+
+        resultados = []
+        for producto in productos:
+            precio = producto.get_precio_final()
+            resultados.append({
+                'id': producto.id,
+                'nombre': producto.nombre,
+                'precio': format_precio(precio),
+                'imagen': producto.get_primary_image_url(),
+                'url': f'/producto/{producto.id}/',
+                'categoria': producto.categoria.nombre if producto.categoria else '',
+                'descuento': True if producto.descuento else False
+            })
+
+        return JsonResponse({
+            'exito': True,
+            'productos': resultados,
+            'total': len(resultados)
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'exito': False,
+            'error': str(e)
+        }, status=500)
+
+def buscar_productos(request):
+    """
+    Vista para búsqueda en vivo de productos.
+    Retorna JSON con los productos que coinciden con la consulta.
+    """
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:  # Requiere al menos 2 caracteres para buscar
+        return JsonResponse({
+            'productos': [],
+            'mensaje': 'Se requieren al menos 2 caracteres para buscar.'
+        })
+
+    # Búsqueda en múltiples campos usando Q objects
+    productos = Producto.objects.filter(
+        Q(nombre__icontains=query) |  # Busca en el nombre
+        Q(descripcion__icontains=query) |  # Busca en la descripción
+        Q(categoria__nombre__icontains=query)  # Busca en el nombre de la categoría
+    ).distinct()[:10]  # Limita a 10 resultados para mejor rendimiento
+
+    # Formatea los resultados
+    resultados = []
+    for producto in productos:
+        resultados.append({
+            'id': producto.id,
+            'nombre': producto.nombre,
+            'precio': format_precio(producto.get_precio_final()),  # Usar el precio con descuento si existe
+            'imagen': producto.get_primary_image_url(),  # Usa el método que ya tienes para obtener la imagen
+            'url': f'/producto/{producto.id}/',  # URL para el detalle del producto
+            'categoria': producto.categoria.nombre if producto.categoria else 'Sin categoría'
+        })
+
+    return JsonResponse({
+        'productos': resultados,
+        'total': len(resultados)
+    })
 
 
 def get_common_context():
@@ -128,9 +235,9 @@ def inicio(request):
             'id': str(producto.id), # Asegúrate de que el ID sea string
             'nombre': producto.nombre,
             'descripcion': producto.descripcion,
-            'precio': str(producto.precio), # Convertir Decimal a string
-            'descuento': str(producto.descuento), # Convertir Decimal a string
-            'get_precio_final': str(producto.get_precio_final()), # Llamar al método y convertir a string
+            'precio': format_precio(producto.precio), # Formatear precio en pesos colombianos
+            'descuento': format_precio(producto.descuento) if producto.descuento else '0', # Formatear descuento
+            'get_precio_final': format_precio(producto.get_precio_final()), # Formatear precio final
             'imagen': producto.imagen.url if producto.imagen else '', # Obtener la URL de la imagen
         })
 

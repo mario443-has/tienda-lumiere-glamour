@@ -69,25 +69,24 @@
         </a>
 
         <!-- Barra de Búsqueda (Desktop) -->
-        <form
-          action="{% url 'home' %}"
-          method="get"
-          class="hidden md:flex items-center flex-grow max-w-md mx-4"
-        >
-          <input
-            type="text"
-            name="q"
-            placeholder="Buscar productos..."
-            class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-            value="{{ request.GET.q|default:'' }}"
-          />
-          <button
-            type="submit"
-            class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
-          >
-            <i class="fas fa-search"></i>
-          </button>
-        </form>
+        <div class="hidden md:flex items-center flex-grow max-w-md mx-4 relative">
+          <div class="relative flex w-full">
+            <input
+              type="text"
+              name="q"
+              placeholder="Buscar productos..."
+              class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value="{{ request.GET.q|default:'' }}"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
+            >
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
 
         <!-- Iconos de Usuario y Carrito (Desktop) -->
         <div class="hidden md:flex items-center space-x-4">
@@ -272,23 +271,24 @@
       <!-- Menú Móvil (Oculto por defecto) -->
       <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg pb-4">
         <!-- Barra de Búsqueda (Móvil) -->
-        <form action="{% url 'home' %}" method="get" class="px-4 py-2">
-          <div class="flex">
+        <div class="px-4 py-2 relative">
+          <div class="flex relative">
             <input
               type="text"
               name="q"
               placeholder="Buscar productos..."
-              class="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
               value="{{ request.GET.q|default:'' }}"
+              autocomplete="off"
             />
             <button
-              type="submit"
+              type="button"
               class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
             >
               <i class="fas fa-search"></i>
             </button>
           </div>
-        </form>
+        </div>
 
         <a
           href="{% url 'home' %}"
@@ -403,6 +403,27 @@
     {# Contenido dinámico de cada página #}
     {% block content %}
     {% endblock %}
+
+    <!-- Barra de navegación inferior móvil -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-top flex justify-around items-center py-2 px-4 z-50">
+        <a href="{% url 'home' %}" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+            <i class="fas fa-home text-2xl mb-1"></i>
+            <span class="text-xs">Inicio</span>
+        </a>
+        <button onclick="toggleMobileMenu()" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+            <i class="fas fa-th-large text-2xl mb-1"></i>
+            <span class="text-xs">Categorías</span>
+        </button>
+        <button onclick="openCartModal()" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
+            <i class="fas fa-shopping-bag text-2xl mb-1"></i>
+            <span class="text-xs">Carrito</span>
+            <span id="bottom-nav-cart-count" class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+        </button>
+        <a href="#" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+            <i class="fas fa-heart text-2xl mb-1"></i>
+            <span class="text-xs">Favoritos</span>
+        </a>
+    </nav>
 
     <!-- Footer Section -->
     <footer class="bg-gray-800 text-white py-8 mt-8">

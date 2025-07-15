@@ -569,7 +569,7 @@ def ver_favoritos(request):
             'descuento': format_precio(producto.descuento) if producto.descuento else '0',
             'get_precio_final': format_precio(producto.get_precio_final()),
             'imagen': producto.get_primary_image_url(),
-            'is_favorito': True,
+            'is_favorito': producto.id in favoritos_ids,
         })
 
     context['favoritos_productos'] = productos_procesados

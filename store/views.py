@@ -323,7 +323,7 @@ def google_verification(request):
 @csrf_exempt
 def toggle_favorito(request):
     """
-    Vista para añadir o quitar un producto de favoritos
+    Vista para añadir o quitar un producto de favoritos (basado en session_key).
     """
     if request.method == 'POST':
         try:
@@ -333,34 +333,25 @@ def toggle_favorito(request):
             if not producto_id:
                 return JsonResponse({'error': 'ID de producto no proporcionado'}, status=400)
             
-            # Obtener o crear una clave de sesión
+            # Asegurar que la sesión exista
             if not request.session.session_key:
-                request.session.create()
+                request.session.save()
                 
             session_key = request.session.session_key
             
-            # Intentar obtener el favorito existente
-            # Usar get_or_create para manejar tanto usuarios autenticados como anónimos
-            if request.user.is_authenticated:
-                favorito, created = Favorito.objects.get_or_create(
-                    user=request.user,
-                    producto_id=producto_id # Usar producto_id directamente
-                )
-            else:
-                favorito, created = Favorito.objects.get_or_create(
-                    session_key=session_key,
-                    producto_id=producto_id # Usar producto_id directamente
-                )
+            # Verificar si ya existe el favorito
+            favorito, created = Favorito.objects.get_or_create(
+                session_key=session_key,
+                producto_id=producto_id
+            )
             
             if not created:
-                # Si existe, eliminarlo
                 favorito.delete()
                 return JsonResponse({
                     'mensaje': 'Producto eliminado de favoritos',
                     'is_favorito': False
                 })
             else:
-                # Si no existe, crearlo
                 return JsonResponse({
                     'mensaje': 'Producto añadido a favoritos',
                     'is_favorito': True
@@ -372,36 +363,6 @@ def toggle_favorito(request):
             return JsonResponse({'error': str(e)}, status=500)
             
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-def ver_favoritos(request):
-    """
-    Vista para mostrar todos los productos favoritos
-    """
-    context = get_common_context(request) # CAMBIO: Pasar request aquí
-    
-    favoritos_productos = []
-    if request.user.is_authenticated:
-        favoritos_productos = Producto.objects.filter(favorito__user=request.user, is_active=True)
-    else:
-        if request.session.session_key:
-            favoritos_productos = Producto.objects.filter(favorito__session_key=request.session.session_key, is_active=True)
-    
-    # Procesar productos favoritos de manera similar a ProductoListView si es necesario
-    productos_procesados = []
-    for producto in favoritos_productos:
-        productos_procesados.append({
-            'id': producto.id,
-            'nombre': producto.nombre,
-            'descripcion': producto.descripcion,
-            'precio': format_precio(producto.precio),
-            'descuento': format_precio(producto.descuento) if producto.descuento else '0',
-            'get_precio_final': format_precio(producto.get_precio_final()),
-            'imagen': producto.get_primary_image_url(),
-            'is_favorito': True, # En la página de favoritos, todos son favoritos
-        })
-
-    context['favoritos_productos'] = productos_procesados
-    return render(request, 'store/favoritos.html', context)
 
 @csrf_exempt # Solo para desarrollo/pruebas. En producción, deberías usar el token CSRF.
 def agregar_al_carrito(request):
@@ -585,3 +546,31 @@ class CategoriaListView(ListView):
         context['pagina_productos'] = productos_paginados
         
         return context
+def ver_favoritos(request):
+    """
+    Vista para mostrar todos los productos favoritos
+    """
+    context = get_common_context(request)
+    
+    favoritos_productos = []
+    if request.session.session_key:
+        favoritos_productos = Producto.objects.filter(
+            favorito__session_key=request.session.session_key,
+            is_active=True
+        )
+    
+    productos_procesados = []
+    for producto in favoritos_productos:
+        productos_procesados.append({
+            'id': producto.id,
+            'nombre': producto.nombre,
+            'descripcion': producto.descripcion,
+            'precio': format_precio(producto.precio),
+            'descuento': format_precio(producto.descuento) if producto.descuento else '0',
+            'get_precio_final': format_precio(producto.get_precio_final()),
+            'imagen': producto.get_primary_image_url(),
+            'is_favorito': True,
+        })
+
+    context['favoritos_productos'] = productos_procesados
+    return render(request, 'store/favoritos.html', context)

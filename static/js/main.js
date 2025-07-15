@@ -218,14 +218,14 @@ window.updateItemQuantity = function(variantIdToUpdate, change) { // Global para
 
         if (change === 0) {
             window.cart.splice(itemIndex, 1);
-            showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
+            // No mostrar modal de confirmación aquí
         } else {
             window.cart[itemIndex].quantity += change;
             if (window.cart[itemIndex].quantity <= 0) {
                 window.cart.splice(itemIndex, 1);
-                showMessageModal('Producto Eliminado', 'Producto eliminado del carrito.');
+                // No mostrar modal de confirmación aquí
             } else {
-                showMessageModal('Cantidad Actualizada', `Cantidad de ${window.cart[itemIndex].name} actualizada a ${window.cart[itemIndex].quantity}.`);
+                // No mostrar modal de confirmación aquí
             }
         }
         guardarCarritoLocal();
@@ -314,14 +314,15 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
     .then(data => {
         const icon = button.querySelector('i'); // Get the <i> element inside the button
         if (data.is_favorito) {
+            // Si el producto se añadió a favoritos
             icon.classList.add('active');
             localStorage.setItem(`favorito-${productoId}`, 'true'); // Guardar en localStorage
         } else {
+            // Si el producto se eliminó de favoritos
             icon.classList.remove('active');
             localStorage.removeItem(`favorito-${productoId}`); // Eliminar de localStorage
-            // Si el producto fue removido de favoritos
+            // Si estamos en la página de favoritos, eliminar la tarjeta del producto
             if (window.location.pathname === '/favoritos/') {
-                // Ajusta el selector para que coincida con .col o .product-card
                 const card = button.closest('.col, .product-card'); 
                 if (card) {
                     card.style.transition = 'opacity 0.3s';
@@ -336,12 +337,12 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
                 }
             }
         }
-        // Mostrar notificación de éxito/error
-        if (data.mensaje) {
-            showMessageModal(data.is_favorito ? 'Producto Añadido' : 'Producto Eliminado', data.mensaje);
-        } else if (data.error) {
-            showMessageModal('Error de Favoritos', data.error, 'error');
-        }
+        // ELIMINADO: No mostrar modal de confirmación aquí
+        // if (data.mensaje) {
+        //     showMessageModal(data.is_favorito ? 'Producto Añadido' : 'Producto Eliminado', data.mensaje);
+        // } else if (data.error) {
+        //     showMessageModal('Error de Favoritos', data.error, 'error');
+        // }
     })
     .catch(error => {
         console.error('Error:', error);

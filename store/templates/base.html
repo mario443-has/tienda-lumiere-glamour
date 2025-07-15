@@ -289,27 +289,7 @@
 
       <!-- Menú Móvil (Oculto por defecto) -->
       <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg pb-4">
-        <!-- Barra de Búsqueda (Móvil) -->
-        <div class="px-4 py-2 relative">
-          <form method="get" action="{% url 'home' %}" class="relative flex">
-            <input
-              type="text"
-              name="q"
-              placeholder="Buscar productos..."
-              class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-              value="{{ request.GET.q|default:'' }}"
-              autocomplete="off"
-            />
-            <button
-              type="submit"
-              class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
-            >
-              <i class="fas fa-search"></i>
-            </button>
-          </form>
-          {# Contenedor para resultados de búsqueda en vivo (Móvil) #}
-          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
-        </div>
+        {# ELIMINADO: Barra de Búsqueda (Móvil) de aquí #}
 
         <a
           href="{% url 'home' %}"
@@ -400,7 +380,6 @@
           href="{% url 'home' %}"
           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600"
           >Ofertas</a
-
         >
         <a
           href="#"
@@ -542,7 +521,7 @@
     <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
     <a
       href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
-      class="whatsapp-flotante fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40"
+      class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
       target="_blank"
       title="Escríbenos por WhatsApp (Consulta General)"
     >

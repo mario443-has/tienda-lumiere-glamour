@@ -29,8 +29,8 @@
             </div>
             <div class="text-right flex-shrink-0">
               <p class="text-lg sm:text-xl font-bold text-pink-600">{{ item.price_formatted }}</p>
-              {# Muestra el subtotal por ítem #}
-              <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.price|mul:item.quantity|floatformat:0|intcomma }}</p>
+              {# Muestra el subtotal por ítem - AHORA USA item.subtotal #}
+              <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.subtotal|floatformat:0|intcomma }}</p>
             </div>
           </li>
         {% endfor %}

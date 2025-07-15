@@ -6,7 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
 from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio, Variacion, Favorito 
 import locale
-from decimal import Decimal # Import Decimal for precise calculations
+from decimal import Decimal # Import Decimal para cálculos precisos
 
 def format_precio(precio):
     """
@@ -17,7 +17,7 @@ def format_precio(precio):
         return "$ 0"
     
     # Convertir el precio a float si es necesario
-    if not isinstance(precio, (int, float, Decimal)): # Added Decimal to types
+    if not isinstance(precio, (int, float, Decimal)): # Añadido Decimal a los tipos
         try:
             precio = float(precio)
         except (ValueError, TypeError):
@@ -403,7 +403,7 @@ def agregar_al_carrito(request):
             # Recuperar el producto y la variante
             producto = get_object_or_404(Producto, id=producto_id)
             variante = None
-            if variant_id and str(variant_id) != str(producto_id): # Check if variant_id is different from product_id
+            if variant_id and str(variant_id) != str(producto_id): # Verifica si variant_id es diferente de product_id
                 variante = get_object_or_404(Variacion, id=variant_id, producto=producto)
 
             # Preparar el item para el carrito de sesión
@@ -413,7 +413,7 @@ def agregar_al_carrito(request):
                 'price': float(variante.precio_final) if variante else float(producto.get_precio_final()),
                 'quantity': int(quantity),
                 'variant_id': variante.id if variante else producto.id,
-                'color': variante.color if variante else color, # Use variant's color or passed color
+                'color': variante.color if variante else color, # Usa el color de la variante o el color pasado
                 'imageUrl': variante.imagen.url if variante and variante.imagen else producto.get_primary_image_url(),
             }
 
@@ -458,10 +458,10 @@ def ver_carrito(request):
             producto_id = item.get('id')
             variant_id = item.get('variant_id')
             quantity = item.get('quantity', 1)
-            item_color = item.get('color', 'N/A') # Get color from cart item
+            item_color = item.get('color', 'N/A') # Obtener el color del item del carrito
 
             if not producto_id:
-                continue # Skip if product ID is missing
+                continue # Saltar si falta el ID del producto
 
             producto = get_object_or_404(Producto, id=producto_id)
             variante = None
@@ -475,7 +475,7 @@ def ver_carrito(request):
             image_url = variante.imagen.url if variante and variante.imagen else producto.get_primary_image_url()
             
             # Calcular el subtotal aquí
-            subtotal_item = final_price * Decimal(quantity) # Use Decimal for precise calculation
+            subtotal_item = final_price * Decimal(quantity) # Usar Decimal para cálculos precisos
             
             productos_carrito_detalles.append({
                 'id': producto.id,
@@ -483,7 +483,7 @@ def ver_carrito(request):
                 'price': float(final_price), # Asegurarse de que sea float para JS
                 'quantity': int(quantity),
                 'variant_id': variante.id if variante else producto.id,
-                'color': variante.color if variante else item_color, # Prefer variant color, else use item_color
+                'color': variante.color if variante else item_color, # Preferir el color de la variante, si no, usar el color del item
                 'imageUrl': image_url,
                 'price_formatted': format_precio(final_price), # Precio formateado para mostrar
                 'subtotal': float(subtotal_item) # Añadir el subtotal aquí

@@ -335,7 +335,15 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Log the HTTP status and try to parse server error details
+            console.error(`HTTP Error: ${response.status} - ${response.statusText}`);
+            return response.json().then(errorData => {
+                console.error('Server error details:', errorData);
+                throw new Error(errorData.error || `Server responded with status ${response.status}`);
+            }).catch(() => {
+                // If response.json() fails (e.g., not a JSON response for error)
+                throw new Error(`Server responded with status ${response.status} ${response.statusText}`);
+            });
         }
         return response.json();
     })
@@ -350,7 +358,7 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
         }
         
         // Aplicar el estado visual a todos los botones de este producto en la página
-        applyFavoriteState(productId, data.is_favorito);
+        applyFavoriteState(productoId, data.is_favorito);
 
         // Lógica para remover la tarjeta de la página de favoritos si se desmarca
         if (!data.is_favorito && window.location.pathname === '/favoritos/') {
@@ -371,7 +379,22 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
     })
     .catch(error => {
         console.error('Error al actualizar favoritos:', error);
-        showMessageModal('Error de Conexión', 'Hubo un problema al actualizar favoritos. Inténtalo de nuevo.', 'error');
+        let errorMessage = 'Hubo un problema al actualizar favoritos. Inténtalo de nuevo.';
+
+        // Try to provide more specific error messages to the user
+        if (error.message.includes('403')) {
+            errorMessage = 'Error de seguridad: Tu sesión ha expirado o hay un problema con la autenticación. Por favor, recarga la página.';
+        } else if (error.message.includes('500')) {
+            errorMessage = 'Error interno del servidor. Por favor, inténtalo más tarde.';
+        } else if (error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) { 
+            errorMessage = 'Problema de conexión a internet. Verifica tu red.';
+        }
+        // If the error object itself has a more specific 'message' property from the server response (e.g., from errorData.error)
+        else if (error.message && !error.message.includes('Server responded with status')) {
+            errorMessage = error.message;
+        }
+
+        showMessageModal('Error al actualizar Favoritos', errorMessage);
     })
     .finally(() => {
         setTimeout(() => {

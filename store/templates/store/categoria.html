@@ -1,43 +1,57 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load humanize %} {# Necesario para el filtro intcomma para precios #}
+
+{% block title %}{% if categoria %}{{ categoria.nombre }} - {% endif %}Lumière Glamour{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-  <!-- Título de la categoría -->
-  <h1 class="text-2xl font-bold mb-4 text-gray-800">
-    {{ categoria.nombre }}
-  </h1>
+<main class="container mx-auto px-4 py-8">
+    <!-- Breadcrumbs -->
+    <nav class="text-sm text-gray-600 mb-6">
+        <ol class="list-none p-0 inline-flex">
+            <li class="flex items-center">
+                <a href="{% url 'home' %}" class="text-pink-600 hover:underline">Inicio</a>
+                <span class="mx-2">/</span>
+            </li>
+            {% if categoria.padre %}
+                <li class="flex items-center">
+                    <a href="{% url 'categoria' categoria.padre.slug %}" class="text-pink-600 hover:underline">{{ categoria.padre.nombre }}</a>
+                    <span class="mx-2">/</span>
+                </li>
+            {% endif %}
+            <li class="text-gray-800 font-semibold">
+                {% if categoria %}{{ categoria.nombre }}{% else %}Categoría{% endif %}
+            </li>
+        </ol>
+    </nav>
 
-  <!-- Subcategorías -->
-  {% if categoria.subcategorias.all %}
-    <div class="mb-6">
-      <h2 class="text-lg font-semibold text-gray-700 mb-2">Subcategorías</h2>
-      <div class="flex flex-wrap gap-2">
-        {% for sub in categoria.subcategorias.all %}
-          <a href="{% url 'categoria' sub.slug %}"
-             class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full hover:bg-pink-200 text-sm">
-            {{ sub.nombre }}
-          </a>
+    <h1 class="text-3xl font-bold text-gray-900 text-center mb-8">
+        {% if categoria %}{{ categoria.nombre }}{% else %}Productos{% endif %}
+    </h1>
+
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for producto in pagina_productos %} {# Usar 'pagina_productos' como se pasa desde views.py #}
+            {# Incluye la tarjeta de producto desde el template parcial correcto #}
+            {% include 'store/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
+        {% empty %}
+            <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
+                <p class="text-xl font-semibold mb-2">No hay productos en esta categoría.</p>
+                <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
+            </div>
         {% endfor %}
-      </div>
-    </div>
-  {% endif %}    <!-- Lista de productos -->
-  {% if productos_procesados %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {% for producto in productos_procesados %}
-        {% include 'store/components/product_card.html' with producto=producto %}
-      {% endfor %}
     </div>
 
+    {# Paginación #}
     {% if pagina_productos.paginator.num_pages > 1 %}
     <div class="flex justify-center mt-8">
         <nav class="inline-flex rounded-md shadow-sm -space-x-px">
             {% if pagina_productos.has_previous %}
-                <a href="?page=1" 
+                <a href="?page=1{% if categoria %}&categoria={{ categoria.id }}{% endif %}"
                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
                     <span class="sr-only">Primera</span>
                     <i class="fas fa-angle-double-left"></i>
                 </a>
-                <a href="?page={{ pagina_productos.previous_page_number }}" 
+                <a href="?page={{ pagina_productos.previous_page_number }}{% if categoria %}&categoria={{ categoria.id }}{% endif %}"
                    class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
                     <span class="sr-only">Anterior</span>
                     <i class="fas fa-angle-left"></i>
@@ -50,7 +64,7 @@
                         {{ num }}
                     </span>
                 {% elif num > pagina_productos.number|add:'-3' and num < pagina_productos.number|add:'3' %}
-                    <a href="?page={{ num }}" 
+                    <a href="?page={{ num }}{% if categoria %}&categoria={{ categoria.id }}{% endif %}"
                        class="relative inline-flex items-center px-4 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
                         {{ num }}
                     </a>
@@ -58,28 +72,24 @@
             {% endfor %}
 
             {% if pagina_productos.has_next %}
-                <a href="?page={{ pagina_productos.next_page_number }}" 
+                <a href="?page={{ pagina_productos.next_page_number }}{% if categoria %}&categoria={{ categoria.id }}{% endif %}"
                    class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
                     <span class="sr-only">Siguiente</span>
                     <i class="fas fa-angle-right"></i>
                 </a>
-                <a href="?page={{ pagina_productos.paginator.num_pages }}" 
+                <a href="?page={{ pagina_productos.paginator.num_pages }}{% if categoria %}&categoria={{ categoria.id }}{% endif %}"
                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
                     <span class="sr-only">Última</span>
                     <i class="fas fa-angle-double-right"></i>
                 </a>
             {% endif %}
         </nav>
+        <p class="text-sm text-gray-700 mt-4 text-center">
+            Mostrando <span class="font-medium">{{ pagina_productos.start_index }}</span> a
+            <span class="font-medium">{{ pagina_productos.end_index }}</span> de
+            <span class="font-medium">{{ pagina_productos.paginator.count }}</span> productos
+        </p>
     </div>
-    <p class="text-sm text-gray-700 mt-4 text-center">
-        Mostrando <span class="font-medium">{{ pagina_productos.start_index }}</span> a 
-        <span class="font-medium">{{ pagina_productos.end_index }}</span> de 
-        <span class="font-medium">{{ pagina_productos.paginator.count }}</span> productos
-    </p>
     {% endif %}
-
-  {% else %}
-    <p class="text-gray-500 text-center text-lg">No hay productos en esta categoría.</p>
-  {% endif %}
-</div>
+</main>
 {% endblock %}

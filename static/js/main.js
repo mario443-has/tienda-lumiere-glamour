@@ -86,6 +86,17 @@ function guardarCarritoLocal() {
   localStorage.setItem('carritoLumiere', JSON.stringify(window.cart));
 }
 
+// Formatear precio con separador de miles y símbolo de dólar (sin COP)
+function formatPriceForDisplay(price) {
+    return new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP', // Usamos COP para el formato interno, pero solo mostraremos el símbolo
+        minimumFractionDigits: 0, // No mostrar decimales
+        maximumFractionDigits: 0, // No mostrar decimales
+    }).format(price).replace('COP', '').trim(); // Eliminar "COP" y espacios extra
+}
+
+
 // Actualizar contadores del carrito en la UI
 function actualizarContadorCarrito() {
     if (!cartCountElement) initializeCartDomElements(); // Asegurar inicialización
@@ -137,7 +148,7 @@ function renderCartItems() {
                 <div class="flex-1">
                     <p class="text-gray-800 font-medium">${item.name}</p>
                     ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
-                    <p class="text-gray-600 text-sm">$${itemPrice.toFixed(2)} x ${itemQuantity}</p>
+                    <p class="text-gray-600 text-sm">${formatPriceForDisplay(itemPrice)} x ${itemQuantity}</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', -1)">
@@ -156,7 +167,7 @@ function renderCartItems() {
             total += itemPrice * itemQuantity;
         });
     }
-    if (cartTotalSpan) cartTotalSpan.textContent = `$${total.toFixed(2)}`;
+    if (cartTotalSpan) cartTotalSpan.textContent = formatPriceForDisplay(total);
 }
 
 // Actualizar la cantidad de un ítem en el carrito
@@ -202,11 +213,11 @@ function sendCartToWhatsApp() {
         if (item.color && item.color !== 'N/A') {
             message += ` (Color: ${item.color})`;
         }
-        message += ` - Cantidad: ${itemQuantity} - $${(itemPrice * itemQuantity).toFixed(2)}\n`;
+        message += ` - Cantidad: ${itemQuantity} - ${formatPriceForDisplay(itemPrice * itemQuantity)}\n`;
         total += itemPrice * itemQuantity;
     });
 
-    message += `\nTotal estimado: $${total.toFixed(2)}\n`;
+    message += `\nTotal estimado: ${formatPriceForDisplay(total)}\n`;
     message += "Por favor, confírmame la disponibilidad y el proceso de pago.";
 
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -263,14 +274,14 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
         
         // Si estamos en la página de favoritos y se removió el favorito
         if (!data.is_favorito && window.location.pathname === '/favoritos/') {
-            const card = button.closest('.bg-white'); // Selector de la tarjeta de producto en favoritos.html
+            const card = button.closest('.col'); // Ajusta el selector si tu tarjeta de producto tiene otra clase
             if (card) {
                 card.style.transition = 'opacity 0.3s';
                 card.style.opacity = '0';
                 setTimeout(() => {
                     card.remove();
                     // Si no quedan más favoritos, recargar la página (o actualizar la UI)
-                    if (document.querySelectorAll('.bg-white.rounded-lg.shadow').length === 0) { // Revisa si quedan elementos con la clase .bg-white.rounded-lg.shadow
+                    if (document.querySelectorAll('.col').length === 0) { // Revisa si quedan elementos con la clase .col
                         location.reload(); // Recarga si no hay más tarjetas de favoritos
                     }
                 }, 300);
@@ -316,17 +327,9 @@ window.toggleSubmenu = function(button) { // Global para onclick en HTML
 };
 
 // Función para manejar la búsqueda en vivo (AJAX)
-function handleLiveSearch(searchInputId, resultsContainerId) {
+function handleLiveSearch(searchInput, resultsContainer) {
     let debounceTimer;
     const minLength = 2; // Mínimo de caracteres para comenzar la búsqueda
-
-    const searchInput = document.getElementById(searchInputId);
-    const resultsContainer = document.getElementById(resultsContainerId);
-
-    if (!searchInput || !resultsContainer) {
-        console.error(`Search elements not found: input #${searchInputId}, container #${resultsContainerId}`);
-        return function() {}; // Devuelve una función vacía para evitar errores
-    }
 
     return async function() {
         const query = searchInput.value.trim();
@@ -385,16 +388,16 @@ function handleLiveSearch(searchInputId, resultsContainerId) {
     };
 }
 
-// Función para posicionar el contenedor de resultados de búsqueda (ya no es necesaria si el contenedor está dentro del form)
-// function positionSearchResults(searchInput, resultsContainer) {
-//     const inputRect = searchInput.getBoundingClientRect();
-//     
-//     resultsContainer.style.position = 'absolute';
-//     resultsContainer.style.top = `${inputRect.bottom + window.scrollY}px`;
-//     resultsContainer.style.left = `${inputRect.left}px`;
-//     resultsContainer.style.width = `${inputRect.width}px`;
-//     resultsContainer.style.zIndex = '50';
-// }
+// Función para posicionar el contenedor de resultados de búsqueda
+function positionSearchResults(searchInput, resultsContainer) {
+    const inputRect = searchInput.getBoundingClientRect();
+    
+    resultsContainer.style.position = 'absolute';
+    resultsContainer.style.top = `${inputRect.bottom + window.scrollY}px`;
+    resultsContainer.style.left = `${inputRect.left}px`;
+    resultsContainer.style.width = `${inputRect.width}px`;
+    resultsContainer.style.zIndex = '50';
+}
 
 // --- Lógica del Carrusel de Anuncios ---
 let currentIndex = 0; // Índice actual del carrusel (0-based para items reales)
@@ -501,7 +504,7 @@ function setupColorOptions() {
 
             const productPriceSpan = productId ? parentProductDiv.querySelector(`#product-price-${productId}`) : null;
             if (productPriceSpan) {
-                productPriceSpan.textContent = `$${selectedVariantPrice}`;
+                productPriceSpan.textContent = formatPriceForDisplay(selectedVariantPrice);
             }
 
             if (parentProductDiv) {
@@ -728,36 +731,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Inicializar búsqueda en vivo
-    // Ahora se usan IDs específicos para cada barra de búsqueda
-    const desktopSearchInput = document.getElementById('search-input-desktop');
-    const desktopSearchResults = document.getElementById('search-results-desktop');
-    if (desktopSearchInput && desktopSearchResults) {
-        const desktopSearchHandler = handleLiveSearch('search-input-desktop', 'search-results-desktop');
-        desktopSearchInput.addEventListener('input', desktopSearchHandler);
-        // Ocultar resultados al hacer clic fuera
-        document.addEventListener('click', (e) => {
-            if (!desktopSearchInput.contains(e.target) && !desktopSearchResults.contains(e.target)) {
-                desktopSearchResults.classList.add('hidden');
-            }
-        });
-        // Prevenir cierre al hacer clic en los resultados (para permitir navegación)
-        desktopSearchResults.addEventListener('click', (e) => { e.stopPropagation(); });
-    }
+    const searchInputs = document.querySelectorAll('.search-input');
+    searchInputs.forEach(searchInput => {
+        let resultsContainer = null;
+        // La estructura HTML tiene el div.search-results como hermano del form o dentro del mismo contenedor padre
+        const parentRelativeDiv = searchInput.closest('.relative') || searchInput.closest('#mobile-search-bar');
+        if (parentRelativeDiv) {
+            resultsContainer = parentRelativeDiv.querySelector('.search-results');
+        }
 
-    const mobileSearchInput = document.getElementById('search-input-mobile');
-    const mobileSearchResults = document.getElementById('search-results-mobile');
-    if (mobileSearchInput && mobileSearchResults) {
-        const mobileSearchHandler = handleLiveSearch('search-input-mobile', 'search-results-mobile');
-        mobileSearchInput.addEventListener('input', mobileSearchHandler);
+        if (!resultsContainer) {
+            console.error('No se encontró el contenedor de resultados de búsqueda para este input:', searchInput);
+            return;
+        }
+
+        const searchHandler = handleLiveSearch(searchInput, resultsContainer);
+        searchInput.addEventListener('input', searchHandler);
+
         // Ocultar resultados al hacer clic fuera
         document.addEventListener('click', (e) => {
-            if (!mobileSearchInput.contains(e.target) && !mobileSearchResults.contains(e.target)) {
-                mobileSearchResults.classList.add('hidden');
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.add('hidden');
             }
         });
+
         // Prevenir cierre al hacer clic en los resultados (para permitir navegación)
-        mobileSearchResults.addEventListener('click', (e) => { e.stopPropagation(); });
-    }
+        resultsContainer.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    });
     
     // Configurar los botones de WhatsApp
     setupWhatsappButtons();

@@ -1,9 +1,19 @@
-<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden relative"> {# Añadido 'relative' para posicionar el badge #}
-  {% if producto.badge %}
-    <span class="absolute top-2 left-2 product-badge {{ producto.get_badge_class }}">
-      {{ producto.get_badge_display }}
-    </span>
-  {% endif %}
+{% load static %}
+{% load humanize %} {# Cargar el filtro humanize para intcomma #}
+<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden relative">
+  {# Contenedor para el badge y el botón de favoritos #}
+  <div class="absolute top-2 right-2 flex flex-col items-end space-y-1 z-10">
+    {% if producto.badge %}
+      <span class="product-badge {{ producto.get_badge_class }}">
+        {{ producto.get_badge_display }}
+      </span>
+    {% endif %}
+    {# Botón de favoritos #}
+    <button class="btn-favorito {% if producto.id in favoritos_ids %}active{% endif %}" data-producto-id="{{ producto.id }}">
+      <i class="fas fa-heart"></i>
+    </button>
+  </div>
+
   {# Corregido: Usar 'producto_detalle' y 'producto.id' #}
   <a href="{% url 'producto_detalle' producto.id %}">
     {# CAMBIO: Usar get_primary_image_url para obtener la imagen principal del producto #}
@@ -16,14 +26,14 @@
 
     {% if producto.descuento %}
       <p class="text-pink-600 font-bold text-sm mt-1">
-        ${{ producto.get_precio_final|floatformat:2 }} COP {# Asegúrate de usar floatformat para el precio final #}
+        ${{ producto.get_precio_final|floatformat:0|intcomma }} {# Precio final con separador de miles #}
       </p>
       <p class="text-gray-500 text-xs line-through">
-        ${{ producto.precio|floatformat:2 }} COP {# Asegúrate de usar floatformat para el precio original #}
+        ${{ producto.precio|floatformat:0|intcomma }} {# Precio original con separador de miles #}
       </p>
     {% else %}
       <p class="text-gray-900 font-bold text-sm mt-1">
-        ${{ producto.precio|floatformat:2 }} COP {# Asegúrate de usar floatformat #}
+        ${{ producto.precio|floatformat:0|intcomma }} {# Precio sin descuento con separador de miles #}
       </p>
     {% endif %}
 
@@ -32,10 +42,10 @@
       class="btn-agregar-carrito mt-4 w-full bg-pink-600 text-white py-2 px-3 rounded-md text-xs font-semibold hover:bg-pink-700 transition flex items-center justify-center space-x-2"
       data-product-id="{{ producto.id }}"
       data-product-name="{{ producto.nombre }}"
-      data-product-price="{{ producto.get_precio_final|floatformat:2 }}" {# Usar el precio final #}
+      data-product-price="{{ producto.get_precio_final|floatformat:2 }}" {# Usar floatformat:2 para JS #}
       data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Por defecto, el ID del producto si no hay variantes #}
       data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color }}{% else %}N/A{% endif %}" {# Por defecto, "N/A" si no hay variantes de color #}
-      data-product-image-url="{{ producto.get_primary_image_url }}" {# NUEVO: Pasa la URL de la imagen principal al carrito #}
+      data-product-image-url="{{ producto.get_primary_image_url }}" {# Pasa la URL de la imagen principal al carrito #}
     >
       <i class="fas fa-cart-plus"></i>
       <span>Añadir al Carrito</span>

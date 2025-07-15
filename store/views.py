@@ -555,7 +555,7 @@ def ver_favoritos(request):
     favoritos_productos = []
     if request.session.session_key:
         favoritos_productos = Producto.objects.filter(
-            favorito__session_key=request.session.session_key,
+            favoritos__session_key=request.session.session_key,
             is_active=True
         )
     

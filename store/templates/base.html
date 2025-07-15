@@ -93,11 +93,11 @@
           <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto top-full"></div>
         </div>
 
-        <!-- Carrito (visible solo en escritorio) -->
+        <!-- Carrito (visible solo en escritorio) - Ahora es un botón para abrir el modal -->
         <div class="hidden md:flex items-center">
-          <a
-            href="{% url 'ver_carrito' %}"
-            class="relative text-gray-700 hover:text-pink-600 transition duration-300 px-4"
+          <button
+            id="abrir-carrito" {# Nuevo ID para el botón de abrir el carrito #}
+            class="relative text-gray-700 hover:text-pink-600 transition duration-300 px-4 focus:outline-none"
             title="Mi Carrito"
           >
             <i class="fas fa-shopping-bag text-xl"></i>
@@ -106,7 +106,7 @@
               class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"
               >0</span
             >
-          </a>
+          </button>
         </div>
 
         <!-- Botones de Menú Móvil (Búsqueda y Menú) -->
@@ -436,14 +436,15 @@
             <i class="fas fa-th-large text-2xl mb-1"></i>
             <span class="text-xs">Categorías</span>
         </button>
-        <a href="{% url 'ver_carrito' %}" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
+        <button id="abrir-carrito" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
             <i class="fas fa-shopping-bag text-2xl mb-1"></i>
             <span class="text-xs">Carrito</span>
             <span id="bottom-nav-cart-count" class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-        </a>
+        </button>
         <a href="{% url 'ver_favoritos' %}" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
             <i class="fas fa-heart text-2xl mb-1"></i>
             <span class="text-xs">Favoritos</span>
+            {# ELIMINADO: Badge de favoritos #}
         </a>
     </nav>
 
@@ -562,56 +563,28 @@
       >
     </button>
 
-    <!-- MODAL DEL CARRITO -->
-    <div
-      id="cart-modal"
-      class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden"
-    >
-      <div
-        class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md mx-auto transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-      >
-        <!-- Encabezado del Modal -->
-        <div
-          class="flex justify-between items-center pb-3 border-b border-gray-200"
-        >
-          <h3 class="text-2xl font-semibold text-gray-900">Tu Carrito</h3>
-          <button
-            type="button"
-            class="text-gray-400 hover:text-gray-600"
-            onclick="closeCartModal()"
-          >
-            <i class="fas fa-times text-xl"></i>
-          </button>
+    <!-- MODAL DEL CARRITO - NUEVA ESTRUCTURA -->
+    <div id="carrito-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+      <div class="bg-white w-full max-w-lg mx-4 p-6 rounded-lg shadow-lg relative">
+        <button id="cerrar-carrito" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold">&times;</button>
+        <h2 class="text-xl font-bold mb-4">🛒 Tu carrito</h2>
+        <div id="contenido-carrito" class="py-4 max-h-80 overflow-y-auto">
+          <!-- Los productos del carrito se renderizarán aquí dinámicamente por JS -->
         </div>
-
-        <!-- Cuerpo del Modal - Lista de Productos -->
-        <div id="cart-items-container" class="py-4 max-h-80 overflow-y-auto">
-          <!-- Los productos del carrito se renderizarán aquí dinámicamente -->
-          <p class="text-gray-500 text-center" id="empty-cart-message">
-            El carrito está vacío.
-          </p>
-        </div>
-
-        <!-- Pie del Modal - Total y Botones -->
         <div class="pt-4 border-t border-gray-200">
           <div class="flex justify-between items-center mb-4">
             <span class="text-xl font-semibold text-gray-900">Total:</span>
-            <span id="cart-total" class="text-2xl font-bold text-pink-600"
-              >$0.00</span
-            >
+            <span id="cart-total" class="text-2xl font-bold text-pink-600">$0.00</span> {# Mantener ID para el total #}
           </div>
           <div class="flex flex-col space-y-3">
-            <button
-              id="modal-buy-whatsapp-button"
-              class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
-            >
+            <a id="whatsapp-pedido" target="_blank" class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
               <i class="fab fa-whatsapp"></i>
-              <span>Comprar por WhatsApp</span>
-            </button>
+              <span>Pedir por WhatsApp</span>
+            </a>
             <button
+              id="seguir-comprando"
               type="button"
               class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition duration-300"
-              onclick="closeCartModal()"
             >
               Seguir Comprando
             </button>

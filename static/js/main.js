@@ -41,27 +41,57 @@ function closeMessageModal() {
 // --- Funciones del Carrito ---
 // Referencias a elementos del DOM para las funciones globales del carrito
 // Estas se inicializarán en DOMContentLoaded
-let cartModal;
-let cartItemsContainer;
-let emptyCartMessage;
-let cartTotalSpan;
-let buyWhatsappButton;
-let buyWhatsappCartCountSpan;
-let modalBuyWhatsappButton;
-let cartCountElement; // Contador superior
-let bottomNavCartCount; // Contador en la barra de navegación inferior
+let cartModalElement; // Referencia al nuevo modal flotante del carrito (id="carrito-modal")
+let cartContentContainer; // Referencia al contenedor de ítems del carrito (id="contenido-carrito")
+let emptyCartMessage; // Mensaje de carrito vacío (puede ser un elemento dentro del modal)
+let cartTotalSpan;    // Span para mostrar el total del carrito (id="cart-total")
+let buyWhatsappButton; // Botón flotante de WhatsApp (fuera del modal)
+let buyWhatsappCartCountSpan; // Contador del botón flotante de WhatsApp
+let whatsappOrderButton; // Botón "Pedir por WhatsApp" dentro del modal (id="whatsapp-pedido")
+let cartCountElement; // Contador superior del carrito (en el header)
+let bottomNavCartCount; // Contador del carrito en la barra de navegación inferior
 
 // Función para inicializar elementos del DOM relacionados con el carrito
 function initializeCartDomElements() {
-    cartModal = document.getElementById("cart-modal");
-    cartItemsContainer = document.getElementById("cart-items-container");
-    emptyCartMessage = document.getElementById("empty-cart-message");
-    cartTotalSpan = document.getElementById("cart-total");
+    cartModalElement = document.getElementById("carrito-modal"); // Nuevo ID del modal principal
+    cartContentContainer = document.getElementById("contenido-carrito"); // Nuevo ID del contenedor de contenido
+    // emptyCartMessage = document.getElementById("empty-cart-message"); // Este ID puede no existir si el mensaje se renderiza dinámicamente
+    cartTotalSpan = document.getElementById("cart-total");          // Asumiendo que este ID se mantiene dentro del modal
     buyWhatsappButton = document.getElementById("buy-whatsapp-button");
     buyWhatsappCartCountSpan = document.getElementById("buy-whatsapp-cart-count");
-    modalBuyWhatsappButton = document.getElementById("modal-buy-whatsapp-button");
+    whatsappOrderButton = document.getElementById("whatsapp-pedido"); // Nuevo ID del botón de WhatsApp en el modal
     cartCountElement = document.getElementById("cart-count");
     bottomNavCartCount = document.getElementById("bottom-nav-cart-count");
+
+    // Nuevos botones del HTML del usuario para abrir/cerrar el modal
+    const closeCartButton = document.getElementById("cerrar-carrito");
+    const continueShoppingButton = document.getElementById("seguir-comprando");
+    const openCartButton = document.getElementById("abrir-carrito"); // Botón para abrir el modal (ej. el icono del carrito en el header)
+
+    if (closeCartButton) {
+        closeCartButton.addEventListener("click", closeCartModal);
+    }
+    if (continueShoppingButton) {
+        continueShoppingButton.addEventListener("click", closeCartModal);
+    }
+    if (openCartButton) {
+        openCartButton.addEventListener("click", openCartModal);
+    }
+}
+
+// Función para abrir el modal del carrito
+function openCartModal() {
+    if (cartModalElement) {
+        cartModalElement.classList.remove("hidden");
+        updateCartDisplay(); // Asegura que el contenido del carrito esté actualizado al abrir el modal
+    }
+}
+
+// Función para cerrar el modal del carrito
+function closeCartModal() {
+    if (cartModalElement) {
+        cartModalElement.classList.add("hidden");
+    }
 }
 
 // Cargar el carrito desde localStorage cuando se inicia
@@ -123,51 +153,60 @@ function actualizarContadorCarrito() {
 
 // Renderizar los ítems del carrito en el modal
 function renderCartItems() {
-    if (!cartItemsContainer) initializeCartDomElements(); // Asegurar inicialización
+    if (!cartContentContainer) initializeCartDomElements(); // Asegurar inicialización
 
-    if (cartItemsContainer) {
-        cartItemsContainer.innerHTML = ""; // Limpiar el contenedor actual
+    if (!cartContentContainer) {
+        console.error("El contenedor de contenido del carrito no se encontró.");
+        return;
     }
+
+    cartContentContainer.innerHTML = ""; // Limpiar el contenedor actual
     let total = 0;
 
     if (window.cart.length === 0) {
-        if (emptyCartMessage) emptyCartMessage.classList.remove("hidden");
+        cartContentContainer.innerHTML = "<p class='text-gray-500 text-center'>Tu carrito está vacío.</p>";
     } else {
-        if (emptyCartMessage) emptyCartMessage.classList.add("hidden");
+        let html = "";
         window.cart.forEach((item, index) => {
             const itemPrice = parseFloat(item.price) || 0;
             const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
             const imageUrlToDisplay = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
+            const subtotalItem = itemPrice * itemQuantity;
+            total += subtotalItem;
 
-            const itemDiv = document.createElement("div");
-            itemDiv.classList.add(
-                "flex", "items-center", "py-2", "border-b", "border-gray-100", "gap-4"
-            );
-            itemDiv.innerHTML = `
-                <img src="${imageUrlToDisplay}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md shadow-sm" onerror="this.onerror=null;this.src='${window.placeholderImageUrl || '/static/img/sin_imagen.jpg'}';">
-                <div class="flex-1">
-                    <p class="text-gray-800 font-medium">${item.name}</p>
-                    ${item.color && item.color !== 'N/A' ? `<p class="text-gray-500 text-xs">Color: ${item.color}</p>` : ''}
-                    <p class="text-gray-600 text-sm">${formatPriceForDisplay(itemPrice)} x ${itemQuantity}</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', -1)">
-                        <i class="fas fa-minus-circle"></i>
-                    </button>
-                    <span class="font-semibold">${itemQuantity}</span>
-                    <button class="text-gray-500 hover:text-pink-600" onclick="updateItemQuantity('${item.variantId}', 1)">
-                        <i class="fas fa-plus-circle"></i>
-                    </button>
-                    <button class="text-red-500 hover:text-red-700 ml-2" onclick="updateItemQuantity('${item.variantId}', 0)">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            `;
-            if (cartItemsContainer) cartItemsContainer.appendChild(itemDiv);
-            total += itemPrice * itemQuantity;
+            html += `
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <img src="${imageUrlToDisplay}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md mr-3" onerror="this.onerror=null;this.src='${window.placeholderImageUrl || '/static/img/sin_imagen.jpg'}';">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-800">${item.name}</p>
+                        ${item.color && item.color !== 'N/A' ? `<p class="text-sm text-gray-600">Color: ${item.color}</p>` : ''}
+                        <p class="text-sm text-gray-600">${formatPriceForDisplay(itemPrice)} x ${itemQuantity}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updateItemQuantity('${item.variantId}', -1)" class="text-red-500 font-bold text-lg p-1 rounded-full hover:bg-red-100 transition-colors duration-200">
+                            <i class="fas fa-minus-circle"></i>
+                        </button>
+                        <span class="font-semibold text-gray-800">${itemQuantity}</span>
+                        <button onclick="updateItemQuantity('${item.variantId}', 1)" class="text-green-600 font-bold text-lg p-1 rounded-full hover:bg-green-100 transition-colors duration-200">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                        <button onclick="updateItemQuantity('${item.variantId}', 0)" class="text-gray-500 hover:text-red-700 ml-2">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>`;
         });
+        cartContentContainer.innerHTML = html;
     }
+    
+    // Actualizar el total en el modal
     if (cartTotalSpan) cartTotalSpan.textContent = formatPriceForDisplay(total);
+
+    // Actualizar el enlace de WhatsApp con el mensaje detallado
+    if (whatsappOrderButton) {
+        const mensajeWhatsApp = generarMensajeWhatsApp(window.cart, total);
+        whatsappOrderButton.href = mensajeWhatsApp;
+    }
 }
 
 // Actualizar la cantidad de un ítem en el carrito
@@ -194,33 +233,40 @@ window.updateItemQuantity = function(variantIdToUpdate, change) { // Global para
     }
 }
 
-// Enviar el contenido del carrito a WhatsApp
+// Función para generar el mensaje de WhatsApp detallado
+function generarMensajeWhatsApp(carrito, total) {
+    const whatsappNumber = window.whatsappNumber || '573007221200';
+    let texto = "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
+
+    carrito.forEach((item, index) => {
+        const itemPrice = parseFloat(item.price) || 0;
+        const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
+        const subtotalItem = itemPrice * itemQuantity;
+
+        texto += `${index + 1}. ${item.name}`;
+        if (item.color && item.color !== 'N/A') {
+            texto += ` (Color: ${item.color})`;
+        }
+        texto += ` - Cantidad: ${itemQuantity} - ${formatPriceForDisplay(subtotalItem)}\n`;
+    });
+
+    texto += `\nTotal estimado: ${formatPriceForDisplay(total)}\n`;
+    texto += "Por favor, confírmame la disponibilidad y el proceso de pago.";
+
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`;
+}
+
+
+// Enviar el contenido del carrito a WhatsApp (ahora usa generarMensajeWhatsApp)
 function sendCartToWhatsApp() {
     if (window.cart.length === 0) {
         showMessageModal('Carrito Vacío', 'Tu carrito está vacío. Agrega productos antes de comprar.');
         return;
     }
 
-    const whatsappNumber = window.whatsappNumber || '573007221200';
-    let message = "¡Hola! Me gustaría comprar los siguientes productos de mi carrito:\n\n";
-    let total = 0;
-
-    window.cart.forEach((item, index) => {
-        const itemPrice = parseFloat(item.price) || 0;
-        const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
-
-        message += `${index + 1}. ${item.name}`;
-        if (item.color && item.color !== 'N/A') {
-            message += ` (Color: ${item.color})`;
-        }
-        message += ` - Cantidad: ${itemQuantity} - ${formatPriceForDisplay(itemPrice * itemQuantity)}\n`;
-        total += itemPrice * itemQuantity;
-    });
-
-    message += `\nTotal estimado: ${formatPriceForDisplay(total)}\n`;
-    message += "Por favor, confírmame la disponibilidad y el proceso de pago.";
-
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const totalCalculado = window.cart.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * ((typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1), 0);
+    const whatsappUrl = generarMensajeWhatsApp(window.cart, totalCalculado);
+    
     window.open(whatsappUrl, "_blank");
 
     window.cart = []; // Limpiar el carrito después de enviar el pedido
@@ -269,8 +315,10 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
         const icon = button.querySelector('i'); // Get the <i> element inside the button
         if (data.is_favorito) {
             icon.classList.add('active');
+            localStorage.setItem(`favorito-${productoId}`, 'true'); // Guardar en localStorage
         } else {
             icon.classList.remove('active');
+            localStorage.removeItem(`favorito-${productoId}`); // Eliminar de localStorage
             // Si el producto fue removido de favoritos
             if (window.location.pathname === '/favoritos/') {
                 // Ajusta el selector para que coincida con .col o .product-card
@@ -623,8 +671,8 @@ function setupWhatsappButtons() {
     if (buyWhatsappButton) {
         buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
     }
-    if (modalBuyWhatsappButton) {
-        modalBuyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
+    if (whatsappOrderButton) { // Cambiado de modalBuyWhatsappButton
+        whatsappOrderButton.addEventListener("click", sendCartToWhatsApp);
     }
 }
 
@@ -637,22 +685,9 @@ document.addEventListener("DOMContentLoaded", function () {
     cargarCarritoLocal(); // Cargar el carrito al inicio
     updateCartDisplay(); // Actualizar la visualización del carrito
 
-    // Initial cart count update (assuming it's loaded from main.js or Django)
-    // This is a placeholder, your main.js should handle the actual logic
-    function updateCartCounts() {
-        const currentCartCount = localStorage.getItem('cartCount') || 0; // Example: get from localStorage
-        document.getElementById('cart-count').textContent = currentCartCount;
-        document.getElementById('buy-whatsapp-cart-count').textContent = currentCartCount;
-
-        if (currentCartCount > 0) {
-            document.getElementById('cart-count').classList.remove('hidden');
-            document.getElementById('buy-whatsapp-button').classList.remove('hidden');
-        } else {
-            document.getElementById('cart-count').classList.add('hidden');
-            document.getElementById('buy-whatsapp-button').classList.add('hidden');
-        }
-    }
-    updateCartCounts(); // Call on load
+    // La función updateCartCounts() ya no es necesaria aquí, se maneja con actualizarContadorCarrito()
+    // y se llama desde updateCartDisplay().
+    // Se elimina el código de placeholder.
 
 
     // Inicializar el carrusel de anuncios
@@ -874,4 +909,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     }
+
+    // Lógica para inicializar el estado de favoritos desde localStorage al cargar la página
+    const favoriteButtons = document.querySelectorAll(".btn-favorito");
+    favoriteButtons.forEach(button => {
+        const productId = button.dataset.productId;
+        const icon = button.querySelector('i');
+        if (localStorage.getItem(`favorito-${productId}`)) {
+            icon.classList.add('active'); // Asume que 'active' en tu CSS le da el color deseado
+        } else {
+            icon.classList.remove('active');
+        }
+    });
 });

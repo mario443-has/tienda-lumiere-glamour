@@ -31,7 +31,7 @@ def format_precio(precio):
 
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Q
+# from django.db.models import Q # Ya importado arriba
 
 
 def api_buscar_productos(request):
@@ -118,7 +118,7 @@ def buscar_productos(request):
     })
 
 
-def get_common_context():
+def get_common_context(request): # AHORA RECIBE 'request'
     """
     Función auxiliar para obtener datos comunes que se usarán en todas las vistas.
     Esto incluye categorías para la navegación (con subcategorías),
@@ -143,11 +143,23 @@ def get_common_context():
     # Obtener anuncios activos y ordenarlos por el campo 'order'
     anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
 
+    # Obtener los IDs de productos favoritos para el usuario actual o la sesión
+    favoritos_ids = set()
+    if request.user.is_authenticated:
+        # Si el usuario está autenticado, usa sus favoritos
+        favoritos_ids = set(Favorito.objects.filter(user=request.user).values_list('producto_id', flat=True))
+    else:
+        # Para usuarios anónimos, usa la clave de sesión
+        if not request.session.session_key:
+            request.session.save() # Asegurarse de que exista una clave de sesión
+        favoritos_ids = set(Favorito.objects.filter(session_key=request.session.session_key).values_list('producto_id', flat=True))
+    
     return {
         'categorias_principales': categorias, # Cambiado a categorias_principales para consistencia
         'menu_items': menu_items,
         'whatsapp_number': whatsapp_number_value,
         'anuncios': anuncios, # Añadir anuncios al contexto común
+        'favoritos_ids': list(favoritos_ids), # Añadido al contexto común
     }
 
 def inicio(request):
@@ -237,17 +249,11 @@ def inicio(request):
         productos_paginados = paginator.page(paginator.num_pages)
     
     # Obtener el contexto común
-    context = get_common_context()
+    context = get_common_context(request) # CAMBIO: Pasar request aquí
 
-    # Verificar productos en favoritos si hay una sesión activa
-    favoritos_ids = set()
-    if request.session.session_key:
-        favoritos_ids = set(
-            Favorito.objects.filter(
-                session_key=request.session.session_key,
-                producto__in=productos_paginados
-            ).values_list('producto_id', flat=True)
-        )
+    # La lógica de favoritos_ids ya se maneja en get_common_context,
+    # por lo que no es necesario repetirla aquí.
+    # Solo aseguramos que los productos procesados usen el favoritos_ids del contexto común.
 
     # Procesar los productos para la plantilla
     productos_procesados = []
@@ -260,7 +266,7 @@ def inicio(request):
             'descuento': format_precio(producto.descuento) if producto.descuento else '0',
             'get_precio_final': format_precio(producto.get_precio_final()),
             'imagen': producto.get_primary_image_url(),
-            'is_favorito': producto.id in favoritos_ids,
+            'is_favorito': producto.id in context['favoritos_ids'], # Usar favoritos_ids del contexto común
         })
 
     # Añadir los datos específicos de esta vista al contexto
@@ -276,28 +282,24 @@ def inicio(request):
     # Renderizar la plantilla con el contexto actualizado
     return render(request, 'store/index.html', context)
 
-def producto_detalle(request, product_id):
+def producto_detalle(request, pk):
     """
     Vista para mostrar los detalles de un producto específico.
     También pasa el contexto común para la barra de navegación y el footer.
     """
     # Obtiene el producto por su ID, o devuelve un 404 si no se encuentra.
-    producto = get_object_or_404(Producto, id=product_id)
+    producto = get_object_or_404(Producto, pk=pk)
     
-    # Obtener el contexto común (categorías, elementos de menú, número de WhatsApp)
-    context = get_common_context()
+    # Obtener el contexto común
+    common_context = get_common_context(request) # CAMBIO: Pasar request aquí
     
     # Añadir el producto específico al contexto
-    context['producto'] = producto
-    
-    # Verificar si el producto está en favoritos
-    is_favorito = False
-    if request.session.session_key:
-        is_favorito = Favorito.objects.filter(
-            session_key=request.session.session_key,
-            producto=producto
-        ).exists()
-    context['is_favorito'] = is_favorito
+    context = {
+        "producto": producto,
+        # Determinar si el producto específico es favorito
+        "is_favorito": producto.id in common_context['favoritos_ids'], # Usar favoritos_ids del contexto común
+    }
+    context.update(common_context) # Fusionar el contexto común con el contexto específico
     
     # Obtener las variaciones del producto
     variaciones = producto.variaciones.all() # Corrected: use related_name 'variaciones'
@@ -340,12 +342,19 @@ def toggle_favorito(request):
             session_key = request.session.session_key
             
             # Intentar obtener el favorito existente
-            favorito = Favorito.objects.filter(
-                session_key=session_key,
-                producto_id=producto_id
-            ).first()
+            # Usar get_or_create para manejar tanto usuarios autenticados como anónimos
+            if request.user.is_authenticated:
+                favorito, created = Favorito.objects.get_or_create(
+                    user=request.user,
+                    producto_id=producto_id # Usar producto_id directamente
+                )
+            else:
+                favorito, created = Favorito.objects.get_or_create(
+                    session_key=session_key,
+                    producto_id=producto_id # Usar producto_id directamente
+                )
             
-            if favorito:
+            if not created:
                 # Si existe, eliminarlo
                 favorito.delete()
                 return JsonResponse({
@@ -354,10 +363,6 @@ def toggle_favorito(request):
                 })
             else:
                 # Si no existe, crearlo
-                Favorito.objects.create(
-                    session_key=session_key,
-                    producto_id=producto_id
-                )
                 return JsonResponse({
                     'mensaje': 'Producto añadido a favoritos',
                     'is_favorito': True
@@ -374,17 +379,30 @@ def ver_favoritos(request):
     """
     Vista para mostrar todos los productos favoritos
     """
-    context = get_common_context()
+    context = get_common_context(request) # CAMBIO: Pasar request aquí
     
-    if not request.session.session_key:
-        context['favoritos'] = []
-        return render(request, 'store/favoritos.html', context)
-        
-    favoritos = Favorito.objects.filter(
-        session_key=request.session.session_key
-    ).select_related('producto')
+    favoritos_productos = []
+    if request.user.is_authenticated:
+        favoritos_productos = Producto.objects.filter(favorito__user=request.user, is_active=True)
+    else:
+        if request.session.session_key:
+            favoritos_productos = Producto.objects.filter(favorito__session_key=request.session.session_key, is_active=True)
     
-    context['favoritos'] = favoritos
+    # Procesar productos favoritos de manera similar a ProductoListView si es necesario
+    productos_procesados = []
+    for producto in favoritos_productos:
+        productos_procesados.append({
+            'id': producto.id,
+            'nombre': producto.nombre,
+            'descripcion': producto.descripcion,
+            'precio': format_precio(producto.precio),
+            'descuento': format_precio(producto.descuento) if producto.descuento else '0',
+            'get_precio_final': format_precio(producto.get_precio_final()),
+            'imagen': producto.get_primary_image_url(),
+            'is_favorito': True, # En la página de favoritos, todos son favoritos
+        })
+
+    context['favoritos_productos'] = productos_procesados
     return render(request, 'store/favoritos.html', context)
 
 @csrf_exempt # Solo para desarrollo/pruebas. En producción, deberías usar el token CSRF.
@@ -413,7 +431,7 @@ def agregar_al_carrito(request):
                 'price': float(variante.precio_final) if variante else float(producto.get_precio_final()),
                 'quantity': int(quantity),
                 'variant_id': variante.id if variante else producto.id,
-                'color': variante.color if variante else color, # Usa el color de la variante o el color pasado
+                'color': variante.color if variante else color, # Preferir el color de la variante, si no, usar el color pasado
                 'imageUrl': variante.imagen.url if variante and variante.imagen else producto.get_primary_image_url(),
             }
 
@@ -500,7 +518,7 @@ def ver_carrito(request):
             print(f"Error procesando item del carrito: {e}")
             pass
 
-    context = get_common_context()
+    context = get_common_context(request) # CAMBIO: Pasar request aquí
     context['carrito_detalles'] = productos_carrito_detalles # Renombrado para claridad
     return render(request, 'store/carrito.html', context)
 
@@ -541,20 +559,14 @@ class CategoriaListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categoria'] = self.categoria
-        context.update(get_common_context())
+        context.update(get_common_context(self.request)) # CAMBIO: Pasar self.request aquí
         
         # Obtener los productos paginados
         productos_paginados = context['productos']
         
-        # Verificar productos en favoritos si hay una sesión activa
-        favoritos_ids = set()
-        if self.request.session.session_key:
-            favoritos_ids = set(
-                Favorito.objects.filter(
-                    session_key=self.request.session.session_key,
-                    producto__in=productos_paginados
-                ).values_list('producto_id', flat=True)
-            )
+        # La lógica de favoritos_ids ya se maneja en get_common_context,
+        # por lo que no es necesario repetirla aquí.
+        # Solo aseguramos que los productos procesados usen el favoritos_ids del contexto común.
         
         # Procesar los productos para la plantilla
         productos_procesados = []
@@ -567,7 +579,7 @@ class CategoriaListView(ListView):
                 'descuento': format_precio(producto.descuento) if producto.descuento else '0',
                 'get_precio_final': format_precio(producto.get_precio_final()),
                 'imagen': producto.get_primary_image_url(),
-                'is_favorito': producto.id in favoritos_ids,
+                'is_favorito': producto.id in context['favoritos_ids'], # Usar favoritos_ids del contexto común
             })
         
         # Actualizar el contexto con los productos procesados

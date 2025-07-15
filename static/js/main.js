@@ -66,7 +66,10 @@ function initializeCartDomElements() {
     // Nuevos botones del HTML del usuario para abrir/cerrar el modal
     const closeCartButton = document.getElementById("cerrar-carrito");
     const continueShoppingButton = document.getElementById("seguir-comprando");
-    const openCartButton = document.getElementById("abrir-carrito"); // Botón para abrir el modal (ej. el icono del carrito en el header)
+    
+    // Obtener ambos botones de abrir carrito por sus IDs únicos
+    const openCartButtonDesktop = document.getElementById("abrir-carrito-desktop");
+    const openCartButtonMobile = document.getElementById("abrir-carrito-mobile");
 
     if (closeCartButton) {
         closeCartButton.addEventListener("click", closeCartModal);
@@ -74,8 +77,12 @@ function initializeCartDomElements() {
     if (continueShoppingButton) {
         continueShoppingButton.addEventListener("click", closeCartModal);
     }
-    if (openCartButton) {
-        openCartButton.addEventListener("click", openCartModal);
+    // Adjuntar listeners a ambos botones de abrir carrito
+    if (openCartButtonDesktop) {
+        openCartButtonDesktop.addEventListener("click", openCartModal);
+    }
+    if (openCartButtonMobile) {
+        openCartButtonMobile.addEventListener("click", openCartModal);
     }
 }
 
@@ -296,10 +303,26 @@ window.toggleMobileSearch = function() {
     }
 };
 
+// Helper function to apply favorite state visually
+// Busca todos los botones de favorito para un producto dado y aplica/remueve la clase 'active'
+function applyFavoriteState(productId, isFavorite) {
+    document.querySelectorAll(`.btn-favorito[data-producto-id="${productId}"]`).forEach(button => {
+        const icon = button.querySelector('i');
+        if (icon) {
+            if (isFavorite) {
+                icon.classList.add('active');
+            } else {
+                icon.classList.remove('active');
+            }
+        }
+    });
+}
+
 // Función para manejar favoritos
 window.toggleFavorito = function(button, productoId) { // Global para onclick
-    button.classList.add('animate');
-    
+    console.log(`toggleFavorito llamado para productoId: ${productoId}`);
+    button.classList.add('animate'); // Para la animación de "pop"
+
     fetch('/toggle-favorito/', {
         method: 'POST',
         headers: {
@@ -310,47 +333,49 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
             producto_id: productoId
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
-        const icon = button.querySelector('i'); // Get the <i> element inside the button
+        console.log(`Respuesta del servidor para productoId ${productoId}:`, data);
         if (data.is_favorito) {
-            // Si el producto se añadió a favoritos
-            icon.classList.add('active');
-            localStorage.setItem(`favorito-${productoId}`, 'true'); // Guardar en localStorage
+            localStorage.setItem(`favorito-${productoId}`, 'true');
+            console.log(`Producto ${productoId} marcado en localStorage.`);
         } else {
-            // Si el producto se eliminó de favoritos
-            icon.classList.remove('active');
-            localStorage.removeItem(`favorito-${productoId}`); // Eliminar de localStorage
-            // Si estamos en la página de favoritos, eliminar la tarjeta del producto
-            if (window.location.pathname === '/favoritos/') {
-                const card = button.closest('.col, .product-card'); 
-                if (card) {
-                    card.style.transition = 'opacity 0.3s';
-                    card.style.opacity = '0';
-                    setTimeout(() => {
-                        card.remove();
-                        // Si no quedan más favoritos, recargar la página (o actualizar la UI)
-                        if (document.querySelectorAll('.col, .product-card').length === 0) { 
-                            location.reload(); 
-                        }
-                    }, 300);
-                }
+            localStorage.removeItem(`favorito-${productoId}`);
+            console.log(`Producto ${productoId} desmarcado en localStorage.`);
+        }
+        
+        // Aplicar el estado visual a todos los botones de este producto en la página
+        applyFavoriteState(productId, data.is_favorito);
+
+        // Lógica para remover la tarjeta de la página de favoritos si se desmarca
+        if (!data.is_favorito && window.location.pathname === '/favoritos/') {
+            const card = button.closest('.col, .product-card'); 
+            if (card) {
+                card.style.transition = 'opacity 0.3s';
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.remove();
+                    // Si no quedan más favoritos, recargar la página (o actualizar la UI)
+                    if (document.querySelectorAll('.col, .product-card').length === 0) { 
+                        location.reload(); 
+                    }
+                }, 300);
             }
         }
         // ELIMINADO: No mostrar modal de confirmación aquí
-        // if (data.mensaje) {
-        //     showMessageModal(data.is_favorito ? 'Producto Añadido' : 'Producto Eliminado', data.mensaje);
-        // } else if (data.error) {
-        //     showMessageModal('Error de Favoritos', data.error, 'error');
-        // }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error al actualizar favoritos:', error);
         showMessageModal('Error de Conexión', 'Hubo un problema al actualizar favoritos. Inténtalo de nuevo.', 'error');
     })
     .finally(() => {
         setTimeout(() => {
-            button.classList.remove('animate');
+            button.classList.remove('animate'); // Quitar la clase de animación
         }, 300);
     });
 };
@@ -912,14 +937,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Lógica para inicializar el estado de favoritos desde localStorage al cargar la página
+    // Ahora usa la función applyFavoriteState para mayor consistencia
     const favoriteButtons = document.querySelectorAll(".btn-favorito");
     favoriteButtons.forEach(button => {
         const productId = button.dataset.productId;
-        const icon = button.querySelector('i');
-        if (localStorage.getItem(`favorito-${productId}`)) {
-            icon.classList.add('active'); // Asume que 'active' en tu CSS le da el color deseado
-        } else {
-            icon.classList.remove('active');
-        }
+        const isFavoriteInLocalStorage = localStorage.getItem(`favorito-${productId}`) === 'true';
+        applyFavoriteState(productId, isFavoriteInLocalStorage);
+        console.log(`Inicializando: Producto ${productId}, localStorage: ${isFavoriteInLocalStorage ? 'marcado' : 'desmarcado'}`);
     });
 });

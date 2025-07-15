@@ -551,14 +551,23 @@ def ver_favoritos(request):
     Vista para mostrar todos los productos favoritos
     """
     context = get_common_context(request)
-    
-    favoritos_productos = []
-    if request.session.session_key:
-        favoritos_productos = Producto.objects.filter(
-            favoritos__session_key=request.session.session_key,
-            is_active=True
-        )
-    
+
+    # Asegurarse de que exista clave de sesión
+    if not request.session.session_key:
+        request.session.save()
+
+    # Obtener los IDs de productos favoritos para esta sesión
+    favoritos_ids = set(
+        Favorito.objects.filter(session_key=request.session.session_key)
+        .values_list('producto_id', flat=True)
+    )
+
+    # Obtener productos activos cuyos IDs estén en la lista de favoritos
+    favoritos_productos = Producto.objects.filter(
+        id__in=favoritos_ids,
+        is_active=True
+    )
+
     productos_procesados = []
     for producto in favoritos_productos:
         productos_procesados.append({
@@ -569,7 +578,7 @@ def ver_favoritos(request):
             'descuento': format_precio(producto.descuento) if producto.descuento else '0',
             'get_precio_final': format_precio(producto.get_precio_final()),
             'imagen': producto.get_primary_image_url(),
-            'is_favorito': producto.id in favoritos_ids,
+            'is_favorito': True,  # Ya está en favoritos
         })
 
     context['favoritos_productos'] = productos_procesados

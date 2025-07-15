@@ -98,8 +98,8 @@ class Favorito(models.Model):
 
 
 class Producto(models.Model):
-    # Opciones para la etiqueta del producto
-    ETIQUETA_CHOICES = [
+    # Opciones para la etiqueta del producto (renombrado de ETIQUETA_CHOICES a BADGE_CHOICES)
+    BADGE_CHOICES = [
         ('', 'Sin etiqueta'),
         ('nuevo', 'Nuevo'),
         ('tendencia', 'Tendencia'),
@@ -124,7 +124,6 @@ class Producto(models.Model):
     )
     imagen = CloudinaryField('imagen', blank=True, null=True)
     # Ahora Producto se relaciona directamente con Categoria (jerárquica)
-    # on_delete=models.CASCADE: Si la categoría se elimina, los productos asociados también se eliminan.
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
@@ -135,13 +134,14 @@ class Producto(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     ultima_actualizacion = models.DateTimeField(auto_now=True)
     stock = models.IntegerField(default=0)
-    etiqueta = models.CharField(
+    # Campo 'badge' reemplaza 'etiqueta'
+    badge = models.CharField(
         max_length=10,
-        choices=ETIQUETA_CHOICES,
+        choices=BADGE_CHOICES,
         default='',
         blank=True,
-        verbose_name="Etiqueta",
-        help_text="Selecciona una etiqueta para mostrar en el producto (solo se mostrará una)"
+        verbose_name="Etiqueta/Insignia", # verbose_name actualizado
+        help_text="Selecciona una etiqueta o insignia para mostrar en el producto (solo se mostrará una)"
     )
 
     class Meta:
@@ -152,7 +152,6 @@ class Producto(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.nombre)
-            # Lógica para asegurar la unicidad del slug si el nombre no es único
             original_slug = self.slug
             contador = 1
             while Producto.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
@@ -179,11 +178,21 @@ class Producto(models.Model):
         if self.imagen:
             return self.imagen.url
         elif self.images.exists():
-            # Devuelve la primera imagen de la galería si no hay imagen principal
             return self.images.first().image.url
         else:
-            # Imagen por defecto si no hay ninguna
             return static('img/sin_imagen.jpg')
+
+    def get_badge_class(self):
+        """
+        Devuelve la clase CSS correspondiente al badge.
+        """
+        if self.badge == 'oferta':
+            return 'badge-oferta'
+        elif self.badge == 'nuevo':
+            return 'badge-nuevo'
+        elif self.badge == 'tendencia':
+            return 'badge-tendencia'
+        return ''
 
 
 class ProductImage(models.Model):
@@ -214,7 +223,7 @@ class Variacion(models.Model):
     class Meta:
         unique_together = ('producto', 'nombre', 'valor')
         verbose_name = "Variación"
-        verbose_name_plural = "Variaciones" # CORREGIDO: de verbose_plural a verbose_name_plural
+        verbose_name_plural = "Variaciones"
 
     def __str__(self):
         parts = [self.producto.nombre]
@@ -226,7 +235,6 @@ class Variacion(models.Model):
 
     @property
     def precio_final(self):
-        # Calcula el precio final de la variación, aplicando el descuento del producto principal
         base_price = self.price_override if self.price_override is not None else self.producto.precio
         return base_price * (1 - self.producto.descuento)
 

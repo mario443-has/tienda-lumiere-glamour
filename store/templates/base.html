@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/search.css' %}">
     <link rel="stylesheet" href="{% static 'css/modals.css' %}">
+    <link rel="stylesheet" href="{% static 'css/badges.css' %}"> {# NUEVO: Enlace a badges.css #}
 
     <!-- Google tag (gtag.js) -->
     <script
@@ -61,7 +62,7 @@
           <img
             src="{% static 'img/logo.png' %}"
             alt="Lumière Glamour Logo"
-            class="h-16 sm:h-20 w-auto rounded-full shadow-md" {# Ajuste de tamaño para móvil #}
+            class="h-16 sm:h-20 w-auto rounded-full shadow-md"
           />
           <span
             class="text-3xl font-great-vibes text-pink-600 hover:text-pink-700 transition duration-300"
@@ -72,7 +73,7 @@
 
         <!-- Barra de Búsqueda (Desktop) -->
         <div class="hidden md:flex items-center flex-grow max-w-md mx-4 relative">
-          <div class="relative flex w-full">
+          <form method="get" action="{% url 'home' %}" class="relative flex w-full">
             <input
               type="text"
               name="q"
@@ -82,12 +83,14 @@
               autocomplete="off"
             />
             <button
-              type="button"
+              type="submit"
               class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
             >
               <i class="fas fa-search"></i>
             </button>
-          </div>
+          </form>
+          {# Contenedor para resultados de búsqueda en vivo (Desktop) #}
+          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto top-full"></div>
         </div>
 
         <!-- Carrito (visible en todos los tamaños) -->
@@ -96,7 +99,7 @@
             href="#"
             class="relative text-gray-700 hover:text-pink-600 transition duration-300 px-4"
             title="Mi Carrito"
-            onclick="openCartModal(); return false;" {# MODIFICADO: Abre el modal y evita la navegación #}
+            onclick="openCartModal(); return false;"
           >
             <i class="fas fa-shopping-bag text-xl"></i>
             <span
@@ -108,7 +111,7 @@
         </div>
 
         <!-- Botones de Menú Móvil (Búsqueda y Menú) -->
-        <div class="md:hidden flex items-center space-x-4"> {# Añadido contenedor para los botones móviles #}
+        <div class="md:hidden flex items-center space-x-4">
             <!-- Botón de búsqueda móvil -->
             <button
                 id="mobile-search-button"
@@ -141,17 +144,24 @@
 
       <!-- Barra de búsqueda móvil (oculta por defecto) -->
       <div id="mobile-search-bar" class="hidden md:hidden w-full bg-white p-4">
-          <div class="relative">
+          <form method="get" action="{% url 'home' %}" class="relative flex">
               <input
                   type="text"
                   name="q"
                   placeholder="Buscar productos..."
-                  class="search-input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                   value="{{ request.GET.q|default:'' }}"
                   autocomplete="off"
               />
-              <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
-          </div>
+              <button
+                type="submit"
+                class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
+              >
+                <i class="fas fa-search"></i>
+              </button>
+          </form>
+          {# Contenedor para resultados de búsqueda en vivo (Móvil) #}
+          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
       </div>
 
       <!-- Menú de Navegación Principal (Desktop) -->
@@ -188,15 +198,14 @@
               class="absolute left-0 mt-2 w-64 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top"
             >
               <div class="py-1">
-                {# Iterar sobre categorías principales para la nueva estructura jerárquica #}
                 {% for categoria_principal in categorias_principales %}
                   <div class="relative group/sub">
                     <a
-                      href="{% url 'categoria' categoria_principal.slug %}" {# Apunta a la categoría principal #}
+                      href="{% url 'categoria' categoria_principal.slug %}"
                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
                     >
                       {{ categoria_principal.nombre }}
-                      {% if categoria_principal.subcategorias.all %} {# Comprueba si tiene subcategorías #}
+                      {% if categoria_principal.subcategorias.all %}
                       <svg
                         class="w-4 h-4 transform rotate-90 group-hover/sub:rotate-0 transition-transform duration-200"
                         fill="none"
@@ -212,14 +221,13 @@
                       </svg>
                       {% endif %}
                     </a>
-                    {% if categoria_principal.subcategorias.all %} {# Si tiene subcategorías, crea el submenú #}
+                    {% if categoria_principal.subcategorias.all %}
                     <div
                       class="absolute left-full top-0 ml-1 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform scale-95 group-hover/sub:scale-100 origin-top-left"
                     >
-                      {# Iterar sobre las subcategorías de la categoría principal #}
                       {% for subcategoria in categoria_principal.subcategorias.all %}
                       <a
-                        href="{% url 'categoria' subcategoria.slug %}" {# Apunta a la subcategoría #}
+                        href="{% url 'categoria' subcategoria.slug %}"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600"
                       >
                         {{ subcategoria.nombre }}
@@ -234,7 +242,6 @@
               </div>
             </div>
           </li>
-          <!-- Elementos de menú configurables desde el admin (MenuItem) -->
           {% if menu_items %} {% for item in menu_items %}
           <li>
             <a
@@ -244,7 +251,6 @@
             >
           </li>
           {% endfor %} {% else %}
-          <!-- Ejemplos de enlaces si no se configuran desde el admin -->
           <li>
             <a
               href="{% url 'home' %}"
@@ -281,7 +287,7 @@
       <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg pb-4">
         <!-- Barra de Búsqueda (Móvil) -->
         <div class="px-4 py-2 relative">
-          <div class="flex relative">
+          <form method="get" action="{% url 'home' %}" class="relative flex">
             <input
               type="text"
               name="q"
@@ -291,12 +297,14 @@
               autocomplete="off"
             />
             <button
-              type="button"
+              type="submit"
               class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
             >
               <i class="fas fa-search"></i>
             </button>
-          </div>
+          </form>
+          {# Contenedor para resultados de búsqueda en vivo (Móvil) #}
+          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
         </div>
 
         <a
@@ -332,14 +340,13 @@
             id="mobile-categories-dropdown"
             class="hidden pl-8 py-1 bg-gray-50"
           >
-            {# Bucle para Categorías en Móvil con jerarquía #}
             {% for categoria_principal in categorias_principales %}
             <div class="relative">
               <button
                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
                 onclick="toggleSubmenu(this)"
               >
-                <a href="{% url 'categoria' categoria_principal.slug %}" class="flex-grow">{{ categoria_principal.nombre }}</a> {# Enlace directo para la categoría principal #}
+                <a href="{% url 'categoria' categoria_principal.slug %}" class="flex-grow">{{ categoria_principal.nombre }}</a>
                 {% if categoria_principal.subcategorias.all %}
                 <svg
                   class="w-4 h-4 transform rotate-90 transition-transform duration-200"
@@ -361,7 +368,7 @@
               <div class="hidden pl-4 py-1 bg-gray-100">
                 {% for subcategoria in categoria_principal.subcategorias.all %}
                 <a
-                  href="{% url 'categoria' subcategoria.slug %}" {# Apunta a la subcategoría #}
+                  href="{% url 'categoria' subcategoria.slug %}"
                   class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-200 hover:text-pink-600"
                   >{{ subcategoria.nombre }}</a
                 >
@@ -376,7 +383,6 @@
             {% endfor %}
           </div>
         </div>
-        <!-- Elementos de menú configurables para móvil -->
         {% if menu_items %} {% for item in menu_items %}
         <a
           href="{{ item.url }}"
@@ -403,13 +409,12 @@
           href="#"
           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600"
           >Blog</a
+
         >
         {% endif %}
-        <!-- Iconos de Usuario y Carrito (Móvil) - ELIMINADO DE AQUÍ -->
       </div>
     </header>
 
-    {# Contenido dinámico de cada página #}
     {% block content %}
     {% endblock %}
 
@@ -419,7 +424,6 @@
             <i class="fas fa-home text-2xl mb-1"></i>
             <span class="text-xs">Inicio</span>
         </a>
-        <!-- Botón de Categorías para móvil en la barra inferior -->
         <button id="bottom-nav-categories-button" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
             <i class="fas fa-th-large text-2xl mb-1"></i>
             <span class="text-xs">Categorías</span>
@@ -427,9 +431,13 @@
         <button onclick="openCartModal()" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
             <i class="fas fa-shopping-bag text-2xl mb-1"></i>
             <span class="text-xs">Carrito</span>
-            <span id="bottom-nav-cart-count" class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+            <span
+              id="cart-count"
+              class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"
+              >0</span
+            >
         </button>
-        <a href="#" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+        <a href="{% url 'ver_favoritos' %}" class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
             <i class="fas fa-heart text-2xl mb-1"></i>
             <span class="text-xs">Favoritos</span>
         </a>
@@ -637,195 +645,7 @@
     </script>
     <script src="{% static 'js/notifications.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-    {# Script para manejar el menú de categorías y subcategorías #}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const mobileCategoriesButton = document.getElementById('mobile-categories-button');
-            const mobileCategoriesDropdown = document.getElementById('mobile-categories-dropdown');
-            const bottomNavCategoriesButton = document.getElementById('bottom-nav-categories-button');
-
-            // Toggle mobile menu
-            mobileMenuButton.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            // Toggle mobile categories dropdown (for the main mobile menu)
-            if (mobileCategoriesButton) {
-                mobileCategoriesButton.addEventListener('click', function() {
-                    const icon = this.querySelector('svg');
-                    mobileCategoriesDropdown.classList.toggle('hidden');
-                    if (mobileCategoriesDropdown.classList.contains('hidden')) {
-                        icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        icon.style.transform = 'rotate(180deg)';
-                    }
-                });
-            }
-
-            // Toggle submenus within the mobile categories dropdown
-            function toggleSubmenu(button) {
-                const submenu = button.nextElementSibling;
-                if (submenu && submenu.classList.contains('pl-4')) { // Check if it's a submenu div
-                    submenu.classList.toggle('hidden');
-                    const icon = button.querySelector('svg');
-                    if (icon) {
-                        if (submenu.classList.contains('hidden')) {
-                            icon.style.transform = 'rotate(90deg)'; // Icon pointing right when closed
-                        } else {
-                            icon.style.transform = 'rotate(0deg)'; // Icon pointing down when open
-                        }
-                    }
-                }
-            }
-            window.toggleSubmenu = toggleSubmenu; // Make it globally accessible
-
-            // Handle the bottom navigation categories button
-            if (bottomNavCategoriesButton) {
-                bottomNavCategoriesButton.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
-                    // Ensure the categories dropdown is visible when opened from bottom nav
-                    if (!mobileCategoriesDropdown.classList.contains('hidden')) {
-                        mobileCategoriesDropdown.classList.remove('hidden');
-                        if (mobileCategoriesButton) {
-                            mobileCategoriesButton.querySelector('svg').style.transform = 'rotate(180deg)';
-                        }
-                    }
-                });
-            }
-
-            // Search functionality
-            const searchInputs = document.querySelectorAll('.search-input');
-            const searchResultsContainers = document.querySelectorAll('.search-results');
-
-            searchInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    const query = this.value;
-                    const resultsContainer = this.nextElementSibling && this.nextElementSibling.classList.contains('search-results') ? this.nextElementSibling : this.parentNode.querySelector('.search-results');
-
-                    if (query.length > 2) {
-                        fetch(`/search_suggestions/?q=${query}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                resultsContainer.innerHTML = '';
-                                if (data.products.length > 0) {
-                                    data.products.forEach(product => {
-                                        const link = document.createElement('a');
-                                        link.href = product.url;
-                                        link.classList.add('flex', 'items-center', 'p-2', 'hover:bg-gray-100', 'border-b', 'border-gray-200');
-                                        link.innerHTML = `
-                                            <img src="${product.image_url || window.placeholderImageUrl}" alt="${product.name}" class="w-10 h-10 object-cover rounded-md mr-3">
-                                            <div class="flex-grow">
-                                                <p class="text-sm font-medium text-gray-800">${product.name}</p>
-                                                <p class="text-xs text-gray-500">${product.category}</p>
-                                            </div>
-                                            <span class="text-sm font-semibold text-pink-600">$${product.price}</span>
-                                        `;
-                                        resultsContainer.appendChild(link);
-                                    });
-                                    resultsContainer.classList.remove('hidden');
-                                } else {
-                                    resultsContainer.classList.add('hidden');
-                                }
-                            })
-                            .catch(error => console.error('Error fetching search suggestions:', error));
-                    } else {
-                        resultsContainer.innerHTML = '';
-                        resultsContainer.classList.add('hidden');
-                    }
-                });
-
-                // Hide search results when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (!input.contains(event.target) && !resultsContainer.contains(event.target)) {
-                        resultsContainer.classList.add('hidden');
-                    }
-                });
-            });
-
-            // Mobile search bar toggle
-            const mobileSearchBar = document.getElementById('mobile-search-bar');
-            const mobileSearchButton = document.getElementById('mobile-search-button');
-
-            window.toggleMobileSearch = function() {
-                mobileSearchBar.classList.toggle('hidden');
-            };
-
-            // Cart functionality (simplified for example, assumes main.js handles full logic)
-            // This part is just to show how the modal open/close works
-            const cartModal = document.getElementById('cart-modal');
-            const messageModal = document.getElementById('message-modal');
-            const messageModalTitle = document.getElementById('message-modal-title');
-            const messageModalContent = document.getElementById('message-modal-content');
-
-            window.openCartModal = function() {
-                cartModal.classList.remove('hidden');
-                // You would typically load cart items here from your Django context or a global JS variable
-                // For now, let's assume main.js handles populating #cart-items-container and #cart-total
-            };
-
-            window.closeCartModal = function() {
-                cartModal.classList.add('hidden');
-            };
-
-            window.showMessageModal = function(message, title = 'Mensaje') {
-                messageModalTitle.textContent = title;
-                messageModalContent.textContent = message;
-                messageModal.classList.remove('hidden');
-            };
-
-            window.closeMessageModal = function() {
-                messageModal.classList.add('hidden');
-            };
-
-            // Initial cart count update (assuming it's loaded from main.js or Django)
-            // This is a placeholder, your main.js should handle the actual logic
-            function updateCartCounts() {
-                const currentCartCount = localStorage.getItem('cartCount') || 0; // Example: get from localStorage
-                document.getElementById('cart-count').textContent = currentCartCount;
-                document.getElementById('bottom-nav-cart-count').textContent = currentCartCount;
-                document.getElementById('buy-whatsapp-cart-count').textContent = currentCartCount;
-
-                if (currentCartCount > 0) {
-                    document.getElementById('cart-count').classList.remove('hidden');
-                    document.getElementById('bottom-nav-cart-count').classList.remove('hidden');
-                    document.getElementById('buy-whatsapp-button').classList.remove('hidden');
-                } else {
-                    document.getElementById('cart-count').classList.add('hidden');
-                    document.getElementById('bottom-nav-cart-count').classList.add('hidden');
-                    document.getElementById('buy-whatsapp-button').classList.add('hidden');
-                }
-            }
-            updateCartCounts(); // Call on load
-
-            // Example: update cart count when an item is added (this would be triggered by your add-to-cart logic)
-            // For demonstration, let's simulate adding an item
-            // setTimeout(() => {
-            //     localStorage.setItem('cartCount', 1);
-            //     updateCartCounts();
-            // }, 2000);
-        });
-
-        // Reemplazar las funciones de alerta existentes con las nuevas notificaciones
-        function showMessage(message, title = 'Mensaje') {
-            showSuccessNotification(message, title);
-        }
-
-        function showError(message, title = 'Error') {
-            showErrorNotification(message, title);
-        }
-
-        // Función para mostrar mensajes del carrito
-        function showCartMessage(message) {
-            showSuccessNotification(message, 'Carrito de Compras');
-        }
-
-        // Función para mostrar mensajes de favoritos
-        function showFavoriteMessage(message) {
-            showSuccessNotification(message, 'Favoritos');
-        }
-    </script>
-    {% block extra_js %}{% endblock %} {# Este es el bloque para JS específico de cada página #}
+    {# Este es el bloque para JS específico de cada página #}
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

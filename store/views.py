@@ -3,7 +3,8 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.views.generic import ListView # Importa ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio # Asegúrate de importar Producto y Categoria
+# Asegúrate de importar Producto, Categoria, Variacion y Favorito
+from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio, Variacion, Favorito 
 import locale
 
 def format_precio(precio):
@@ -29,7 +30,6 @@ def format_precio(precio):
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
-from .models import Favorito
 
 
 def api_buscar_productos(request):
@@ -298,7 +298,7 @@ def producto_detalle(request, product_id):
     context['is_favorito'] = is_favorito
     
     # Obtener las variaciones del producto
-    variaciones = producto.variacion_set.all()
+    variaciones = producto.variaciones.all() # Corrected: use related_name 'variaciones'
     
     # Preparar las variaciones para el contexto
     context['variaciones'] = [{
@@ -306,7 +306,7 @@ def producto_detalle(request, product_id):
         'tono': var.tono,
         'color_hex': var.color_hex,
         'imagen': var.imagen.url if var.imagen else '',
-        'precio_formateado': format_precio(producto.get_precio_final())
+        'precio_formateado': format_precio(var.precio_final) # Use var.precio_final
     } for var in variaciones]
 
     # Renderiza la plantilla de detalle del producto.
@@ -396,21 +396,37 @@ def agregar_al_carrito(request):
             producto_id = data.get('producto_id')
             quantity = data.get('quantity', 1) # Cantidad, por defecto 1
             variant_id = data.get('variant_id') # Si manejas variantes
+            color = data.get('color') # Nuevo: Obtener el color de la variante
 
-            # Aquí puedes añadir la lógica para buscar el producto/variante
-            # y agregarlo a la sesión del carrito o a la base de datos.
-            # Por ahora, solo imprimiremos para verificar.
-            print(f"Producto recibido: ID={producto_id}, Cantidad={quantity}, Variante ID={variant_id}")
+            # Recuperar el producto y la variante
+            producto = get_object_or_404(Producto, id=producto_id)
+            variante = None
+            if variant_id and str(variant_id) != str(producto_id): # Check if variant_id is different from product_id
+                variante = get_object_or_404(Variacion, id=variant_id, producto=producto)
 
-            # Ejemplo: Guardar en la sesión (esto es una implementación básica)
+            # Preparar el item para el carrito de sesión
+            item_to_add = {
+                'id': producto.id,
+                'name': producto.nombre,
+                'price': float(variante.precio_final) if variante else float(producto.get_precio_final()),
+                'quantity': int(quantity),
+                'variant_id': variante.id if variante else producto.id,
+                'color': variante.color if variante else color, # Use variant's color or passed color
+                'imageUrl': variante.imagen.url if variante and variante.imagen else producto.get_primary_image_url(),
+            }
+
             if 'cart' not in request.session:
                 request.session['cart'] = []
             
-            # Para la demostración, solo añadimos el ID y la cantidad.
-            # En una aplicación real, buscarías el producto en la DB
-            # para obtener su nombre, precio, etc., y lo añadirías al carrito.
-            for _ in range(quantity):
-                item_to_add = {'id': producto_id, 'variant_id': variant_id if variant_id else producto_id}
+            # Verificar si el item ya existe en el carrito (por variant_id)
+            found = False
+            for item in request.session['cart']:
+                if item.get('variant_id') == item_to_add['variant_id']:
+                    item['quantity'] += item_to_add['quantity']
+                    found = True
+                    break
+            
+            if not found:
                 request.session['cart'].append(item_to_add)
 
             request.session.modified = True # Marca la sesión como modificada para que se guarde
@@ -418,6 +434,10 @@ def agregar_al_carrito(request):
             return JsonResponse({"mensaje": "Producto agregado al carrito", "producto_id": producto_id, "quantity": quantity})
         except json.JSONDecodeError:
             return JsonResponse({"error": "Formato JSON inválido"}, status=400)
+        except Producto.DoesNotExist:
+            return JsonResponse({"error": "Producto no encontrado"}, status=404)
+        except Variacion.DoesNotExist:
+            return JsonResponse({"error": "Variación no encontrada para el producto"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Método no permitido"}, status=405)
@@ -425,31 +445,57 @@ def agregar_al_carrito(request):
 # Nueva vista para ver el carrito
 def ver_carrito(request):
     """
-    Vista para mostrar el contenido del carrito de la sesión.
+    Vista para mostrar el contenido del carrito de la sesión con detalles completos.
     """
-    carrito = request.session.get('cart', [])
-    # Opcional: Si necesitas detalles completos de los productos en el carrito,
-    # puedes recuperarlos de la base de datos aquí.
-    # Por ejemplo:
-    # productos_en_carrito = []
-    # for item in carrito:
-    #     try:
-    #         producto = Producto.objects.get(id=item['id'])
-    #         productos_en_carrito.append({
-    #             'producto': producto,
-    #             'quantity': item.get('quantity', 1),
-    #             'variant_id': item.get('variant_id')
-    #         })
-    #     except Producto.DoesNotExist:
-    #         # Manejar el caso donde el producto ya no existe
-    #         pass
-    # context = get_common_context()
-    # context['carrito_detalles'] = productos_en_carrito
-    # return render(request, 'store/carrito.html', context)
+    raw_cart = request.session.get('cart', [])
+    productos_carrito_detalles = []
 
-    # Para una implementación simple, solo pasamos los IDs y variantes guardados en sesión
+    for item in raw_cart:
+        try:
+            # Asegúrate de que los campos necesarios existen en el item del carrito
+            producto_id = item.get('id')
+            variant_id = item.get('variant_id')
+            quantity = item.get('quantity', 1)
+            item_color = item.get('color', 'N/A') # Get color from cart item
+
+            if not producto_id:
+                continue # Skip if product ID is missing
+
+            producto = Producto.objects.get(id=producto_id)
+            variante = None
+            
+            # Si hay un variant_id y es diferente al producto_id (indicando que es una variación real)
+            if variant_id and str(variant_id) != str(producto_id):
+                variante = Variacion.objects.filter(id=variant_id, producto=producto).first()
+            
+            # Determinar el precio y la imagen final
+            final_price = variante.precio_final if variante else producto.get_precio_final()
+            image_url = variante.imagen.url if variante and variante.imagen else producto.get_primary_image_url()
+            
+            productos_carrito_detalles.append({
+                'id': producto.id,
+                'name': producto.nombre,
+                'price': float(final_price), # Asegurarse de que sea float para JS
+                'quantity': int(quantity),
+                'variant_id': variante.id if variante else producto.id,
+                'color': variante.color if variante else item_color, # Prefer variant color, else use item_color
+                'imageUrl': image_url,
+                'price_formatted': format_precio(final_price) # Precio formateado para mostrar
+            })
+        except Producto.DoesNotExist:
+            # Puedes añadir lógica para limpiar el carrito si un producto ya no existe
+            print(f"Producto con ID {item.get('id')} no encontrado en la DB. Eliminando del carrito de sesión.")
+            # Opcional: request.session['cart'].remove(item) - Requiere manejo cuidadoso de iteración
+            pass # Continúa con el siguiente item si el producto no existe
+        except Variacion.DoesNotExist:
+            print(f"Variación con ID {item.get('variant_id')} no encontrada para el producto {item.get('id')}. Continua.")
+            pass
+        except Exception as e:
+            print(f"Error procesando item del carrito: {e}")
+            pass
+
     context = get_common_context()
-    context['carrito'] = carrito
+    context['carrito_detalles'] = productos_carrito_detalles # Renombrado para claridad
     return render(request, 'store/carrito.html', context)
 
 

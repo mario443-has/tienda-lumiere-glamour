@@ -1,29 +1,61 @@
 {% extends "base.html" %}
+{% load static %}
+{% load humanize %} {# Para usar intcomma #}
 
 {% block title %}Tu Carrito{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-  <h1 class="text-2xl font-bold mb-6">🛒 Tu carrito de compras</h1>
+  <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">🛒 Tu Carrito de Compras</h1>
 
-  {% if carrito %}
-    <ul class="space-y-4">
-      {% for item in carrito %}
-        <li class="border p-4 rounded-lg shadow">
-          <p><strong>ID Producto:</strong> {{ item.id }}</p>
-          <p><strong>Variante:</strong> {{ item.variant_id|default:"N/A" }}</p>
-          <p><strong>Color:</strong> {{ item.color|default:"N/A" }}</p>
-        </li>
-      {% endfor %}
-    </ul>
+  {% if carrito_detalles %} {# Cambiado de 'carrito' a 'carrito_detalles' #}
+    <div class="bg-white rounded-lg shadow-xl overflow-hidden mb-8 p-4"> {# Añadido padding al contenedor principal #}
+      <ul class="space-y-4"> {# Cambiado de divide-y a space-y #}
+        {% for item in carrito_detalles %}
+          <li class="flex items-center p-4 sm:p-6 gap-4 border border-gray-200 rounded-lg shadow-sm"> {# Añadido border, rounded-lg, shadow-sm #}
+            <img 
+              src="{{ item.imageUrl|default:static('img/sin_imagen.jpg') }}" 
+              alt="{{ item.name }}" 
+              class="w-24 h-24 object-cover rounded-md flex-shrink-0" {# Ajustado tamaño y quitado shadow-sm #}
+              onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';"
+            >
+            <div class="flex-1 min-w-0">
+              <h2 class="text-lg sm:text-xl font-semibold text-gray-800">{{ item.name }}</h2>
+              {% if item.color and item.color != 'N/A' %}
+                <p class="text-sm text-gray-600 mt-1">Color: {{ item.color }}</p>
+              {% endif %}
+              <p class="text-sm text-gray-600 mt-1">Cantidad: {{ item.quantity }}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <p class="text-lg sm:text-xl font-bold text-pink-600">{{ item.price_formatted }}</p>
+              {# Muestra el subtotal por ítem #}
+              <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.price|mul:item.quantity|floatformat:0|intcomma }}</p> 
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
 
-    <div class="mt-6">
-      <a href="https://wa.me/573007221200?text=Quiero%20comprar%20estos%20productos" class="bg-green-500 text-white px-4 py-2 rounded-lg">
-        Finalizar pedido por WhatsApp
+    <div class="flex justify-center mt-6">
+      <a 
+        href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Quiero%20comprar%20estos%20productos" 
+        class="bg-green-500 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center space-x-2 shadow-md"
+        target="_blank"
+      >
+        <i class="fab fa-whatsapp text-xl"></i>
+        <span>Finalizar pedido por WhatsApp</span>
       </a>
     </div>
   {% else %}
-    <p>Tu carrito está vacío.</p>
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+      <p class="text-xl text-gray-600 mb-4">Tu carrito está vacío. ¡Añade algunos productos!</p>
+      <a href="{% url 'home' %}" class="text-pink-600 hover:underline font-medium">Volver a la tienda</a>
+    </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{# Asegúrate de que el JavaScript del carrito en main.js se encargue de la lógica de actualización #}
+{# No se necesita JavaScript adicional aquí para la visualización básica #}
 {% endblock %}

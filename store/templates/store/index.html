@@ -16,7 +16,7 @@
               src="{{ anuncio.imagen.url|default:'https://placehold.co/1000x400/cccccc/333333?text=Anuncio' }}"
               alt="Anuncio: {{ anuncio.titulo }}"
               loading="lazy"
-              onerror="this.onerror=null;this.src='https://placehold.co/1000x400/cccccc/333333?text=Anuncio';"
+              onerror="this.onerror=null;this.src='https://placehold.co/1000x400/cccccc/333333?text=Anuncio';'"
             />
           {% if anuncio.url %}</a>{% endif %}
         </div>
@@ -84,15 +84,20 @@
     </h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {% for producto in productos %}
+          {% for producto in pagina_productos %}
           <div
-            class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative">
-            <button class="btn-favorito absolute top-2 right-2 z-10 {% if producto.is_favorito %}active{% endif %}"
+            class="w-64 bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-xl inline-block align-top relative"
+            data-product-id="{{ producto.id }}">
+            {% if producto.badge %}
+              <div class="product-badge {{ producto.get_badge_class }}">
+                {{ producto.get_badge_display }}
+              </div>
+            {% endif %}
+            <button class="btn-favorito absolute top-2 right-2 z-10 {% if producto.id in favoritos_ids %}active{% endif %}"
                     data-producto-id="{{ producto.id }}"
                     onclick="toggleFavorito(this, {{ producto.id }})">
               <i class="fas fa-heart"></i>
             </button>
-            data-product-id="{{ producto.id }}">
             {% if producto.descuento > 0 %}
             <div
               class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10 shadow-md">
@@ -104,10 +109,10 @@
               <img
                 loading="lazy"
                 id="product-image-{{ producto.id }}"
-                src="{% if producto.get_primary_image_url %}{{ producto.get_primary_image_url }}{% else %}https://placehold.co/256x192/cccccc/333333?text=Producto{% endif %}"
+                src="{% if producto.get_primary_image_url %}{{ producto.get_primary_image_url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
                 alt="Imagen de {{ producto.nombre }}"
                 class="w-full h-48 object-cover"
-                onerror="this.onerror=null;this.src='https://placehold.co/256x192/cccccc/333333?text=Producto';"
+                onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';"
               />
             </a>
 
@@ -167,7 +172,7 @@
                 data-product-price="{% if producto.variaciones.all %}{{ producto.variaciones.first.precio_final|floatformat:0 }}{% else %}{{ producto.get_precio_final|floatformat:0 }}{% endif %}"
                 data-selected-color="{% if producto.variaciones.all %}{{ producto.variaciones.first.color }}{% else %}N/A{% endif %}"
                 data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
-                data-product-image-url="{{ producto.get_primary_image_url }}">
+                data-product-image-url="{% if producto.get_primary_image_url %}{{ producto.get_primary_image_url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}">
                 <i class="fas fa-cart-plus"></i>
                 <span>Agregar al Carrito</span>
               </button>

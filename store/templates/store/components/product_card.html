@@ -1,4 +1,9 @@
-<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
+<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden relative"> {# Añadido 'relative' para posicionar el badge #}
+  {% if producto.badge %}
+    <span class="absolute top-2 left-2 product-badge {{ producto.get_badge_class }}">
+      {{ producto.get_badge_display }}
+    </span>
+  {% endif %}
   {# Corregido: Usar 'producto_detalle' y 'producto.id' #}
   <a href="{% url 'producto_detalle' producto.id %}">
     {# CAMBIO: Usar get_primary_image_url para obtener la imagen principal del producto #}

@@ -79,7 +79,7 @@ class ProductoAdmin(admin.ModelAdmin):
             'fields': ('precio', 'descuento', 'stock')
         }),
         ('Estado y Etiqueta', {
-            'fields': ('is_active', 'etiqueta'), # Asegúrate de que 'etiqueta' está en tu modelo Producto
+            'fields': ('is_active', 'badge'), # ✅ CORREGIDO: 'etiqueta' cambiado a 'badge'
             'description': 'Define si el producto está activo y su etiqueta principal'
         }),
         ('Imagen Principal', {

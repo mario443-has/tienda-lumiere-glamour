@@ -8,7 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (dropdownBtn) {
         dropdownBtn.addEventListener('click', function() {
             this.classList.toggle('active');
-            categoriasList.classList.toggle('show');
+            // Protección adicional para categoriasList
+            if (categoriasList) {
+                categoriasList.classList.toggle('show');
+            }
         });
     }
 
@@ -31,9 +34,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cerrar el menú si se hace clic fuera de él
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.categorias-nav') && categoriasList.classList.contains('show')) {
-            dropdownBtn.classList.remove('active');
+        // Protección para categoriasList antes de usarlo
+        if (!e.target.closest('.categorias-nav') && categoriasList && categoriasList.classList.contains('show')) {
+            if (dropdownBtn) { // Asegurarse de que dropdownBtn también exista
+                dropdownBtn.classList.remove('active');
+            }
             categoriasList.classList.remove('show');
         }
+    });
+
+    // Soporte para pantallas redimensionadas: recargar la página
+    // Esto asegura que la lógica dependiente de window.innerWidth se reevalúe.
+    window.addEventListener('resize', function() {
+        location.reload(); 
     });
 });

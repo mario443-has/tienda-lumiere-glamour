@@ -18,42 +18,7 @@
 
 .search-results > div {
   padding: 0.75rem;
-}
-
-/* Estilos para el botón de favoritos */
-.btn-favorito {
-  background: transparent;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.btn-favorito i {
-  font-size: 1.5rem;
-  color: #ccc;
-  transition: color 0.2s;
-}
-
-.btn-favorito:hover i {
-  transform: scale(1.1);
-  color: #ff4b4b;
-}
-
-.btn-favorito.active i {
-  color: #ff4b4b;
-}
-
-/* Animación para cuando se añade/quita de favoritos */
-.btn-favorito.animate i {
-  animation: heartPop 0.3s ease-in-out;
-}
-
-@keyframes heartPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
+  /* CORRECCIÓN: Estilos movidos aquí desde una línea suelta */
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -94,6 +59,41 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Estilos para el botón de favoritos */
+.btn-favorito {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-favorito i {
+  font-size: 1.5rem;
+  color: #ccc;
+  transition: color 0.2s;
+}
+
+.btn-favorito:hover i {
+  transform: scale(1.1);
+  color: #ff4b4b;
+}
+
+.btn-favorito.active i {
+  color: #ff4b4b;
+}
+
+/* Animación para cuando se añade/quita de favoritos */
+.btn-favorito.animate i {
+  animation: heartPop 0.3s ease-in-out;
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* Estilos para la barra de navegación inferior móvil */

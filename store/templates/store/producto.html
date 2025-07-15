@@ -29,17 +29,19 @@
             <div class="md:w-1/2 flex flex-col items-center">
                 <div class="w-full max-w-md h-96 flex items-center justify-center overflow-hidden rounded-lg shadow-md mb-4">
                     {# Usar get_primary_image_url para la imagen principal #}
-                    <img src="{{ producto.get_primary_image_url }}" alt="{{ producto.nombre }}" class="max-w-full max-h-full object-contain" id="main-product-image">
+                    <img src="{{ producto.get_primary_image_url|default:'https://placehold.co/400x400/cccccc/333333?text=Producto' }}" alt="{{ producto.nombre }}" class="max-w-full max-h-full object-contain" id="main-product-image" onerror="this.onerror=null;this.src='https://placehold.co/400x400/cccccc/333333?text=Producto';">
                 </div>
                 <!-- Thumbnail Images -->
                 <div class="flex space-x-2 mt-2">
                     {# Muestra la imagen principal como miniatura si existe #}
                     {% if producto.imagen %}
-                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }} principal" class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if not producto.images.all %}ring-2 ring-pink-500{% endif %}">
+                        <img src="{{ producto.imagen.url|default:'https://placehold.co/64x64/cccccc/333333?text=Miniatura' }}" alt="{{ producto.nombre }} principal" class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if not producto.images.all %}ring-2 ring-pink-500{% endif %}" onerror="this.onerror=null;this.src='https://placehold.co/64x64/cccccc/333333?text=Miniatura';">
                     {% endif %}
                     {# Itera sobre las imágenes adicionales del producto #}
                     {% for img in producto.images.all %}
-                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:producto.nombre }}" class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if forloop.first and not producto.imagen %}ring-2 ring-pink-500{% endif %}">
+                        {% if img.image %} {# Validar si la imagen existe #}
+                            <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:producto.nombre }}" class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if forloop.first and not producto.imagen %}ring-2 ring-pink-500{% endif %}" onerror="this.onerror=null;this.src='https://placehold.co/64x64/cccccc/333333?text=Miniatura';">
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -55,9 +57,9 @@
                     </button>
                 </div>
                 <div class="flex items-baseline mb-4">
-                    <span class="text-5xl font-extrabold text-pink-600 mr-4">${{ producto.get_precio_final|floatformat:2 }}</span>
+                    <span class="text-5xl font-extrabold text-pink-600 mr-4">{{ precio_formateado }}</span>{# CAMBIO AQUI: Usando la variable formateada #}
                     {% if producto.descuento > 0 %}
-                        <span class="text-xl text-gray-500 line-through">${{ producto.precio|floatformat:2 }}</span>
+                        <span class="text-xl text-gray-500 line-through">${{ producto.precio|floatformat:0 }}</span>{# Se mantiene el formato simple para el precio original #}
                     {% endif %}
                 </div>
 
@@ -72,7 +74,7 @@
                 <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
                         data-product-id="{{ producto.id }}"
                         data-product-name="{{ producto.nombre }}"
-                        data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
+                        data-product-price="{{ producto.get_precio_final|floatformat:2 }}" {# Se mantiene el floatformat para el JS #}
                         data-selected-variant-id="{{ producto.id }}" {# Usar ID del producto como ID de variante por defecto #}
                         data-selected-color="N/A" {# Color por defecto si no hay variantes de color #}
                         data-product-image-url="{% if producto.imagen %}{{ producto.imagen.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}" {# AÑADIDO: URL de la imagen del producto #}

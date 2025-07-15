@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize', # NUEVO: Añadido para filtros como 'intcomma'
     'store', # Tu aplicación de tienda
     'ckeditor', # CKEditor
     'ckeditor_uploader', # CKEditor Uploader

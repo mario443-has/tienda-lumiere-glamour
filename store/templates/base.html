@@ -26,13 +26,10 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/search.css' %}">
     <link rel="stylesheet" href="{% static 'css/modals.css' %}">
-    <link rel="stylesheet" href="{% static 'css/badges.css' %}"> {# NUEVO: Enlace a badges.css #}
+    <link rel="stylesheet" href="{% static 'css/badges.css' %}">
 
     <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-RPSFD64V89"
-    ></script>
+   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPSFD64V89"></script> {# CORREGIDO: Sintaxis compacta #}
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -76,6 +73,7 @@
           <form method="get" action="{% url 'home' %}" class="relative flex w-full">
             <input
               type="text"
+              id="search-input-desktop" {# NUEVO ID #}
               name="q"
               placeholder="Buscar productos..."
               class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -88,9 +86,9 @@
             >
               <i class="fas fa-search"></i>
             </button>
+            {# Contenedor para resultados de búsqueda en vivo (Desktop) - MOVIDO DENTRO DEL FORM #}
+            <div id="search-results-desktop" class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto top-full"></div>
           </form>
-          {# Contenedor para resultados de búsqueda en vivo (Desktop) #}
-          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto top-full"></div>
         </div>
 
         <!-- Carrito (visible en todos los tamaños) -->
@@ -147,6 +145,7 @@
           <form method="get" action="{% url 'home' %}" class="relative flex">
               <input
                   type="text"
+                  id="search-input-mobile" {# NUEVO ID #}
                   name="q"
                   placeholder="Buscar productos..."
                   class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -159,9 +158,9 @@
               >
                 <i class="fas fa-search"></i>
               </button>
+              {# Contenedor para resultados de búsqueda en vivo (Móvil) - MOVIDO DENTRO DEL FORM #}
+              <div id="search-results-mobile" class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
           </form>
-          {# Contenedor para resultados de búsqueda en vivo (Móvil) #}
-          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
       </div>
 
       <!-- Menú de Navegación Principal (Desktop) -->
@@ -290,6 +289,7 @@
           <form method="get" action="{% url 'home' %}" class="relative flex">
             <input
               type="text"
+              id="search-input-mobile" {# NUEVO ID #}
               name="q"
               placeholder="Buscar productos..."
               class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -302,9 +302,9 @@
             >
               <i class="fas fa-search"></i>
             </button>
+            {# Contenedor para resultados de búsqueda en vivo (Móvil) - MOVIDO DENTRO DEL FORM #}
+            <div id="search-results-mobile" class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
           </form>
-          {# Contenedor para resultados de búsqueda en vivo (Móvil) #}
-          <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
         </div>
 
         <a
@@ -409,7 +409,6 @@
           href="#"
           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600"
           >Blog</a
-
         >
         {% endif %}
       </div>

@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
 from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio, Variacion, Favorito 
 import locale
+from decimal import Decimal # Import Decimal for precise calculations
 
 def format_precio(precio):
     """
@@ -16,7 +17,7 @@ def format_precio(precio):
         return "$ 0"
     
     # Convertir el precio a float si es necesario
-    if not isinstance(precio, (int, float)):
+    if not isinstance(precio, (int, float, Decimal)): # Added Decimal to types
         try:
             precio = float(precio)
         except (ValueError, TypeError):
@@ -27,6 +28,7 @@ def format_precio(precio):
     
     # Agregar el símbolo de pesos
     return f"$ {precio_formateado}"
+
 from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
@@ -461,7 +463,7 @@ def ver_carrito(request):
             if not producto_id:
                 continue # Skip if product ID is missing
 
-            producto = Producto.objects.get(id=producto_id)
+            producto = get_object_or_404(Producto, id=producto_id)
             variante = None
             
             # Si hay un variant_id y es diferente al producto_id (indicando que es una variación real)
@@ -472,6 +474,9 @@ def ver_carrito(request):
             final_price = variante.precio_final if variante else producto.get_precio_final()
             image_url = variante.imagen.url if variante and variante.imagen else producto.get_primary_image_url()
             
+            # Calcular el subtotal aquí
+            subtotal_item = final_price * Decimal(quantity) # Use Decimal for precise calculation
+            
             productos_carrito_detalles.append({
                 'id': producto.id,
                 'name': producto.nombre,
@@ -480,7 +485,8 @@ def ver_carrito(request):
                 'variant_id': variante.id if variante else producto.id,
                 'color': variante.color if variante else item_color, # Prefer variant color, else use item_color
                 'imageUrl': image_url,
-                'price_formatted': format_precio(final_price) # Precio formateado para mostrar
+                'price_formatted': format_precio(final_price), # Precio formateado para mostrar
+                'subtotal': float(subtotal_item) # Añadir el subtotal aquí
             })
         except Producto.DoesNotExist:
             # Puedes añadir lógica para limpiar el carrito si un producto ya no existe

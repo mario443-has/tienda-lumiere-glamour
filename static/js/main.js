@@ -271,21 +271,21 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
             icon.classList.add('active');
         } else {
             icon.classList.remove('active');
-        }
-        
-        // Si estamos en la página de favoritos y se removió el favorito
-        if (window.location.pathname === '/favoritos/') {
-            const card = button.closest('.col'); // Ajusta el selector si tu tarjeta de producto tiene otra clase
-            if (card) {
-                card.style.transition = 'opacity 0.3s';
-                card.style.opacity = '0';
-                setTimeout(() => {
-                    card.remove();
-                    // Si no quedan más favoritos, recargar la página (o actualizar la UI)
-                    if (document.querySelectorAll('.col').length === 0) { // Revisa si quedan elementos con la clase .col
-                        location.reload(); // Recarga si no hay más tarjetas de favoritos
-                    }
-                }, 300);
+            // Si el producto fue removido de favoritos
+            if (window.location.pathname === '/favoritos/') {
+                // Ajusta el selector para que coincida con .col o .product-card
+                const card = button.closest('.col, .product-card'); 
+                if (card) {
+                    card.style.transition = 'opacity 0.3s';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                        // Si no quedan más favoritos, recargar la página (o actualizar la UI)
+                        if (document.querySelectorAll('.col, .product-card').length === 0) { 
+                            location.reload(); 
+                        }
+                    }, 300);
+                }
             }
         }
         // Mostrar notificación de éxito/error
@@ -345,13 +345,13 @@ function handleLiveSearch(searchInput, resultsContainer) {
 
         debounceTimer = setTimeout(async () => {
             try {
-                // CAMBIO CLAVE: La URL de la API de búsqueda en vivo es '/buscar_productos/'
-                const response = await fetch(`/buscar_productos/?q=${encodeURIComponent(query)}`);
+                // CAMBIO CLAVE: La URL de la API de búsqueda en vivo ahora es '/api/buscar-productos/'
+                const response = await fetch(`/api/buscar-productos/?q=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 resultsContainer.innerHTML = '';
 
-                if (data.productos && data.productos.length > 0) {
+                if (data.productos && data.productos.length > 0) { // Asegúrate de que la clave sea 'productos'
                     data.productos.forEach(producto => {
                         const resultItem = document.createElement('a'); // Usar 'a' para que sea un enlace
                         resultItem.href = producto.url; // URL del producto

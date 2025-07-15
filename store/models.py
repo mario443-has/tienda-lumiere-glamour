@@ -1,11 +1,12 @@
 from django.db import models
 from django.utils.text import slugify
-from decimal import Decimal
-from ckeditor.fields import RichTextField
-from cloudinary.models import CloudinaryField
+from decimal import Decimal, ROUND_HALF_UP # Importa ROUND_HALF_UP para el redondeo
+from cloudinary.models import CloudinaryField # AÑADIDO: Import para CloudinaryField
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _ # Import para internacionalización de verbose_name
 from django.templatetags.static import static # Importar static para el fallback de imagen
+from ckeditor.fields import RichTextField
+
 
 # Custom QuerySet para el modelo Categoria
 class CategoriaQuerySet(models.QuerySet):
@@ -52,8 +53,8 @@ class Categoria(models.Model):
     objects = CategoriaManager()
 
     class Meta:
-        verbose_name = _('Categoría')
-        verbose_name_plural = _('Categorías')
+        verbose_name = "Categoría"
+        verbose_name_plural = "Categorías"
         indexes = [
             models.Index(fields=['slug']),
             models.Index(fields=['padre']),
@@ -162,8 +163,10 @@ class Producto(models.Model):
     def get_precio_final(self):
         precio_decimal = Decimal(self.precio)
         descuento_decimal = Decimal(self.descuento)
-        if descuento_decimal > 0 and descuento_decimal <= 1:
-            return precio_decimal * (1 - descuento_decimal)
+        if descuento_decimal > 0:
+            final_price = precio_decimal * (1 - (descuento_decimal / 100))
+            # Redondea a 0 decimales usando ROUND_HALF_UP (redondeo tradicional)
+            return final_price.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         return precio_decimal
 
     def __str__(self):
@@ -236,7 +239,12 @@ class Variacion(models.Model):
     @property
     def precio_final(self):
         base_price = self.price_override if self.price_override is not None else self.producto.precio
-        return base_price * (1 - self.producto.descuento)
+        base_price_decimal = Decimal(base_price) # Asegurarse de que sea Decimal
+        if self.producto.descuento and self.producto.descuento > 0:
+            final_price = base_price_decimal * (1 - (self.producto.descuento / 100))
+            # Redondea a 0 decimales usando ROUND_HALF_UP (redondeo tradicional)
+            return final_price.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        return base_price_decimal
 
 
 class MenuItem(models.Model):

@@ -143,24 +143,21 @@ def get_common_context(request): # AHORA RECIBE 'request'
     # Obtener anuncios activos y ordenarlos por el campo 'order'
     anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
 
-    # Obtener los IDs de productos favoritos para el usuario actual o la sesión
-    favoritos_ids = set()
-    if request.user.is_authenticated:
-        # Si el usuario está autenticado, usa sus favoritos
-        favoritos_ids = set(Favorito.objects.filter(session_key=request.session.session_key).values_list('producto_id', flat=True))
+   # Obtener los IDs de productos favoritos para la sesión actual
+    if not request.session.session_key:
+        request.session.save()  # Asegurarse de que exista una clave de sesión
 
-    else:
-        # Para usuarios anónimos, usa la clave de sesión
-        if not request.session.session_key:
-            request.session.save() # Asegurarse de que exista una clave de sesión
-        favoritos_ids = set(Favorito.objects.filter(session_key=request.session.session_key).values_list('producto_id', flat=True))
-    
+    favoritos_ids = set(
+        Favorito.objects.filter(session_key=request.session.session_key)
+        .values_list('producto_id', flat=True)
+    )
+
     return {
-        'categorias_principales': categorias, # Cambiado a categorias_principales para consistencia
+        'categorias_principales': categorias,
         'menu_items': menu_items,
         'whatsapp_number': whatsapp_number_value,
-        'anuncios': anuncios, # Añadir anuncios al contexto común
-        'favoritos_ids': list(favoritos_ids), # Añadido al contexto común
+        'anuncios': anuncios,
+        'favoritos_ids': list(favoritos_ids),
     }
 
 def inicio(request):

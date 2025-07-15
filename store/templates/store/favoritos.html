@@ -1,53 +1,60 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load humanize %} {# Para usar intcomma #}
+{% load humanize %} {# Para usar intcomma en el precio #}
 
 {% block title %}Mis Favoritos - Lumière Glamour{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-center text-gray-900 mb-8">Mis Favoritos</h1>
-
+    <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">❤️ Mis Productos Favoritos</h1>
+    
     {% if favoritos %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {% for favorito in favoritos %}
-            <div class="bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden relative">
-                <a href="{% url 'producto_detalle' favorito.producto.id %}">
-                    <img src="{{ favorito.producto.get_primary_image_url }}"
-                         alt="{{ favorito.producto.nombre }}"
-                         class="w-full h-48 object-cover">
-                </a>
-
-                {# El botón de favoritos ahora llama a la función global toggleFavorito de main.js #}
-                <button class="btn-favorito absolute top-2 right-2 z-10 active"
-                        data-producto-id="{{ favorito.producto.id }}"
-                        onclick="toggleFavorito(this, {{ favorito.producto.id }})">
-                    <i class="fas fa-heart"></i>
-                </button>
-
-                <div class="p-4">
-                    <h3 class="text-base font-semibold text-gray-900 mb-1 truncate">{{ favorito.producto.nombre }}</h3>
-                    <p class="text-pink-600 font-bold text-sm mb-3">${{ favorito.producto.get_precio_final|floatformat:0|intcomma }}</p> {# Usar intcomma para formato de miles #}
-                    <a href="{% url 'producto_detalle' favorito.producto.id %}"
-                       class="inline-block w-full text-center bg-pink-600 text-white py-2 rounded-md font-semibold text-sm hover:bg-pink-700 transition">
-                        Ver Detalles
-                    </a>
+                <div class="col bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
+                    <div class="relative">
+                        {# Lógica de imagen con fallback explícito #}
+                        {% if favorito.producto.get_primary_image_url %}
+                            <img src="{{ favorito.producto.get_primary_image_url }}" 
+                                 alt="{{ favorito.producto.nombre }}" 
+                                 class="w-full h-48 object-cover"
+                                 onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
+                        {% else %}
+                            <img src="{% static 'img/sin_imagen.jpg' %}" 
+                                 alt="Sin imagen" 
+                                 class="w-full h-48 object-cover">
+                        {% endif %}
+                        
+                        {# Botón de favoritos - ahora usa la función global de main.js #}
+                        <button class="btn-favorito active absolute top-2 right-2"
+                                data-producto-id="{{ favorito.producto.id }}"
+                                onclick="toggleFavorito(this, {{ favorito.producto.id }})">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h5 class="text-lg font-semibold text-gray-800 mb-1">{{ favorito.producto.nombre|truncatechars:40 }}</h5>
+                        <p class="text-pink-600 font-bold text-base mt-1">
+                            ${{ favorito.producto.get_precio_final|floatformat:0|intcomma }}
+                        </p>
+                        <a href="{% url 'producto_detalle' favorito.producto.id %}" 
+                           class="mt-4 w-full bg-pink-600 text-white py-2 px-3 rounded-md text-xs font-semibold hover:bg-pink-700 transition flex items-center justify-center space-x-2">
+                            <i class="fas fa-eye"></i>
+                            <span>Ver Detalles</span>
+                        </a>
+                    </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
     {% else %}
-        <div class="bg-white rounded-lg shadow-md p-8 text-center mt-16"> {# Añadido estilo al div vacío #}
-            <p class="text-gray-600 text-lg mb-4">No tienes productos favoritos aún.</p>
-            <a href="{% url 'home' %}" class="inline-block bg-pink-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-pink-700 transition">
-                Explorar Productos
-            </a>
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <p class="text-xl text-gray-600 mb-4">No tienes productos favoritos aún. ¡Explora y añade algunos!</p>
+            <a href="{% url 'home' %}" class="text-pink-600 hover:underline font-medium">Volver a la tienda</a>
         </div>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
-{# El script toggleFavorito() ha sido movido a main.js para centralizar la lógica. #}
-{# Asegúrate de que main.js esté cargado en base.html y contenga esta función. #}
+{# La función toggleFavorito ya es global en main.js, no se necesita JS adicional aquí #}
 {% endblock %}

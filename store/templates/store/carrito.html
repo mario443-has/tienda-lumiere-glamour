@@ -13,9 +13,10 @@
       <ul class="space-y-4"> {# Cambiado de divide-y a space-y #}
         {% for item in carrito_detalles %}
           <li class="flex items-center p-4 sm:p-6 gap-4 border border-gray-200 rounded-lg shadow-sm"> {# Añadido border, rounded-lg, shadow-sm #}
-            <img 
-              src="{{ item.imageUrl|default:static('img/sin_imagen.jpg') }}" 
-              alt="{{ item.name }}" 
+            <img
+              {# CORRECCIÓN: Usar {% if %} para el fallback de imagen #}
+              src="{% if item.imageUrl %}{{ item.imageUrl }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+              alt="{{ item.name }}"
               class="w-24 h-24 object-cover rounded-md flex-shrink-0" {# Ajustado tamaño y quitado shadow-sm #}
               onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';"
             >
@@ -29,7 +30,7 @@
             <div class="text-right flex-shrink-0">
               <p class="text-lg sm:text-xl font-bold text-pink-600">{{ item.price_formatted }}</p>
               {# Muestra el subtotal por ítem #}
-              <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.price|mul:item.quantity|floatformat:0|intcomma }}</p> 
+              <p class="text-sm text-gray-500 mt-1">Subtotal: ${{ item.price|mul:item.quantity|floatformat:0|intcomma }}</p>
             </div>
           </li>
         {% endfor %}
@@ -37,8 +38,8 @@
     </div>
 
     <div class="flex justify-center mt-6">
-      <a 
-        href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Quiero%20comprar%20estos%20productos" 
+      <a
+        href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Quiero%20comprar%20estos%20productos"
         class="bg-green-500 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center space-x-2 shadow-md"
         target="_blank"
       >

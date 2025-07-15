@@ -266,14 +266,15 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
     })
     .then(response => response.json())
     .then(data => {
+        const icon = button.querySelector('i'); // Get the <i> element inside the button
         if (data.is_favorito) {
-            button.classList.add('active');
+            icon.classList.add('active');
         } else {
-            button.classList.remove('active');
+            icon.classList.remove('active');
         }
         
         // Si estamos en la página de favoritos y se removió el favorito
-        if (!data.is_favorito && window.location.pathname === '/favoritos/') {
+        if (window.location.pathname === '/favoritos/') {
             const card = button.closest('.col'); // Ajusta el selector si tu tarjeta de producto tiene otra clase
             if (card) {
                 card.style.transition = 'opacity 0.3s';
@@ -289,14 +290,14 @@ window.toggleFavorito = function(button, productoId) { // Global para onclick
         }
         // Mostrar notificación de éxito/error
         if (data.mensaje) {
-            showFavoriteMessage(data.mensaje);
+            showMessageModal(data.is_favorito ? 'Producto Añadido' : 'Producto Eliminado', data.mensaje);
         } else if (data.error) {
-            showError(data.error, 'Error de Favoritos');
+            showMessageModal('Error de Favoritos', data.error, 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showError('Hubo un problema al actualizar favoritos.', 'Error de Conexión');
+        showMessageModal('Error de Conexión', 'Hubo un problema al actualizar favoritos. Inténtalo de nuevo.', 'error');
     })
     .finally(() => {
         setTimeout(() => {
@@ -344,7 +345,8 @@ function handleLiveSearch(searchInput, resultsContainer) {
 
         debounceTimer = setTimeout(async () => {
             try {
-                const response = await fetch(`/api/buscar-productos/?q=${encodeURIComponent(query)}`);
+                // CAMBIO CLAVE: La URL de la API de búsqueda en vivo es '/buscar_productos/'
+                const response = await fetch(`/buscar_productos/?q=${encodeURIComponent(query)}`);
                 const data = await response.json();
 
                 resultsContainer.innerHTML = '';
@@ -357,7 +359,8 @@ function handleLiveSearch(searchInput, resultsContainer) {
                         resultItem.innerHTML = `
                             <img src="${producto.imagen || window.placeholderImageUrl}" 
                                  alt="${producto.nombre}" 
-                                 class="w-12 h-12 object-cover rounded-md mr-3">
+                                 class="w-12 h-12 object-cover rounded-md mr-3"
+                                 onerror="this.onerror=null;this.src='${window.placeholderImageUrl}';">
                             <div class="flex-1">
                                 <div class="font-medium text-gray-800">${producto.nombre}</div>
                                 <div class="text-sm text-pink-600">${producto.precio}</div>
@@ -634,6 +637,24 @@ document.addEventListener("DOMContentLoaded", function () {
     cargarCarritoLocal(); // Cargar el carrito al inicio
     updateCartDisplay(); // Actualizar la visualización del carrito
 
+    // Initial cart count update (assuming it's loaded from main.js or Django)
+    // This is a placeholder, your main.js should handle the actual logic
+    function updateCartCounts() {
+        const currentCartCount = localStorage.getItem('cartCount') || 0; // Example: get from localStorage
+        document.getElementById('cart-count').textContent = currentCartCount;
+        document.getElementById('buy-whatsapp-cart-count').textContent = currentCartCount;
+
+        if (currentCartCount > 0) {
+            document.getElementById('cart-count').classList.remove('hidden');
+            document.getElementById('buy-whatsapp-button').classList.remove('hidden');
+        } else {
+            document.getElementById('cart-count').classList.add('hidden');
+            document.getElementById('buy-whatsapp-button').classList.add('hidden');
+        }
+    }
+    updateCartCounts(); // Call on load
+
+
     // Inicializar el carrusel de anuncios
     carousel = document.getElementById("announcement-carousel");
     prevBtn = document.getElementById("prev-announcement");
@@ -733,15 +754,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // Inicializar búsqueda en vivo
     const searchInputs = document.querySelectorAll('.search-input');
     searchInputs.forEach(searchInput => {
-        let resultsContainer = null;
-        // La estructura HTML tiene el div.search-results como hermano del form o dentro del mismo contenedor padre
-        const parentRelativeDiv = searchInput.closest('.relative') || searchInput.closest('#mobile-search-bar');
-        if (parentRelativeDiv) {
-            resultsContainer = parentRelativeDiv.querySelector('.search-results');
-        }
+        let debounceTimer;
+        const minLength = 2; // Mínimo de caracteres para comenzar la búsqueda
 
-        if (!resultsContainer) {
-            console.error('No se encontró el contenedor de resultados de búsqueda para este input:', searchInput);
+        const resultsContainer = searchInput.closest('form').nextElementSibling; // Lógica simplificada
+
+        if (!resultsContainer || !resultsContainer.classList.contains('search-results')) {
+            console.error('No se encontró el contenedor de resultados de búsqueda para este input.');
             return;
         }
 

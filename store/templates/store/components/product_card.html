@@ -9,15 +9,21 @@
       </span>
     {% endif %}
     {# Botón de favoritos #}
-    <button class="btn-favorito {% if producto.id in favoritos_ids %}active{% endif %}" data-producto-id="{{ producto.id }}">
-      <i class="fas fa-heart"></i>
+    <button class="btn-favorito"
+            data-producto-id="{{ producto.id }}"
+            onclick="toggleFavorito(this, {{ producto.id }})"> {# AÑADIDO: onclick #}
+      <i class="fas fa-heart {% if producto.id in favoritos_ids %}active{% endif %}"></i> {# Clase 'active' movida al <i> #}
     </button>
   </div>
 
-  {# Corregido: Usar 'producto_detalle' y 'producto.id' #}
+  {# Enlace al detalle del producto #}
   <a href="{% url 'producto_detalle' producto.id %}">
-    {# CAMBIO: Usar get_primary_image_url para obtener la imagen principal del producto #}
-    <img src="{{ producto.get_primary_image_url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
+    {# Usar get_primary_image_url para obtener la imagen principal del producto con fallback explícito #}
+    {% if producto.get_primary_image_url %}
+        <img src="{{ producto.get_primary_image_url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
+    {% else %}
+        <img src="{% static 'img/sin_imagen.jpg' %}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover">
+    {% endif %}
   </a>
   <div class="p-4">
     <h3 class="text-sm font-medium text-gray-700">

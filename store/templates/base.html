@@ -241,6 +241,11 @@
               </div>
             </div>
           </li>
+          <li> {# AÑADIDO: Enlace a Favoritos para PC #}
+            <a href="{% url 'ver_favoritos' %}" class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">
+              <i class="fas fa-heart mr-1"></i> Mis Favoritos
+            </a>
+          </li>
           {% if menu_items %} {% for item in menu_items %}
           <li>
             <a
@@ -641,206 +646,9 @@
         window.whatsappNumber = "{{ whatsapp_number|default:'573007221200' }}";
         // Define la URL de la imagen de placeholder globalmente
         window.placeholderImageUrl = "{% static 'img/sin_imagen.jpg' %}";
-    </script>
-    <script src="{% static 'js/notifications.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    {# Script para manejar el menú de categorías y subcategorías #}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const mobileCategoriesButton = document.getElementById('mobile-categories-button');
-            const mobileCategoriesDropdown = document.getElementById('mobile-categories-dropdown');
-            const bottomNavCategoriesButton = document.getElementById('bottom-nav-categories-button');
-
-            // Toggle mobile menu
-            mobileMenuButton.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            // Toggle mobile categories dropdown (for the main mobile menu)
-            if (mobileCategoriesButton) {
-                mobileCategoriesButton.addEventListener('click', function() {
-                    const icon = this.querySelector('svg');
-                    mobileCategoriesDropdown.classList.toggle('hidden');
-                    if (mobileCategoriesDropdown.classList.contains('hidden')) {
-                        icon.style.transform = 'rotate(0deg)';
-                    } else {
-                        icon.style.transform = 'rotate(180deg)';
-                    }
-                });
-            }
-
-            // Toggle submenus within the mobile categories dropdown
-            function toggleSubmenu(button) {
-                const submenu = button.nextElementSibling;
-                if (submenu && submenu.classList.contains('pl-4')) { // Check if it's a submenu div
-                    submenu.classList.toggle('hidden');
-                    const icon = button.querySelector('svg');
-                    if (icon) {
-                        if (submenu.classList.contains('hidden')) {
-                            icon.style.transform = 'rotate(90deg)'; // Icon pointing right when closed
-                        } else {
-                            icon.style.transform = 'rotate(0deg)'; // Icon pointing down when open
-                        }
-                    }
-                }
-            }
-            window.toggleSubmenu = toggleSubmenu; // Make it globally accessible
-
-            // Handle the bottom navigation categories button
-            if (bottomNavCategoriesButton) {
-                bottomNavCategoriesButton.addEventListener('click', function() {
-                    mobileMenu.classList.remove('hidden'); // Ensure mobile menu is open
-                    // Ensure the categories dropdown is visible when opened from bottom nav
-                    if (mobileCategoriesDropdown && mobileCategoriesDropdown.classList.contains('hidden')) {
-                        mobileCategoriesDropdown.classList.remove('hidden');
-                        if (mobileCategoriesButton) {
-                            mobileCategoriesButton.querySelector('svg').style.transform = 'rotate(180deg)';
-                        }
-                    }
-                });
-            }
-
-            // Search functionality - RESTAURADA LA LÓGICA DE SUGERENCIAS EN VIVO
-            const searchInputs = document.querySelectorAll('.search-input');
-            
-            searchInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    const query = this.value;
-                    // Encuentra el contenedor de resultados de búsqueda más cercano
-                    // Puede estar como un hermano del formulario o dentro del mismo div que el formulario
-                    let resultsContainer = null;
-                    if (this.closest('form')) {
-                        // Si el input está dentro de un formulario, busca el contenedor de resultados
-                        // que es hermano del formulario o del div que contiene el formulario.
-                        // Esto se ajusta a la estructura actual donde el div.search-results
-                        // está fuera del form pero dentro del mismo contenedor padre.
-                        resultsContainer = this.closest('.relative').querySelector('.search-results');
-                        if (!resultsContainer) { // Si no lo encuentra como hijo, busca como hermano del padre del form
-                            resultsContainer = this.closest('.relative').nextElementSibling;
-                            if (resultsContainer && !resultsContainer.classList.contains('search-results')) {
-                                resultsContainer = null; // Asegura que sea el contenedor correcto
-                            }
-                        }
-                    } else {
-                        // Fallback para otras estructuras si el input no está en un formulario
-                        resultsContainer = this.nextElementSibling && this.nextElementSibling.classList.contains('search-results') ? this.nextElementSibling : this.parentNode.querySelector('.search-results');
-                    }
-
-
-                    if (!resultsContainer) {
-                        console.error('No se encontró el contenedor de resultados de búsqueda para este input.');
-                        return;
-                    }
-
-                    if (query.length > 2) {
-                        fetch(`/search_suggestions/?q=${query}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                resultsContainer.innerHTML = '';
-                                if (data.products.length > 0) {
-                                    data.products.forEach(product => {
-                                        const link = document.createElement('a');
-                                        link.href = product.url;
-                                        link.classList.add('flex', 'items-center', 'p-2', 'hover:bg-gray-100', 'border-b', 'border-gray-200');
-                                        link.innerHTML = `
-                                            <img src="${product.image_url || window.placeholderImageUrl}" alt="${product.name}" class="w-10 h-10 object-cover rounded-md mr-3">
-                                            <div class="flex-grow">
-                                                <p class="text-sm font-medium text-gray-800">${product.name}</p>
-                                                <p class="text-xs text-gray-500">${product.category}</p>
-                                            </div>
-                                            <span class="text-sm font-semibold text-pink-600">$${product.price}</span>
-                                        `;
-                                        resultsContainer.appendChild(link);
-                                    });
-                                    resultsContainer.classList.remove('hidden');
-                                } else {
-                                    resultsContainer.classList.add('hidden');
-                                }
-                            })
-                            .catch(error => console.error('Error fetching search suggestions:', error));
-                    } else {
-                        resultsContainer.innerHTML = '';
-                        resultsContainer.classList.add('hidden');
-                    }
-                });
-
-                // Ocultar resultados de búsqueda al hacer clic fuera
-                document.addEventListener('click', function(event) {
-                    const formContainer = input.closest('.relative'); // Contenedor del formulario o input
-                    const resultsContainer = formContainer ? formContainer.querySelector('.search-results') : null;
-
-                    if (resultsContainer && !input.contains(event.target) && !resultsContainer.contains(event.target)) {
-                        resultsContainer.classList.add('hidden');
-                    }
-                });
-            });
-
-            // Mobile search bar toggle
-            const mobileSearchBar = document.getElementById('mobile-search-bar');
-            const mobileSearchButton = document.getElementById('mobile-search-button');
-
-            window.toggleMobileSearch = function() {
-                mobileSearchBar.classList.toggle('hidden');
-            };
-
-            // Cart functionality (simplified for example, assumes main.js handles full logic)
-            // This part is just to show how the modal open/close works
-            const cartModal = document.getElementById('cart-modal');
-            const messageModal = document.getElementById('message-modal');
-            const messageModalTitle = document.getElementById('message-modal-title');
-            const messageModalContent = document.getElementById('message-modal-content');
-
-            // openCartModal y closeCartModal se mantienen para otros posibles usos o si se decide reintroducir el modal
-            window.openCartModal = function() {
-                cartModal.classList.remove('hidden');
-                // Aquí se debería llamar a la función de main.js para renderizar el carrito
-            };
-
-            window.closeCartModal = function() {
-                cartModal.classList.add('hidden');
-            };
-
-            window.showMessageModal = function(message, title = 'Mensaje') {
-                messageModalTitle.textContent = title;
-                messageModalContent.textContent = message;
-                messageModal.classList.remove('hidden');
-            };
-
-            window.closeMessageModal = function() {
-                messageModal.classList.add('hidden');
-            };
-
-            // Initial cart count update (assuming it's loaded from main.js or Django)
-            // This is a placeholder, your main.js should handle the actual logic
-            function updateCartCounts() {
-                const currentCartCount = localStorage.getItem('cartCount') || 0; // Example: get from localStorage
-                document.getElementById('cart-count').textContent = currentCartCount;
-                // document.getElementById('bottom-nav-cart-count').textContent = currentCartCount; // Ya no es necesario aquí si se actualiza desde main.js
-                document.getElementById('buy-whatsapp-cart-count').textContent = currentCartCount;
-
-                if (currentCartCount > 0) {
-                    document.getElementById('cart-count').classList.remove('hidden');
-                    // document.getElementById('bottom-nav-cart-count').classList.remove('hidden'); // Ya no es necesario aquí
-                    document.getElementById('buy-whatsapp-button').classList.remove('hidden');
-                } else {
-                    document.getElementById('cart-count').classList.add('hidden');
-                    // document.getElementById('bottom-nav-cart-count').classList.add('hidden'); // Ya no es necesario aquí
-                    document.getElementById('buy-whatsapp-button').classList.add('hidden');
-                }
-            }
-            updateCartCounts(); // Call on load
-
-            // Example: update cart count when an item is added (this would be triggered by your add-to-cart logic)
-            // For demonstration, let's simulate adding an item
-            // setTimeout(() => {
-            //     localStorage.setItem('cartCount', 1);
-            //     updateCartCounts();
-            // }, 2000);
-        });
 
         // Reemplazar las funciones de alerta existentes con las nuevas notificaciones
+        // Estas funciones deben estar definidas en notifications.js y son llamadas globalmente
         function showMessage(message, title = 'Mensaje') {
             showSuccessNotification(message, title);
         }
@@ -859,6 +667,8 @@
             showSuccessNotification(message, 'Favoritos');
         }
     </script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %} {# Este es el bloque para JS específico de cada página #}
   </body>
 </html>

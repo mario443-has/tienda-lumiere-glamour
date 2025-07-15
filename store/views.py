@@ -147,7 +147,8 @@ def get_common_context(request): # AHORA RECIBE 'request'
     favoritos_ids = set()
     if request.user.is_authenticated:
         # Si el usuario está autenticado, usa sus favoritos
-        favoritos_ids = set(Favorito.objects.filter(user=request.user).values_list('producto_id', flat=True))
+        favoritos_ids = set(Favorito.objects.filter(session_key=request.session.session_key).values_list('producto_id', flat=True))
+
     else:
         # Para usuarios anónimos, usa la clave de sesión
         if not request.session.session_key:

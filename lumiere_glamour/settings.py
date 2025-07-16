@@ -18,7 +18,8 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # ALLOWED_HOSTS para Render y desarrollo local
 RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost").split(",")
+ALLOWED_HOSTS = ["lumiere-glamour-web.onrender.com", "localhost", "127.0.0.1"]
+
 
 # Application definition
 

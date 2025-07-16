@@ -18,7 +18,8 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # ALLOWED_HOSTS para Render y desarrollo local
 RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-ALLOWED_HOSTS = [RENDER_HOSTNAME] if RENDER_HOSTNAME else ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [os.environ.get("ALLOWED_HOSTS", "localhost").replace(" ", "").strip()]
+
 
 
 # Application definition

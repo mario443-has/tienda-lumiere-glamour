@@ -81,8 +81,10 @@ window.toggleFavorito = function (button, productoId) {
       }
     })
     .catch(error => {
+    const estadoPrevio = localStorage.getItem(`favorito-${productoId}`) === "true";
+    applyFavoriteState(productoId, estadoPrevio);
       console.error("Error al actualizar favoritos:", error);
-      alert("❌ Hubo un problema al actualizar los favoritos. Intenta de nuevo.");
+      showMessageModal("❌ Error", "Hubo un problema al actualizar los favoritos. Intenta de nuevo.");
     })
     .finally(() => {
       setTimeout(() => {

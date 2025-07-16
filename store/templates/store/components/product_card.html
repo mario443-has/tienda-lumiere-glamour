@@ -21,7 +21,8 @@
   </div>
 
   {# Enlace al detalle del producto #}
-  <a href="{% url 'producto_detalle' producto.id %}">
+<a href="{% url 'producto_detalle' pk=producto.id %}">
+  {# Usar pk=producto.id para la URL del detalle del producto #}  
     {# Usar get_primary_image_url para obtener la imagen principal del producto con fallback explícito #}
     {% if producto.get_primary_image_url %}
         <img src="{{ producto.get_primary_image_url }}" alt="{{ producto.nombre }}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">

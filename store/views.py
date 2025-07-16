@@ -118,47 +118,21 @@ def buscar_productos(request):
     })
 
 
-def get_common_context(request): # AHORA RECIBE 'request'
-    """
-    Función auxiliar para obtener datos comunes que se usarán en todas las vistas.
-    Esto incluye categorías para la navegación (con subcategorías),
-    elementos de menú configurables y el número de WhatsApp.
-    """
-    # Obtener todas las categorías, pre-cargando las subcategorías para evitar consultas N+1.
-    # Es crucial que en tu modelo Categoria, el related_name para SubCategoria sea 'subcategorias'
-    # o ajusta 'subcategorias' aquí al nombre de tu related_name si es diferente.
-    # Usamos el manager personalizado para obtener las categorías principales con conteo de productos
-    categorias = Categoria.objects.principales_con_productos()
-
-    # Obtener los elementos de menú configurables desde el modelo MenuItem.
-    # Se ordenan por el campo 'order' para controlar su posición en la navegación.
-    menu_items = MenuItem.objects.all().order_by('order')
-
-    # Obtener el número de WhatsApp desde el modelo SiteSetting.
-    # Si no se encuentra la configuración (por ejemplo, si aún no la has creado en el admin),
-    # se usa un número por defecto para evitar errores.
-    whatsapp_setting = SiteSetting.objects.filter(key='whatsapp_number').first()
-    whatsapp_number_value = whatsapp_setting.value if whatsapp_setting else '573007221200' # Número por defecto
-
-    # Obtener anuncios activos y ordenarlos por el campo 'order'
-    anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
-
-   # Obtener los IDs de productos favoritos para la sesión actual
+def get_common_context(request):
+    # Asegurar que exista una clave de sesión
     if not request.session.session_key:
-        request.session.save()  # Asegurarse de que exista una clave de sesión
+        request.session.save()
 
+    # Obtener IDs de productos favoritos usando solo session_key
     favoritos_ids = set(
         Favorito.objects.filter(session_key=request.session.session_key)
-        .values_list('producto_id', flat=True)
+        .values_list("producto_id", flat=True)
     )
 
     return {
-        'categorias_principales': categorias,
-        'menu_items': menu_items,
-        'whatsapp_number': whatsapp_number_value,
-        'anuncios': anuncios,
-        'favoritos_ids': list(favoritos_ids),
+        "favoritos_ids": favoritos_ids,
     }
+
 
 def inicio(request):
     """
@@ -318,7 +292,10 @@ def producto_detalle(request, pk):
     from django.http import HttpResponse
 
     def google_verification(request):
-        return HttpResponse("google-site-verification: google1e60e56990e838db.html", content_type="text/plain")
+        return HttpResponse(
+        "google-site-verification: google1e60e56990e838db.html",
+        content_type="text/plain"
+    )
 
 @csrf_exempt
 def toggle_favorito(request):

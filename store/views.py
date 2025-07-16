@@ -8,6 +8,13 @@ from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio, Variaci
 import locale
 from decimal import Decimal # Import Decimal para cálculos precisos
 
+from django.http import HttpResponse
+def google_verification(request):
+        return HttpResponse(
+        "google-site-verification: google1e60e56990e838db.html",
+        content_type="text/plain"
+    )
+
 def format_precio(precio):
     """
     Formatea un precio en el formato de pesos colombianos
@@ -553,10 +560,4 @@ def ver_favoritos(request):
     context['favoritos_productos'] = productos_procesados
     return render(request, 'store/favoritos.html', context)
 
-    from django.http import HttpResponse
-
-    def google_verification(request):
-        return HttpResponse(
-        "google-site-verification: google1e60e56990e838db.html",
-        content_type="text/plain"
-    )
+ 

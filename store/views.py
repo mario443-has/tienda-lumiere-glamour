@@ -247,6 +247,7 @@ def inicio(request):
             'imagen': producto.get_primary_image_url(),
             'is_favorito': producto.id in context['favoritos_ids'], # Usar favoritos_ids del contexto común
         })
+        anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
 
     # Añadir los datos específicos de esta vista al contexto
     context.update({
@@ -256,6 +257,7 @@ def inicio(request):
         'categoria_actual': categoria_actual_obj.id if categoria_actual_obj else None,
         'nombre_categoria_actual': nombre_categoria_actual or 'Todos los productos',
         'ofertas_activas': ofertas_activas == 'true',
+        'anuncios': anuncios,
     })
 
     # Renderizar la plantilla con el contexto actualizado

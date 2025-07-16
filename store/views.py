@@ -289,14 +289,6 @@ def producto_detalle(request, pk):
     # Asegúrate de que 'store/producto.html' sea la ruta correcta a tu plantilla de detalle.
     return render(request, 'store/producto.html', context)
 
-    from django.http import HttpResponse
-
-    def google_verification(request):
-        return HttpResponse(
-        "google-site-verification: google1e60e56990e838db.html",
-        content_type="text/plain"
-    )
-
 @csrf_exempt
 def toggle_favorito(request):
     """
@@ -560,3 +552,11 @@ def ver_favoritos(request):
 
     context['favoritos_productos'] = productos_procesados
     return render(request, 'store/favoritos.html', context)
+
+    from django.http import HttpResponse
+
+    def google_verification(request):
+        return HttpResponse(
+        "google-site-verification: google1e60e56990e838db.html",
+        content_type="text/plain"
+    )

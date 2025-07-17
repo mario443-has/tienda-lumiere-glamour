@@ -902,7 +902,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "Content-Type": "application/json",
             "X-CSRFToken": getCSRFToken()
           },
-          body: JSON.stringify({ product_id: productId })
+          body: JSON.stringify({ producto_id: productId })
         });
 
         const data = await respuesta.json();

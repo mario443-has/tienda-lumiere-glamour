@@ -140,36 +140,31 @@ def get_common_context(request):
         "favoritos_ids": favoritos_ids,
     }
 
-
 def inicio(request):
     """
-    Vista de la página de inicio de Lumière Glamour.
-    Maneja la lógica para:
-    - Búsqueda de productos por nombre, descripción, categoría o subcategoría.
-    - Filtrado de productos por categoría.
-    - Filtrado de productos por subcategoría.
-    - **Nuevo:** Filtrado de productos en oferta.
-    - Paginación de productos.
-    - Pasa datos comunes (categorías, menú, WhatsApp) a la plantilla.
+    Vista principal de la tienda virtual Lumière Glamour.
+    Filtra productos por búsqueda, categoría, subcategoría y ofertas activas.
+    También maneja la paginación, la carga de anuncios y favoritos por sesión.
     """
-    query = request.GET.get('q') # Obtiene el término de búsqueda de la URL
-    categoria_id = request.GET.get('categoria') # Obtiene el ID de la categoría para filtrar
-    subcategoria_id = request.GET.get('subcategoria') # Obtiene el ID de la subcategoría para filtrar
-    ofertas_activas = request.GET.get('ofertas') # Nuevo: Obtiene el parámetro 'ofertas'
-    page = request.GET.get('page', 1) # Obtiene el número de página, por defecto 1
 
-    # Inicia con todos los productos activos.
+    # --- 1. Obtener parámetros de búsqueda y filtrado desde la URL ---
+    query = request.GET.get('q')  # Término de búsqueda
+    categoria_id = request.GET.get('categoria')  # ID de categoría seleccionada
+    subcategoria_id = request.GET.get('subcategoria')  # ID de subcategoría seleccionada
+    ofertas_activas = request.GET.get('ofertas')  # Filtro de ofertas
+    page = request.GET.get('page', 1)  # Página de paginación actual
+
+    # --- 2. Filtrar productos activos ---
     productos_queryset = Producto.objects.filter(is_active=True)
+    nombre_categoria_actual = None
+    categoria_actual_obj = None
 
-    nombre_categoria_actual = None # Variable para el título de la sección de productos
-    categoria_actual_obj = None # Objeto de la categoría o subcategoría actualmente seleccionada
-
-    # 1. Aplicar filtro de ofertas si se proporciona el parámetro 'ofertas=true'
+    # --- 3. Filtro por ofertas activas ---
     if ofertas_activas == 'true':
-        productos_queryset = productos_queryset.filter(descuento__gt=0) # Filtra productos con descuento > 0
+        productos_queryset = productos_queryset.filter(descuento__gt=0)
         nombre_categoria_actual = 'Ofertas Especiales'
 
-    # 2. Aplicar filtro de búsqueda si se proporciona un `query`
+    # --- 4. Filtro por búsqueda (nombre, descripción o categoría) ---
     if query:
         productos_queryset = productos_queryset.filter(
             Q(nombre__icontains=query) |
@@ -177,7 +172,7 @@ def inicio(request):
             Q(categoria__nombre__icontains=query)
         ).distinct()
 
-    # 3. Aplicar filtro por categoría si se proporciona `categoria_id`
+    # --- 5. Filtro por categoría ---
     if categoria_id:
         try:
             categoria_actual_obj = Categoria.objects.get(id=categoria_id)
@@ -186,55 +181,47 @@ def inicio(request):
         except Categoria.DoesNotExist:
             pass
 
-    # 4. Aplicar filtro por subcategoría si se proporciona `subcategoria_id`
-    # Este filtro se aplica DESPUÉS del filtro de ofertas y categoría.
-    # NOTA: Con la nueva estructura de categorías, `subcategoria_id` ahora se refiere a una Categoria
-    # que tiene un un `padre`.
+    # --- 6. Filtro por subcategoría (incluye productos de subcategorías hijas) ---
     if subcategoria_id:
         try:
-            # Busca la subcategoría por su ID
             subcategoria_actual_obj = Categoria.objects.get(id=subcategoria_id)
-            # Filtra productos cuya categoría es la subcategoría actual o una de sus subcategorías anidadas
             productos_queryset = productos_queryset.filter(
                 Q(categoria=subcategoria_actual_obj) |
-                Q(categoria__padre=subcategoria_actual_obj) # Para incluir productos de sub-subcategorías
+                Q(categoria__padre=subcategoria_actual_obj)
             ).distinct()
-
-            # Ajusta el título de la sección de productos:
-            # Si ya se había filtrado por categoría, combina los nombres.
-            # Si no, usa solo el nombre de la subcategoría.
             if nombre_categoria_actual:
                 nombre_categoria_actual = f"{subcategoria_actual_obj.nombre} ({nombre_categoria_actual})"
             else:
                 nombre_categoria_actual = subcategoria_actual_obj.nombre
 
-            # Establece la categoría padre de la subcategoría como la "actual" para la navegación
-            # Esto ayuda a que el elemento de menú de la categoría padre se vea activo.
             if subcategoria_actual_obj.padre:
-                categoria_actual_obj = subcategoria_actual_obj.padre # Ahora usamos 'padre' en lugar de 'categoria'
+                categoria_actual_obj = subcategoria_actual_obj.padre
 
-        except Categoria.DoesNotExist: # Ahora se busca en Categoria, no SubCategoria
-            # Si la subcategoría no existe, no se filtra
+        except Categoria.DoesNotExist:
             pass
 
-    # Configurar la paginación
-    paginator = Paginator(productos_queryset, 12)  # 12 productos por página
-    
+    # --- 7. Paginación de productos (12 por página) ---
+    paginator = Paginator(productos_queryset, 12)
     try:
         productos_paginados = paginator.page(page)
     except PageNotAnInteger:
         productos_paginados = paginator.page(1)
     except EmptyPage:
         productos_paginados = paginator.page(paginator.num_pages)
-    
-    # Obtener el contexto común
-    context = get_common_context(request) # CAMBIO: Pasar request aquí
 
-    # La lógica de favoritos_ids ya se maneja en get_common_context,
-    # por lo que no es necesario repetirla aquí.
-    # Solo aseguramos que los productos procesados usen el favoritos_ids del contexto común.
+    # --- 8. Obtener session_key única por usuario ---
+    session_key = request.session.session_key
+    if not session_key:
+        request.session.save()
+        session_key = request.session.session_key
 
-    # Procesar los productos para la plantilla
+    # --- 9. Obtener productos marcados como favoritos por el usuario ---
+    favoritos = Favorito.objects.filter(session_key=session_key).values_list('producto_id', flat=True)
+
+    # --- 10. Cargar contexto común (categorías, subcategorías, menú, etc.) ---
+    context = get_common_context(request)
+
+    # --- 11. Procesar productos para el template (formato y favoritos) ---
     productos_procesados = []
     for producto in productos_paginados:
         productos_procesados.append({
@@ -245,24 +232,27 @@ def inicio(request):
             'descuento': format_precio(producto.descuento) if producto.descuento else '0',
             'get_precio_final': format_precio(producto.get_precio_final()),
             'imagen': producto.get_primary_image_url(),
-            'is_favorito': producto.id in context['favoritos_ids'], # Usar favoritos_ids del contexto común
+            'is_favorito': producto.id in favoritos,  # ✅ Activa el corazón si es favorito
         })
-        anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
 
-    # Añadir los datos específicos de esta vista al contexto
+    # --- 12. Obtener anuncios activos (banners del carrusel) ---
+    anuncios = Anuncio.objects.filter(is_active=True).order_by('order')
+
+    # --- 13. Actualizar el contexto con los datos dinámicos de esta vista ---
     context.update({
         'productos': productos_procesados,
-        'pagina_productos': productos_paginados,  # Para acceder a la paginación en la plantilla
+        'pagina_productos': productos_paginados,
         'query': query or '',
         'categoria_actual': categoria_actual_obj.id if categoria_actual_obj else None,
         'nombre_categoria_actual': nombre_categoria_actual or 'Todos los productos',
         'ofertas_activas': ofertas_activas == 'true',
         'anuncios': anuncios,
-        'favoritos_ids': context['favoritos_ids'], # Usar favoritos_ids del contexto común
+        'favoritos': list(favoritos),  # 🔐 Necesario para la función de favoritos en JS
     })
 
-    # Renderizar la plantilla con el contexto actualizado
+    # --- 14. Renderizar la plantilla con todos los datos ---
     return render(request, 'store/index.html', context)
+
 
 def producto_detalle(request, pk):
     """
@@ -327,11 +317,13 @@ def toggle_favorito(request):
             if not created:
                 favorito.delete()
                 return JsonResponse({
+                    'success': True,
                     'mensaje': 'Producto eliminado de favoritos',
                     'is_favorito': False
                 })
             else:
                 return JsonResponse({
+                    'success': True,
                     'mensaje': 'Producto añadido a favoritos',
                     'is_favorito': True
                 })

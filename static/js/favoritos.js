@@ -19,7 +19,7 @@ function getCookie(name) {
 
 // Función para cambiar el estado visual de todos los íconos favoritos del mismo producto
 function applyFavoriteState(productoId, isFavorito) {
-  const botones = document.querySelectorAll(`.btn-favorito[data-id="${productoId}"]`);
+  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
   botones.forEach(btn => {
     const icon = btn.querySelector("i");
     if (!icon) return;
@@ -95,7 +95,7 @@ window.toggleFavorito = function (button, productoId) {
 // Inicializar estado de favoritos desde localStorage
 document.addEventListener("DOMContentLoaded", () => {    
   document.querySelectorAll(".btn-favorito").forEach(button => {
-    const productoId = button.dataset.id;
+    const productoId = button.dataset.productId;
     const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
     applyFavoriteState(productoId, isFavorito);
   });  
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("click", event => {            
   let button = event.target.closest(".btn-favorito"); // Detecta el botón aunque se haga clic en el ícono
   if (button) {
-    const productoId = button.dataset.id;
+    const productoId = button.dataset.productId;
     toggleFavorito(button, productoId);
   }
 });                

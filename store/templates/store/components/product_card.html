@@ -4,14 +4,14 @@
 <div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden relative group">
 
   {# Botón de favoritos - fuera del enlace para evitar conflicto con clics #}
-<button class="btn-favorito absolute top-2 right-2 z-20">
-  {% if producto.id in favoritos_ids %}
-    <i class="fas fa-heart text-red-500 favorito-icon" data-product-id="{{ producto.id }}"></i>
-  {% else %}
-    <i class="far fa-heart text-gray-500 group-hover:text-pink-500 favorito-icon" data-product-id="{{ producto.id }}"></i>
-  {% endif %}
-</button>
-
+<button class="btn-favorito absolute top-2 right-2 z-20 {% if producto.id in favoritos_ids %}active{% endif %}"
+        data-product-id="{{ producto.id }}">
+    {% if producto.id in favoritos_ids %}
+      <i class="fas fa-heart text-red-500"></i>
+    {% else %}
+      <i class="far fa-heart text-gray-500 group-hover:text-pink-500"></i>
+    {% endif %}
+  </button>
 
   {# Enlace que envuelve imagen y contenido #}
   <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">

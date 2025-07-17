@@ -27,10 +27,9 @@
                         
                         {# Botón de favoritos - ahora usa la función global de main.js #}
                         <button class="btn-favorito active absolute top-2 right-2"
-                                data-producto-id="{{ favorito.producto.id }}"
-                                onclick="toggleFavorito(this, {{ favorito.producto.id }})">
-                            <i class="fas fa-heart"></i>
-                        </button>
+                                data-product-id="{{ favorito.producto.id }}">
+                        <i class="fas fa-heart"></i>
+                    </button>
                     </div>
                     <div class="p-4">
                         <h5 class="text-lg font-semibold text-gray-800 mb-1">{{ favorito.producto.nombre|truncatechars:40 }}</h5>

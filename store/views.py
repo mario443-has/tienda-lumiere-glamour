@@ -258,6 +258,7 @@ def inicio(request):
         'nombre_categoria_actual': nombre_categoria_actual or 'Todos los productos',
         'ofertas_activas': ofertas_activas == 'true',
         'anuncios': anuncios,
+        'favoritos_ids': context['favoritos_ids'], # Usar favoritos_ids del contexto común
     })
 
     # Renderizar la plantilla con el contexto actualizado

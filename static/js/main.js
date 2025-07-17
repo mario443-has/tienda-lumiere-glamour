@@ -884,3 +884,55 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`Inicializando: Producto ${productId}, localStorage: ${isFavoriteInLocalStorage ? 'marcado' : 'desmarcado'}`);
     });
 });
+// --- Favoritos (marcar y desmarcar) ---
+document.addEventListener("DOMContentLoaded", () => {
+  const botonesFavorito = document.querySelectorAll(".btn-favorito");
+
+  botonesFavorito.forEach(boton => {
+    boton.addEventListener("click", async function (e) {
+      e.preventDefault();
+
+      const productId = this.dataset.productId;
+      const icono = this.querySelector("i");
+
+      try {
+        const respuesta = await fetch("/toggle-favorito/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+          },
+          body: JSON.stringify({ product_id: productId })
+        });
+
+        const data = await respuesta.json();
+
+        if (data.success) {
+          this.classList.toggle("active");
+
+          // Cambiar ícono dinámicamente
+          if (this.classList.contains("active")) {
+            icono.classList.remove("far", "text-gray-500");
+            icono.classList.add("fas", "text-red-500");
+          } else {
+            icono.classList.remove("fas", "text-red-500");
+            icono.classList.add("far", "text-gray-500");
+          }
+        }
+      } catch (error) {
+        console.error("Error al marcar favorito:", error);
+      }
+    });
+  });
+});
+
+// Función para obtener el token CSRF desde las cookies
+function getCSRFToken() {
+  const name = "csrftoken";
+  const cookies = document.cookie.split(";");
+  for (let cookie of cookies) {
+    const [key, value] = cookie.trim().split("=");
+    if (key === name) return value;
+  }
+  return "";
+}

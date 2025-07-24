@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
 from .models import Categoria, Producto, MenuItem, SiteSetting, Anuncio, Variacion, Favorito 
 import locale
+from store.models import Categoria
 from decimal import Decimal # Import Decimal para cálculos precisos
 
 from django.http import HttpResponse
@@ -135,9 +136,11 @@ def get_common_context(request):
         Favorito.objects.filter(session_key=request.session.session_key)
         .values_list("producto_id", flat=True)
     )
+    categorias_principales = Categoria.objects.filter(padre__isnull=True)
 
     return {
         "favoritos_ids": favoritos_ids,
+        "categorias_principales": categorias_principales,
     }
 
 def inicio(request):

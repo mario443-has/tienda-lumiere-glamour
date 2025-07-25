@@ -490,16 +490,14 @@ def get_all_subcategories(category, visited=None):
 
     return subcategories
 
-categorias_a_incluir.extend(get_all_subcategories(self.categoria))
-
-
+    categorias_a_incluir.extend(get_all_subcategories(self.categoria))
         # Filtra solo productos activos y ordena por fecha de creación
-        return Producto.objects.filter(
+    return Producto.objects.filter(
             categoria__in=categorias_a_incluir,
             is_active=True
         ).select_related('categoria').order_by('-fecha_creacion')
 
-    def get_context_data(self, **kwargs):
+def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categoria'] = self.categoria
         context.update(get_common_context(self.request)) # CAMBIO: Pasar self.request aquí

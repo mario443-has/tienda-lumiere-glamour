@@ -471,8 +471,22 @@ class CategoriaListView(ListView):
         if not self.categoria:
             raise Http404("Categoría no encontrada")
 
-       # Filtra productos que pertenecen a esta categoría o a cualquiera de sus subcategorías
-    categorias_a_incluir = [self.categoria]
+        # Filtra productos que pertenecen a esta categoría o a cualquiera de sus subcategorías
+        categorias_a_incluir = [self.categoria]
+
+        def get_all_subcategories(category):
+            subcategories = []
+            for sub in category.subcategorias.all():
+                subcategories.append(sub)
+                subcategories.extend(get_all_subcategories(sub))
+            return subcategories
+
+        categorias_a_incluir.extend(get_all_subcategories(self.categoria))
+
+        return Producto.objects.filter(
+            categoria__in=categorias_a_incluir,
+            is_active=True
+        ).select_related('categoria').order_by('-fecha_creacion')
 
 def get_all_subcategories(category, visited=None):
     if visited is None:

@@ -1,104 +1,108 @@
-// Espera a que el DOM esté completamente cargado antes de ejecutar el script
-document.addEventListener('DOMContentLoaded', () => {
+// =====================================================================
+// Script de paginación asíncrona optimizado
+// Este script maneja la carga de productos sin recargar la página completa.
+// =====================================================================
 
-    // Variable global para evitar múltiples peticiones
-    let isFetching = false;
-    const mainContent = document.querySelector('main');
+document.addEventListener('DOMContentLoaded', function() {
 
-    // Función para mostrar y ocultar un spinner de carga
-    const toggleLoading = (show) => {
-        let loadingSpinner = document.getElementById('loading-spinner');
-        if (show) {
-            if (!loadingSpinner) {
-                loadingSpinner = document.createElement('div');
-                loadingSpinner.id = 'loading-spinner';
-                loadingSpinner.className = 'fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 transition-opacity duration-300 opacity-0';
-                loadingSpinner.innerHTML = '<div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-pink-600"></div>';
-                document.body.appendChild(loadingSpinner);
-                setTimeout(() => loadingSpinner.style.opacity = '1', 10);
-            }
-        } else {
-            if (loadingSpinner) {
-                loadingSpinner.style.opacity = '0';
-                setTimeout(() => loadingSpinner.remove(), 300);
-            }
+    // Referencias a los contenedores principales del DOM
+    // Asegúrate de que estos IDs existan en tu archivo 'index.html'
+    const productosContainer = document.getElementById('productos-grid');
+    const paginacionContainer = document.getElementById('pagination-container');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    /**
+     * Muestra el spinner de carga.
+     */
+    function showLoading() {
+        if (loadingSpinner) {
+            loadingSpinner.classList.remove('hidden');
         }
-    };
-    
-    // Función principal para manejar el clic en los enlaces de paginación
-    const handlePaginationClick = (event) => {
-        // Previene la recarga de la página al hacer clic en un enlace
-        event.preventDefault();
-        
-        // Evita múltiples peticiones si ya se está cargando una
-        if (isFetching) return;
-
-        const link = event.target.closest('a');
-        if (!link || link.classList.contains('cursor-not-allowed')) {
-            return;
+        if (productosContainer) {
+            // Opcional: Ocultar los productos actuales mientras se carga el nuevo contenido
+            productosContainer.style.opacity = '0.5';
+            productosContainer.style.pointerEvents = 'none';
         }
-        const url = link.href;
+    }
 
-        isFetching = true;
-        toggleLoading(true);
+    /**
+     * Oculta el spinner de carga y restaura la visibilidad de los productos.
+     */
+    function hideLoading() {
+        if (loadingSpinner) {
+            loadingSpinner.classList.add('hidden');
+        }
+        if (productosContainer) {
+            productosContainer.style.opacity = '1';
+            productosContainer.style.pointerEvents = 'auto';
+        }
+    }
 
-        // Realiza una petición Fetch para obtener el nuevo contenido de la página
-        fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                // Crea un documento temporal para analizar el HTML recibido
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+    /**
+     * Re-adjunta los escuchadores de eventos de clic a los enlaces de paginación.
+     * Esta función debe ser llamada al cargar la página y después de cada
+     * nueva solicitud AJAX exitosa para que los nuevos enlaces funcionen.
+     */
+    function setupPaginationListeners() {
+        if (!paginacionContainer) return;
 
-                // Extrae el nuevo contenido de la cuadrícula de productos y la paginación
-                const newProductGrid = doc.getElementById('product-grid');
-                const newPaginationContainer = doc.getElementById('pagination-container');
+        // Selecciona todos los enlaces de paginación dentro del contenedor
+        const paginationLinks = paginacionContainer.querySelectorAll('a[href]');
 
-                // Reemplaza el contenido actual con el nuevo contenido
-                const currentProductGrid = document.getElementById('product-grid');
-                const currentPaginationContainer = document.getElementById('pagination-container');
-
-                if (currentProductGrid && newProductGrid) {
-                    currentProductGrid.innerHTML = newProductGrid.innerHTML;
-                }
-                if (currentPaginationContainer && newPaginationContainer) {
-                    currentPaginationContainer.innerHTML = newPaginationContainer.innerHTML;
-                } else if (currentPaginationContainer && !newPaginationContainer) {
-                    // Oculta la paginación si ya no es necesaria
-                    currentPaginationContainer.style.display = 'none';
-                }
-                
-                // Actualiza la URL en el historial del navegador sin recargar la página
-                history.pushState({}, '', url);
-
-                // Vuelve a adjuntar los listeners de eventos a los nuevos enlaces
-                attachPaginationListeners();
-            })
-            .catch(error => {
-                console.error('Error al cargar la nueva página de productos:', error);
-                // Aquí podrías mostrar un mensaje de error al usuario
-            })
-            .finally(() => {
-                // Finaliza el estado de carga
-                isFetching = false;
-                toggleLoading(false);
-                // Desplaza la vista a la parte superior de la sección de productos
-                if (mainContent) {
-                    mainContent.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-    };
-
-    // Función para adjuntar los listeners de eventos a los enlaces de paginación
-    const attachPaginationListeners = () => {
-        const paginationLinks = document.querySelectorAll('#pagination-container a');
         paginationLinks.forEach(link => {
+            // Elimina cualquier escuchador de eventos anterior para evitar duplicados
             link.removeEventListener('click', handlePaginationClick);
+            // Adjunta el nuevo escuchador
             link.addEventListener('click', handlePaginationClick);
         });
-    };
+    }
 
-    // Llama a la función al cargar la página para que la paginación sea interactiva desde el inicio
-    attachPaginationListeners();
+    /**
+     * Maneja el evento de clic en los enlaces de paginación.
+     * @param {Event} e - El objeto del evento de clic.
+     */
+    async function handlePaginationClick(e) {
+        e.preventDefault(); // Previene la recarga de la página
 
+        const url = this.href;
+        showLoading();
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const html = await response.text();
+
+            // Parsea la respuesta HTML a un objeto DOM temporal
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Extrae los nuevos productos y la paginación del documento temporal
+            const newProductosContainer = doc.getElementById('productos-grid');
+            const newPaginacionContainer = doc.getElementById('pagination-container');
+
+            if (newProductosContainer && productosContainer) {
+                // Reemplaza el contenido actual con el nuevo
+                productosContainer.innerHTML = newProductosContainer.innerHTML;
+            }
+
+            if (newPaginacionContainer && paginacionContainer) {
+                // Reemplaza los controles de paginación actuales con los nuevos
+                paginacionContainer.innerHTML = newPaginacionContainer.innerHTML;
+            }
+
+            // Vuelve a configurar los escuchadores de eventos para los nuevos enlaces de paginación
+            setupPaginationListeners();
+
+        } catch (error) {
+            console.error('Error al cargar la página de productos:', error);
+            // Puedes mostrar un mensaje de error al usuario aquí
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Llama a la función al inicio para que los enlaces de la primera página funcionen
+    setupPaginationListeners();
 });

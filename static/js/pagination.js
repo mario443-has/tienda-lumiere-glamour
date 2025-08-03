@@ -95,6 +95,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Vuelve a configurar los escuchadores de eventos para los nuevos enlaces de paginación
             setupPaginationListeners();
 
+        // Aplica nuevamente las animaciones si la función está definida
+            if (typeof initProductAnimations === 'function') {
+                initProductAnimations();
+            }
+
         } catch (error) {
             console.error('Error al cargar la página de productos:', error);
             // Puedes mostrar un mensaje de error al usuario aquí

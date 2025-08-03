@@ -393,20 +393,22 @@
     scrollbar-width: none;     /* Oculta la barra en Firefox */
 }
 /* Estilos iniciales de la tarjeta para la animación de aparición */
+/* Estilos iniciales para el efecto de aparición gradual (fade-in) */
 .product-card {
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    will-change: opacity, transform; /* Optimización para el rendimiento de la animación */
 }
 
-/* Estado final de la tarjeta cuando es visible en el viewport */
+/* Estado final de la animación: visible */
 .product-card.is-visible {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Transiciones para el efecto 3D de inclinación */
-/* Se aplica solo al contenedor de la imagen para que no afecte a todo el card */
+/* Estilos para el contenedor de la inclinación 3D */
 .product-tilt-container {
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease-out; /* Transición suave para el efecto de inclinación */
+    transform-style: preserve-3d; /* CLAVE para que los efectos 3D funcionen */
 }

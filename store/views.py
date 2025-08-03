@@ -290,7 +290,8 @@ def inicio(request):
             ),  # 🔐 Necesario para la función de favoritos en JS
         }
     )
-
+    # ✅ Se establece 'inicio' como la página activa para el menú de navegación principal.
+    context["active_page"] = "inicio"
     # --- 14. Renderizar la plantilla con todos los datos ---
     return render(request, "store/index.html", context)
 
@@ -639,6 +640,9 @@ class CategoriaListView(ListView):
         context["productos_procesados"] = productos_procesados
         context["pagina_productos"] = productos_paginados
 
+        # ✅ Se establece el slug de la categoría como la página activa.
+        context["active_page"] = self.categoria.slug
+
         return context
 
 
@@ -680,6 +684,8 @@ def ver_favoritos(request):
         )
 
     context["favoritos_productos"] = productos_procesados
+    # ✅ Se establece 'favoritos' como la página activa para el menú.
+    context["active_page"] = "favoritos"
     return render(request, "store/favoritos.html", context)
 
 
@@ -691,10 +697,12 @@ def productos_por_etiqueta(request, badge):
     }
 
     productos = Producto.objects.filter(badge=badge, is_active=True)
-    context = {
-        "pagina_productos": productos,  # Puedes aplicar paginación si lo prefieres
+    context = get_common_context(request)
+    context.update({
+        "pagina_productos": productos,
         "nombre_categoria_actual": badge_display.get(badge, "Productos"),
         "categoria_actual": badge,
-    }
+    })
+    # ✅ Se establece el 'badge' (oferta, nuevo, tendencia) como la página activa.
+    context["active_page"] = badge
     return render(request, "store/index.html", context)
-

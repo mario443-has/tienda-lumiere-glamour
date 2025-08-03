@@ -106,21 +106,40 @@
                 </div>
             {% endfor %}
         </div>
-        {% if pagina_productos.paginator.num_pages > 1 %}
-            <div class="flex justify-center mt-8">
-                <nav class="inline-flex rounded-md shadow-sm -space-x-px">
-                    {% if pagina_productos.has_previous %}
-                        <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Primera</span>
-                            <i class="fas fa-angle-double-left"></i>
-                        </a>
-                        <a href="?page={{ pagina_productos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Anterior</span>
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                    {% endif %}
+        <!-- Sección de Paginación -->
+<div class="flex flex-col md:flex-row items-center justify-between mt-8 p-4 bg-white rounded-xl shadow-lg">
+    <!-- Contenedor de los botones de paginación -->
+    <div class="flex items-center space-x-1 mb-4 md:mb-0">
+        <!-- Botón "Anterior" -->
+        <a href="{% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}#{% endif %}"
+           class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300 {% if not page_obj.has_previous %}cursor-not-allowed opacity-50{% endif %}">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <!-- Números de página -->
+        {% for num in paginas %}
+            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+               class="w-10 h-10 flex items-center justify-center border rounded-full text-sm font-medium transition-colors duration-300
+               {% if num == page_obj.number %}
+               bg-pink-600 text-white border-pink-600 shadow-md
+               {% else %}
+               text-gray-600 hover:bg-pink-100 hover:text-pink-600 border-gray-300
+               {% endif %}">
+                {{ num }}
+            </a>
+        {% endfor %}
+        <!-- Botón "Siguiente" -->
+        <a href="{% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}#{% endif %}"
+           class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300 {% if not page_obj.has_next %}cursor-not-allowed opacity-50{% endif %}">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+
+    <!-- Mensaje de conteo de productos -->
+    <span class="text-sm text-gray-600">
+        Mostrando <span class="font-bold text-gray-800">{{ start_index }}</span> a <span class="font-bold text-gray-800">{{ end_index }}</span> de <span class="font-bold text-gray-800">{{ total_productos }}</span> productos
+    </span>
+</div>
+
                     {% for num in pagina_productos.paginator.page_range %}
                         {% if num == pagina_productos.number %}
                             <span class="relative inline-flex items-center px-4 py-2 border border-pink-500 bg-pink-50 text-sm font-medium text-pink-700">

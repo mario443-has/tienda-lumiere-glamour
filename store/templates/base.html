@@ -131,8 +131,9 @@
                 <nav class="hidden md:flex justify-center py-2 bg-gray-50 shadow-inner">
                     <ul class="flex space-x-8">
                         <li>
+                            {# CAMBIO: Se usa active_page para marcar el enlace activo #}
                             <a href="{% url 'home' %}"
-                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Inicio</a>
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 {% if active_page == 'inicio' %}text-pink-600 border-b-2 border-pink-600{% endif %}">Inicio</a>
                         </li>
                         <li class="relative group">
                             <button class="flex items-center text-gray-700 hover:text-pink-600 font-medium transition duration-300 focus:outline-none">
@@ -148,8 +149,9 @@
                                 <div class="py-1">
                                     {% for categoria_principal in categorias_principales %}
                                         <div class="relative group/sub">
+                                            {# CAMBIO: Se usa active_page para marcar la categoría activa #}
                                             <a href="{% url 'categoria' categoria_principal.slug %}"
-                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center">
+                                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center {% if active_page == categoria_principal.slug %}bg-gray-100 text-pink-600 font-semibold{% endif %}">
                                                 {{ categoria_principal.nombre }}
                                                 {% if categoria_principal.subcategorias.all %}
                                                     <svg class="w-4 h-4 transform rotate-90 group-hover/sub:rotate-0 transition-transform duration-200"
@@ -178,12 +180,13 @@
                             </div>
                         </li>
                         <li>
-                            {# AÑADIDO: Enlace a Favoritos para PC #}
+                            {# CAMBIO: Se usa active_page para marcar el enlace de favoritos activo #}
                             <a href="{% url 'ver_favoritos' %}"
-                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 {% if active_page == 'favoritos' %}text-pink-600 border-b-2 border-pink-600{% endif %}">
                                 Mis Favoritos
                             </a>
                         </li>
+                        {# Se mantiene el bucle si hay items de menú adicionales #}
                         {% if menu_items %}
                             {% for item in menu_items %}
                                 <li>
@@ -193,24 +196,27 @@
                             {% endfor %}
                         {% endif %}
                         <li>
+                            {# CAMBIO: Se usa active_page para marcar el enlace de ofertas activo #}
                             <a href="{% url 'productos_por_etiqueta' 'oferta' %}"
-                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Ofertas</a>
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 {% if active_page == 'oferta' %}text-pink-600 border-b-2 border-pink-600{% endif %}">Ofertas</a>
                         </li>
                         <li>
+                            {# CAMBIO: Se usa active_page para marcar el enlace de nuevos activo #}
                             <a href="{% url 'productos_por_etiqueta' 'nuevo' %}"
-                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Nuevos</a>
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 {% if active_page == 'nuevo' %}text-pink-600 border-b-2 border-pink-600{% endif %}">Nuevos</a>
                         </li>
                         <li>
+                            {# CAMBIO: Se usa active_page para marcar el enlace de tendencia activo #}
                             <a href="{% url 'productos_por_etiqueta' 'tendencia' %}"
-                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Tendencia</a>
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300 {% if active_page == 'tendencia' %}text-pink-600 border-b-2 border-pink-600{% endif %}">Tendencia</a>
                         </li>
                     </ul>
                 </nav>
                 <!-- Menú Móvil (Oculto por defecto) -->
                 <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg pb-4">
-                    {# ELIMINADO: Barra de Búsqueda (Móvil) de aquí #}
+                    {# CAMBIO: Se usa active_page para marcar el enlace activo #}
                     <a href="{% url 'home' %}"
-                       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Inicio</a>
+                       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'inicio' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Inicio</a>
                     <!-- Categorías Desplegables Móviles -->
                     <div class="relative">
                         <button id="mobile-categories-button"
@@ -231,8 +237,9 @@
                                 <div class="relative">
                                     <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-pink-600 flex justify-between items-center"
                                             onclick="toggleSubmenu(this)">
+                                        {# CAMBIO: Se usa active_page para marcar la categoría activa #}
                                         <a href="{% url 'categoria' categoria_principal.slug %}"
-                                           class="flex-grow">{{ categoria_principal.nombre }}</a> {# Enlace directo para la categoría principal #}
+                                           class="flex-grow {% if active_page == categoria_principal.slug %}text-pink-600 font-semibold{% endif %}">{{ categoria_principal.nombre }}</a> {# Enlace directo para la categoría principal #}
                                         {% if categoria_principal.subcategorias.all %}
                                             <svg class="w-4 h-4 transform rotate-90 transition-transform duration-200"
                                                  fill="none"
@@ -258,32 +265,30 @@
                         </div>
                     </div>
                     <!-- Elementos de menú configurables para móvil -->
-                    {% if menu_items %}
-                        {% for item in menu_items %}
-                            <a href="{{ item.url }}"
-                               class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">{{ item.nombre }}</a>
-                        {% endfor %}
-                        <a href="{% url 'productos_por_etiqueta' 'oferta' %}"
-                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Ofertas</a>
-                        <a href="{% url 'productos_por_etiqueta' 'nuevo' %}"
-                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Nuevos</a>
-                        <a href="{% url 'productos_por_etiqueta' 'tendencia' %}"
-                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Tendencia</a>
-                    {% endif %}
+                    {# CAMBIO: Se usa active_page para marcar los enlaces activos #}
+                    <a href="{% url 'ver_favoritos' %}"
+                       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'favoritos' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Mis Favoritos</a>
+                    <a href="{% url 'productos_por_etiqueta' 'oferta' %}"
+                       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'oferta' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Ofertas</a>
+                    <a href="{% url 'productos_por_etiqueta' 'nuevo' %}"
+                       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'nuevo' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Nuevos</a>
+                    <a href="{% url 'productos_por_etiqueta' 'tendencia' %}"
+                       class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'tendencia' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Tendencia</a>
                     </div>
                 </header>
                 {# Contenido dinámico de cada página #}
                 {% block content %}{% endblock %}
                 <!-- Barra de navegación inferior móvil -->
                 <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-top flex justify-around items-center py-2 px-4 z-50">
+                    {# CAMBIO: Se usa active_page para marcar el enlace activo #}
                     <a href="{% url 'home' %}"
-                       class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+                       class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 {% if active_page == 'inicio' %}text-pink-600{% else %}text-gray-500{% endif %}">
                         <i class="fas fa-home text-2xl mb-1"></i>
                         <span class="text-xs">Inicio</span>
                     </a>
                     <!-- Botón de Categorías para móvil en la barra inferior -->
                     <button id="bottom-nav-categories-button"
-                            class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+                            class="flex flex-col items-center text-gray-500 hover:text-pink-700 transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              class="mb-1"
                              width="24"
@@ -296,15 +301,16 @@
                         <span class="text-xs">Categorías</span>
                     </button>
                     <button id="abrir-carrito-mobile"
-                            class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
+                            class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 relative text-pink-600">
                         {# ID ÚNICO para el botón de abrir el carrito móvil #}
                         <i class="fas fa-shopping-bag text-2xl mb-1"></i>
                         <span class="text-xs">Carrito</span>
                         <span id="bottom-nav-cart-count"
                               class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
                     </button>
+                    {# CAMBIO: Se usa active_page para marcar el enlace activo #}
                     <a href="{% url 'ver_favoritos' %}"
-                       class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+                       class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 {% if active_page == 'favoritos' %}text-pink-600{% else %}text-gray-500{% endif %}">
                         <i class="fas fa-heart text-2xl mb-1"></i>
                         <span class="text-xs">Favoritos</span>
                         {# ELIMINADO: Badge de favoritos #}

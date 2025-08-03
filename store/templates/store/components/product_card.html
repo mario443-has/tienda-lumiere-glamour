@@ -58,6 +58,7 @@
                     data-product-name="{{ producto.nombre }}"
                     data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
                     data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}">
+                    data-product-image-url="{{ producto.get_primary_image_url|default:'/static/img/sin_imagen.jpg' }}"
                 <i class="fas fa-shopping-cart text-base"></i>
                 <span>Añadir al Carrito</span>
             </button>

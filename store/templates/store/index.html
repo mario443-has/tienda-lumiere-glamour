@@ -113,8 +113,9 @@
 
         <!-- Sección de Paginación Reutilizable -->
 <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
-    {% include 'store/paginador.html' %}
+    {% include 'store/paginador.html' with page_obj=pagina_productos %}
 </section>
+
 
 
         <!-- Sección de Beneficios (la moví fuera del main, si tu layout lo requiere) -->

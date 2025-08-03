@@ -305,16 +305,8 @@ window.toggleSubmenu = function(button) { // Global para onclick en HTML
         submenu.classList.toggle("hidden");
         const icon = button.querySelector("svg");
         if (icon) {
-            // Alternar entre rotación de 0 (flecha hacia abajo) y 90 (flecha hacia la derecha)
-            // Asumiendo que el estado inicial es 0 (cerrado) y 90 (abierto).
-            // Si el ícono ya tiene rotate-90, significa que está abierto, entonces lo cerramos a 0.
-            if (icon.classList.contains('rotate-90')) {
-                icon.classList.remove('rotate-90');
-                icon.classList.add('rotate-0');
-            } else {
-                icon.classList.remove('rotate-0');
-                icon.classList.add('rotate-90');
-            }
+            // Lógica de alternancia simplificada
+            icon.classList.toggle("rotate-180");
         }
     }
 };
@@ -514,6 +506,7 @@ function setupColorOptions() {
                 addToCartButton.dataset.selectedVariantId = selectedVariantId;
                 addToCartButton.dataset.productPrice = selectedVariantPrice;
                 addToCartButton.dataset.selectedColor = selectedColorName;
+                // Asigna la URL de la imagen de la variante seleccionada al botón
                 addToCartButton.dataset.productImageUrl = selectedVariantImage;
             }
         });
@@ -540,15 +533,24 @@ function setupAddToCartButtons() {
 
     botonesAgregar.forEach(function (boton) {
         boton.addEventListener("click", function () {
+            // Busca el contenedor padre que puede ser una tarjeta de producto o la vista de detalle
+            const parentContainer = boton.closest('.bg-white, .detalle-producto-container');
+
             const productId = boton.getAttribute("data-product-id");
             const productName = boton.getAttribute("data-product-name");
             const productPrice = parseFloat(boton.getAttribute("data-product-price")) || 0;
             const variantId = boton.getAttribute("data-selected-variant-id") || productId;
             const color = boton.getAttribute("data-selected-color") || 'N/A';
-            const imageUrl = boton.getAttribute("data-product-image-url") || window.placeholderImageUrl;
+
+            // ✅ Lógica corregida para obtener la URL de la imagen:
+            // 1. Intenta obtener la URL de la variante seleccionada del botón.
+            // 2. Si no existe, busca la URL de la imagen principal del producto dentro del contenedor padre.
+            // 3. Como último recurso, usa la imagen de placeholder.
+            const imageUrl = boton.getAttribute("data-product-image-url")
+                || (parentContainer && parentContainer.querySelector('img.main-product-image')?.src)
+                || window.placeholderImageUrl;
 
             let quantity = 1;
-            const parentContainer = boton.closest('.bg-white');
             if (parentContainer) {
                 const quantityInput = parentContainer.querySelector("input[type='number']");
                 if (quantityInput) {

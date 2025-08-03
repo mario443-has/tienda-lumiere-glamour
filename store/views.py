@@ -697,3 +697,4 @@ def productos_por_etiqueta(request, badge):
         "categoria_actual": badge,
     }
     return render(request, "store/index.html", context)
+

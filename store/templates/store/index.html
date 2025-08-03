@@ -42,7 +42,7 @@
     <main class="container mx-auto px-4 py-8">
         {# Categorías Circulares: Solo se muestran en la página principal #}
         {% if categorias_principales and not ofertas_activas and not query and not categoria_actual %}
-            <section class="py-8">
+            <section class="py-8 max-w-7xl mx-auto">
                 <p class="text-pink-600 text-sm font-semibold text-center uppercase mb-2 tracking-wide">DESCUBRE NUESTROS PRODUCTOS</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-10">ELIGE UNA CATEGORÍA</h2>
                 <div class="flex flex-wrap justify-center gap-6 sm:gap-8">

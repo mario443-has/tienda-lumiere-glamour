@@ -111,67 +111,11 @@
             {% endfor %}
         </section>
 
-        <!-- Sección de Paginación. ¡IMPORTANTE! El ID 'pagination-container' es necesario para el script. -->
-        <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
-            {% if pagina_productos.has_other_pages %}
-                {#
-                    Este es el template para la paginación de productos.
-                    Utiliza el objeto 'page_obj' de Django para generar los enlaces de forma dinámica.
-                    Las clases de Tailwind CSS se utilizan para estilizar los botones y los enlaces.
-                #}
-                {% load humanize %}
-                <nav class="flex justify-center items-center space-x-2 mt-8" aria-label="Paginación">
-                    {% if pagina_productos.has_previous %}
-                        <a href="?page={{ pagina_productos.previous_page_number }}"
-                           class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
-                           aria-label="Página anterior">
-                            Anterior
-                        </a>
-                    {% else %}
-                        <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200">
-                            Anterior
-                        </span>
-                    {% endif %}
-                
-                    {% for i in pagina_productos.paginator.page_range %}
-                        {% if pagina_productos.number == i %}
-                            <a href="?page={{ i }}"
-                               class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-pink-600 shadow-md transform scale-110"
-                               aria-current="page">
-                                {{ i }}
-                            </a>
-                        {% elif i > pagina_productos.number|add:'-3' and i < pagina_productos.number|add:'3' %}
-                            <a href="?page={{ i }}"
-                               class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300">
-                                {{ i }}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                
-                    {% if pagina_productos.paginator.num_pages > pagina_productos.number|add:'2' %}
-                        {% if pagina_productos.number|add:'3' != pagina_productos.paginator.num_pages %}
-                            <span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>
-                        {% endif %}
-                        <a href="?page={{ pagina_productos.paginator.num_pages }}"
-                           class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300">
-                            {{ pagina_productos.paginator.num_pages }}
-                        </a>
-                    {% endif %}
-                
-                    {% if pagina_productos.has_next %}
-                        <a href="?page={{ pagina_productos.next_page_number }}"
-                           class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
-                           aria-label="Página siguiente">
-                            Siguiente
-                        </a>
-                    {% else %}
-                        <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200">
-                            Siguiente
-                        </span>
-                    {% endif %}
-                </nav>
-            {% endif %}
-        </section>
+        <!-- Sección de Paginación Reutilizable -->
+<section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
+    {% include 'store/paginador.html' %}
+</section>
+
 
         <!-- Sección de Beneficios (la moví fuera del main, si tu layout lo requiere) -->
         <section class="container mx-auto px-4 py-8">

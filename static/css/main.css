@@ -412,27 +412,36 @@
     transition: transform 0.2s ease-out; /* Transición suave para el efecto de inclinación */
     transform-style: preserve-3d; /* CLAVE para que los efectos 3D funcionen */
 }
- /* Define los estilos y la animación para la cinta */
-        .marquee-container {
-            width: 100%;
-            display: flex;
-            white-space: nowrap;
-            animation: marquee 25s linear infinite; /* 25 segundos para la velocidad, ajuste si es necesario */
-        }
-        .marquee-container:hover {
-            animation-play-state: paused; /* Pausa la animación al pasar el ratón */
-        }
-        .marquee-item {
-            display: inline-block;
-            padding: 0 1rem; /* Espacio entre los mensajes */
-        }
+/* Contenedor principal del marquee */
+          .marquee-container {
+              display: flex; /* Permite que los elementos fluyan en una sola línea */
+              overflow: hidden; /* Oculta el contenido que se sale del contenedor */
+          }
+          
+          /* El div interno que contiene todos los mensajes y se anima */
+          .marquee-content {
+              display: flex;
+              white-space: nowrap; /* Evita que los mensajes se rompan en varias líneas */
+              animation: marquee 25s linear infinite; /* Aplica la animación */
+          }
+          
+          /* Pausa la animación al pasar el ratón */
+          .marquee-content:hover {
+              animation-play-state: paused;
+          }
+          
+          /* Estilo para cada mensaje individual */
+          .marquee-item {
+              padding: 0 1rem; /* Espacio entre los mensajes */
+          }
 
-        /* Define la animación de desplazamiento */
-        @keyframes marquee {
-            0% {
-                transform: translateX(0);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
+          /* Define la animación de desplazamiento */
+          /* Usar 'transform: translateX' es más eficiente que animar 'margin-left' o 'left' */
+          @keyframes marquee {
+              0% {
+                  transform: translateX(0); /* Posición inicial */
+              }
+              100% {
+                  transform: translateX(-50%); /* Se desplaza la mitad del ancho total */
+              }
+          }

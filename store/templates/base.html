@@ -43,22 +43,23 @@
         <!-- Header Section - Barra de Navegación Unificada -->
         <header class="bg-white shadow-md sticky top-0 z-50">
             <!-- Barra Superior de Información -->
-            <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-center text-sm py-2 px-4">
-               <!-- Contenedor de la cinta, con el contenido duplicado para un bucle sin fin -->
-    <div class="marquee-container">
-        <!-- Primer conjunto de mensajes -->
-        <span class="marquee-item">Envíos a toda Colombia 100% seguros y garantizados</span>
-        <span class="marquee-item">Contra Entrega en Ipiales y Pasto</span>
-        <span class="marquee-item">Envíos y Domicilios Gratis por Compras igual o mayor a $100.000</span>
-
-        
-        <!-- Segundo conjunto de mensajes (duplicado para el bucle) -->
-        <span class="marquee-item">Envíos a toda Colombia 100% seguros y garantizados</span>
-        <span class="marquee-item">Contra Entrega en Ipiales y Pasto</span>
-        <span class="marquee-item">Envíos y Domicilios Gratis por Compras igual o mayor a $100.000</span>
-    </div>
-</div>
-<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+           <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-center text-sm py-2 px-4 relative overflow-hidden">
+                <!-- Contenedor de la cinta optimizado para un bucle sin fin -->
+                <div class="marquee-container">
+                    <div class="marquee-content">
+                        <!-- Primer conjunto de mensajes -->
+                        <span class="marquee-item">Envíos a toda Colombia 100% seguros y garantizados</span>
+                        <span class="marquee-item">Contra Entrega en Ipiales y Pasto</span>
+                        <span class="marquee-item">Envíos y Domicilios Gratis por Compras iguales o mayores a $100.000</span>
+                        
+                        <!-- Segundo conjunto de mensajes (duplicado para el bucle) -->
+                        <span class="marquee-item">Envíos a toda Colombia 100% seguros y garantizados</span>
+                        <span class="marquee-item">Contra Entrega en Ipiales y Pasto</span>
+                        <span class="marquee-item">Envíos y Domicilios Gratis por Compras iguales o mayores a $100.000</span>
+                    </div>
+                </div>
+            </div>
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <!-- Logo de la tienda -->
                 <a href="{% url 'home' %}" class="flex items-center space-x-2">
                     <img

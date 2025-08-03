@@ -959,4 +959,3 @@ document.addEventListener("click", event => {
 
 // Ejecutar favoritos al cargar
 document.addEventListener("DOMContentLoaded", initFavoritos);
-

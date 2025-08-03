@@ -937,6 +937,8 @@ window.toggleFavorito = function (button, productoId) {
       }, 300);
     });
 };
+// Ejecutar favoritos al cargar
+document.addEventListener("DOMContentLoaded", initFavoritos);
 
 // =========================================================================
 // 🚀 Inicialización favoritos
@@ -956,6 +958,3 @@ document.addEventListener("click", event => {
     window.toggleFavorito(button, productoId);
   }
 });
-
-// Ejecutar favoritos al cargar
-document.addEventListener("DOMContentLoaded", initFavoritos);

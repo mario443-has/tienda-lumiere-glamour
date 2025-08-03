@@ -7,18 +7,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0009_alter_variacion_tono'),
+        ("store", "0009_alter_variacion_tono"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='categoria',
-            name='imagen_circular',
-            field=cloudinary.models.CloudinaryField(blank=True, help_text='Imagen circular para la categoría (ej. para la página de inicio)', max_length=255, null=True, verbose_name='imagen_circular'),
+            model_name="categoria",
+            name="imagen_circular",
+            field=cloudinary.models.CloudinaryField(
+                blank=True,
+                help_text="Imagen circular para la categoría (ej. para la página de inicio)",
+                max_length=255,
+                null=True,
+                verbose_name="imagen_circular",
+            ),
         ),
         migrations.AlterField(
-            model_name='variacion',
-            name='tono',
+            model_name="variacion",
+            name="tono",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

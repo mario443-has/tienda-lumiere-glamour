@@ -6,13 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0012_alter_producto_precio'),
+        ("store", "0012_alter_producto_precio"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='producto',
-            name='etiqueta',
-            field=models.CharField(blank=True, choices=[('', 'Sin etiqueta'), ('nuevo', 'Nuevo'), ('tendencia', 'Tendencia'), ('oferta', 'Oferta')], default='', help_text='Selecciona una etiqueta para mostrar en el producto (solo se mostrará una)', max_length=10, verbose_name='Etiqueta'),
+            model_name="producto",
+            name="etiqueta",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Sin etiqueta"),
+                    ("nuevo", "Nuevo"),
+                    ("tendencia", "Tendencia"),
+                    ("oferta", "Oferta"),
+                ],
+                default="",
+                help_text="Selecciona una etiqueta para mostrar en el producto (solo se mostrará una)",
+                max_length=10,
+                verbose_name="Etiqueta",
+            ),
         ),
     ]

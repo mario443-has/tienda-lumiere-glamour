@@ -8,37 +8,80 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Categoria',
+            name="Categoria",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Producto',
+            name="Producto",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=200)),
-                ('descripcion', models.TextField()),
-                ('precio', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('descuento', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('imagen', models.ImageField(blank=True, null=True, upload_to='productos/')),
-                ('categoria', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.categoria')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=200)),
+                ("descripcion", models.TextField()),
+                ("precio", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "descuento",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "imagen",
+                    models.ImageField(blank=True, null=True, upload_to="productos/"),
+                ),
+                (
+                    "categoria",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="store.categoria",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Variacion',
+            name="Variacion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('color', models.CharField(blank=True, max_length=50, null=True)),
-                ('tono', models.CharField(blank=True, max_length=50, null=True)),
-                ('presentacion', models.CharField(blank=True, max_length=50, null=True)),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("color", models.CharField(blank=True, max_length=50, null=True)),
+                ("tono", models.CharField(blank=True, max_length=50, null=True)),
+                (
+                    "presentacion",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="store.producto"
+                    ),
+                ),
             ],
         ),
     ]

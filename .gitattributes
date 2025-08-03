@@ -1,0 +1,6 @@
+# Auto-detecta si el archivo es de texto y normaliza los saltos de línea
+* text=auto
+
+# Forzar saltos de línea "LF" para todos los archivos .html y .py
+*.html text eol=lf
+*.py text eol=lf

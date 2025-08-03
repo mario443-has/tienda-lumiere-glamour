@@ -6,17 +6,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0013_producto_etiqueta'),
+        ("store", "0013_producto_etiqueta"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='producto',
-            name='etiqueta',
+            model_name="producto",
+            name="etiqueta",
         ),
         migrations.AddField(
-            model_name='producto',
-            name='badge',
-            field=models.CharField(blank=True, choices=[('', 'Sin etiqueta'), ('nuevo', 'Nuevo'), ('tendencia', 'Tendencia'), ('oferta', 'Oferta')], default='', help_text='Selecciona una etiqueta o insignia para mostrar en el producto (solo se mostrará una)', max_length=10, verbose_name='Etiqueta/Insignia'),
+            model_name="producto",
+            name="badge",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Sin etiqueta"),
+                    ("nuevo", "Nuevo"),
+                    ("tendencia", "Tendencia"),
+                    ("oferta", "Oferta"),
+                ],
+                default="",
+                help_text="Selecciona una etiqueta o insignia para mostrar en el producto (solo se mostrará una)",
+                max_length=10,
+                verbose_name="Etiqueta/Insignia",
+            ),
         ),
     ]

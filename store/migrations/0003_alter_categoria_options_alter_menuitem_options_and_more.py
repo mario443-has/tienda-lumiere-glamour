@@ -7,65 +7,67 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0002_menuitem_sitesetting_producto_is_active_and_more'),
+        ("store", "0002_menuitem_sitesetting_producto_is_active_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='categoria',
-            options={'verbose_name_plural': 'Categorias'},
+            name="categoria",
+            options={"verbose_name_plural": "Categorias"},
         ),
         migrations.AlterModelOptions(
-            name='menuitem',
-            options={'ordering': ['order']},
+            name="menuitem",
+            options={"ordering": ["order"]},
         ),
         migrations.AlterModelOptions(
-            name='subcategoria',
-            options={'verbose_name_plural': 'Subcategorias'},
+            name="subcategoria",
+            options={"verbose_name_plural": "Subcategorias"},
         ),
         migrations.AddField(
-            model_name='categoria',
-            name='slug',
+            model_name="categoria",
+            name="slug",
             field=models.SlugField(blank=True, unique=True),
         ),
         migrations.AddField(
-            model_name='producto',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="producto",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='producto',
-            name='slug',
+            model_name="producto",
+            name="slug",
             field=models.SlugField(blank=True, unique=True),
         ),
         migrations.AddField(
-            model_name='producto',
-            name='updated_at',
+            model_name="producto",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AddField(
-            model_name='subcategoria',
-            name='slug',
+            model_name="subcategoria",
+            name="slug",
             field=models.SlugField(blank=True, unique=True),
         ),
         migrations.AlterField(
-            model_name='categoria',
-            name='nombre',
+            model_name="categoria",
+            name="nombre",
             field=models.CharField(max_length=100, unique=True),
         ),
         migrations.AlterField(
-            model_name='menuitem',
-            name='url',
+            model_name="menuitem",
+            name="url",
             field=models.URLField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='subcategoria',
-            name='nombre',
+            model_name="subcategoria",
+            name="nombre",
             field=models.CharField(max_length=100, unique=True),
         ),
         migrations.AlterUniqueTogether(
-            name='variacion',
-            unique_together={('producto', 'nombre', 'valor')},
+            name="variacion",
+            unique_together={("producto", "nombre", "valor")},
         ),
     ]

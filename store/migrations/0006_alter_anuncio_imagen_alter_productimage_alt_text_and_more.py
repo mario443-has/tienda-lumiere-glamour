@@ -7,28 +7,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0005_anuncio'),
+        ("store", "0005_anuncio"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='anuncio',
-            name='imagen',
-            field=cloudinary.models.CloudinaryField(blank=True, max_length=255, null=True, verbose_name='imagen'),
+            model_name="anuncio",
+            name="imagen",
+            field=cloudinary.models.CloudinaryField(
+                blank=True, max_length=255, null=True, verbose_name="imagen"
+            ),
         ),
         migrations.AlterField(
-            model_name='productimage',
-            name='alt_text',
-            field=models.CharField(blank=True, help_text='Texto alternativo para la imagen', max_length=255),
+            model_name="productimage",
+            name="alt_text",
+            field=models.CharField(
+                blank=True, help_text="Texto alternativo para la imagen", max_length=255
+            ),
         ),
         migrations.AlterField(
-            model_name='productimage',
-            name='image',
-            field=cloudinary.models.CloudinaryField(blank=True, max_length=255, null=True, verbose_name='imagen'),
+            model_name="productimage",
+            name="image",
+            field=cloudinary.models.CloudinaryField(
+                blank=True, max_length=255, null=True, verbose_name="imagen"
+            ),
         ),
         migrations.AlterField(
-            model_name='producto',
-            name='imagen',
-            field=cloudinary.models.CloudinaryField(blank=True, max_length=255, null=True, verbose_name='imagen'),
+            model_name="producto",
+            name="imagen",
+            field=cloudinary.models.CloudinaryField(
+                blank=True, max_length=255, null=True, verbose_name="imagen"
+            ),
         ),
     ]

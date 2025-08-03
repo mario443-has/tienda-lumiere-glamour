@@ -7,22 +7,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0010_categoria_imagen_circular_alter_variacion_tono'),
+        ("store", "0010_categoria_imagen_circular_alter_variacion_tono"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Favorito',
+            name="Favorito",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('session_key', models.CharField(max_length=40)),
-                ('fecha_creacion', models.DateTimeField(auto_now_add=True)),
-                ('producto', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='favoritos', to='store.producto')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("session_key", models.CharField(max_length=40)),
+                ("fecha_creacion", models.DateTimeField(auto_now_add=True)),
+                (
+                    "producto",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="favoritos",
+                        to="store.producto",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Favorito',
-                'verbose_name_plural': 'Favoritos',
-                'unique_together': {('session_key', 'producto')},
+                "verbose_name": "Favorito",
+                "verbose_name_plural": "Favoritos",
+                "unique_together": {("session_key", "producto")},
             },
         ),
     ]

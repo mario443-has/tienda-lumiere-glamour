@@ -1,24 +1,18 @@
 import json  # Importa el módulo json
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
-from django.views.generic import ListView  # Importa ListView
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
-# Asegúrate de importar Producto, Categoria, Variacion y Favorito
-from .models import (
-    Categoria,
-    Producto,
-    MenuItem,
-    SiteSetting,
-    Anuncio,
-    Variacion,
-    Favorito,
-)
 import locale
-from store.models import Categoria
 from decimal import Decimal  # Import Decimal para cálculos precisos
 
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.views.generic import ListView  # Importa ListView
+
+from store.models import Categoria
+
+# Asegúrate de importar Producto, Categoria, Variacion y Favorito
+from .models import (Anuncio, Categoria, Favorito, MenuItem, Producto,
+                     SiteSetting, Variacion)
 
 
 def google_verification(request):
@@ -559,7 +553,6 @@ def ver_carrito(request):
             print(f"Error procesando item del carrito: {e}")
             pass
 
-
     context = get_common_context(request)  # CAMBIO: Pasar request aquí
     context["carrito_detalles"] = productos_carrito_detalles  # Renombrado para claridad
     return render(request, "store/carrito.html", context)
@@ -589,7 +582,7 @@ class CategoriaListView(ListView):
         def get_all_subcategories(category, visited=None):
             if visited is None:
                 visited = set()
-            
+
             subcategories = []
             for sub in category.subcategorias.all():
                 if sub.id not in visited:
@@ -607,11 +600,12 @@ class CategoriaListView(ListView):
             .order_by("-fecha_creacion")
         )
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["categoria"] = self.categoria
-        context.update(get_common_context(self.request))  # CAMBIO: Pasar self.request aquí
+        context.update(
+            get_common_context(self.request)
+        )  # CAMBIO: Pasar self.request aquí
 
         # Obtener los productos paginados
         productos_paginados = context["productos"]
@@ -635,7 +629,9 @@ class CategoriaListView(ListView):
                     "get_precio_final": format_precio(producto.get_precio_final()),
                     "imagen": producto.get_primary_image_url(),
                     "is_favorito": producto.id
-                    in context["favoritos_ids"],  # Usar favoritos_ids del contexto común
+                    in context[
+                        "favoritos_ids"
+                    ],  # Usar favoritos_ids del contexto común
                 }
             )
 

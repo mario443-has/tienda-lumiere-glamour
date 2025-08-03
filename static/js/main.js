@@ -890,7 +890,6 @@ function addBounceAnimation(icon) {
     }, 500);
   }
 }
-
 // =========================================================================
 // ⚙️ Lógica de favoritos
 window.toggleFavorito = function (button, productoId) {
@@ -937,8 +936,6 @@ window.toggleFavorito = function (button, productoId) {
       }, 300);
     });
 };
-// Ejecutar favoritos al cargar
-document.addEventListener("DOMContentLoaded", initFavoritos);
 
 // =========================================================================
 // 🚀 Inicialización favoritos
@@ -958,3 +955,5 @@ document.addEventListener("click", event => {
     window.toggleFavorito(button, productoId);
   }
 });
+
+document.addEventListener("DOMContentLoaded", initFavoritos);

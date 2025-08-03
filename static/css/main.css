@@ -412,3 +412,27 @@
     transition: transform 0.2s ease-out; /* Transición suave para el efecto de inclinación */
     transform-style: preserve-3d; /* CLAVE para que los efectos 3D funcionen */
 }
+ /* Define los estilos y la animación para la cinta */
+        .marquee-container {
+            width: 100%;
+            display: flex;
+            white-space: nowrap;
+            animation: marquee 25s linear infinite; /* 25 segundos para la velocidad, ajuste si es necesario */
+        }
+        .marquee-container:hover {
+            animation-play-state: paused; /* Pausa la animación al pasar el ratón */
+        }
+        .marquee-item {
+            display: inline-block;
+            padding: 0 1rem; /* Espacio entre los mensajes */
+        }
+
+        /* Define la animación de desplazamiento */
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }

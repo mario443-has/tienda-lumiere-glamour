@@ -1,10 +1,5 @@
-{% comment %}
-Paginador reutilizable con estilo rosa personalizado. Usa 'page_obj' como contexto.
-{% endcomment %}
-
 {% if page_obj.has_other_pages %}
-<section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
-    <nav class="flex justify-center items-center space-x-2 mt-8" aria-label="Paginación">
+    <nav class="flex justify-center items-center space-x-2 mt-8 overflow-x-auto px-2 sm:px-0" aria-label="Paginación">
         {% if page_obj.has_previous %}
             <a href="?page={{ page_obj.previous_page_number }}"
                class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
@@ -54,5 +49,4 @@ Paginador reutilizable con estilo rosa personalizado. Usa 'page_obj' como contex
             </span>
         {% endif %}
     </nav>
-</section>
 {% endif %}

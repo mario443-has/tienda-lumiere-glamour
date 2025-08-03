@@ -1,52 +1,58 @@
-{# store/paginador.html #}
-{% if pagina_productos.paginator.num_pages > 1 %}
-<div class="flex flex-col md:flex-row items-center justify-between mt-8 p-4 bg-white rounded-xl shadow-lg">
-    <!-- Botones de navegación -->
-    <div class="flex items-center space-x-1 mb-4 md:mb-0">
-        <!-- Anterior -->
-        {% if pagina_productos.has_previous %}
-            <a href="?page={{ pagina_productos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-               class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300">
-                <i class="fas fa-chevron-left"></i>
+{% comment %}
+Paginador reutilizable con estilo rosa personalizado. Usa 'page_obj' como contexto.
+{% endcomment %}
+
+{% if page_obj.has_other_pages %}
+<section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
+    <nav class="flex justify-center items-center space-x-2 mt-8" aria-label="Paginación">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+               class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
+               aria-label="Página anterior">
+                Anterior
             </a>
         {% else %}
-            <span class="px-4 py-2 border rounded-full text-gray-400 cursor-not-allowed opacity-50">
-                <i class="fas fa-chevron-left"></i>
+            <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200">
+                Anterior
             </span>
         {% endif %}
 
-        <!-- Números de página -->
-        {% for num in pagina_productos.paginator.page_range %}
-            {% if num == pagina_productos.number %}
-                <span class="w-10 h-10 flex items-center justify-center border rounded-full bg-pink-600 text-white border-pink-600 shadow-md">
-                    {{ num }}
-                </span>
-            {% elif num > pagina_productos.number|add:'-3' and num < pagina_productos.number|add:'3' %}
-                <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                   class="w-10 h-10 flex items-center justify-center border rounded-full text-sm font-medium text-gray-600 hover:bg-pink-100 hover:text-pink-600 border-gray-300">
-                    {{ num }}
+        {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
+                <a href="?page={{ i }}"
+                   class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-pink-600 shadow-md transform scale-110"
+                   aria-current="page">
+                    {{ i }}
+                </a>
+            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                <a href="?page={{ i }}"
+                   class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300">
+                    {{ i }}
                 </a>
             {% endif %}
         {% endfor %}
 
-        <!-- Siguiente -->
-        {% if pagina_productos.has_next %}
-            <a href="?page={{ pagina_productos.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-               class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300">
-                <i class="fas fa-chevron-right"></i>
+        {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
+            {% if page_obj.number|add:'3' != page_obj.paginator.num_pages %}
+                <span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>
+            {% endif %}
+            <a href="?page={{ page_obj.paginator.num_pages }}"
+               class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300">
+                {{ page_obj.paginator.num_pages }}
+            </a>
+        {% endif %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
+               aria-label="Página siguiente">
+                Siguiente
             </a>
         {% else %}
-            <span class="px-4 py-2 border rounded-full text-gray-400 cursor-not-allowed opacity-50">
-                <i class="fas fa-chevron-right"></i>
+            <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200">
+                Siguiente
             </span>
         {% endif %}
-    </div>
-
-    <!-- Mensaje de conteo -->
-    <span class="text-sm text-gray-600">
-        Mostrando <span class="font-bold text-gray-800">{{ pagina_productos.start_index }}</span>
-        a <span class="font-bold text-gray-800">{{ pagina_productos.end_index }}</span>
-        de <span class="font-bold text-gray-800">{{ pagina_productos.paginator.count }}</span> productos
-    </span>
-</div>
+    </nav>
+</section>
 {% endif %}

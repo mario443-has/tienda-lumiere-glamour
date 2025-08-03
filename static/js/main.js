@@ -955,5 +955,4 @@ document.addEventListener("click", event => {
     window.toggleFavorito(button, productoId);
   }
 });
-
 document.addEventListener("DOMContentLoaded", initFavoritos);

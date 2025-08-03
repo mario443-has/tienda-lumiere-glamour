@@ -46,7 +46,7 @@ function initializeCartDomElements() {
     // Nuevos botones del HTML del usuario para abrir/cerrar el modal
     const closeCartButton = document.getElementById("cerrar-carrito");
     const continueShoppingButton = document.getElementById("seguir-comprando");
-
+    
     // Obtener ambos botones de abrir carrito por sus IDs únicos
     const openCartButtonDesktop = document.getElementById("abrir-carrito-desktop");
     const openCartButtonMobile = document.getElementById("abrir-carrito-mobile");
@@ -185,7 +185,7 @@ function renderCartItems() {
         });
         cartContentContainer.innerHTML = html;
     }
-
+    
     // Actualizar el total en el modal
     if (cartTotalSpan) cartTotalSpan.textContent = formatPriceForDisplay(total);
 
@@ -253,10 +253,12 @@ function sendCartToWhatsApp() {
 
     const totalCalculado = window.cart.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * ((typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1), 0);
     const whatsappUrl = generarMensajeWhatsApp(window.cart, totalCalculado);
-
+    
     window.open(whatsappUrl, "_blank");
 
-    // Se eliminó la línea que vacía el carrito
+    window.cart = []; // Limpiar el carrito después de enviar el pedido
+    guardarCarritoLocal();
+    updateCartDisplay();
     showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
     closeCartModal();
 }
@@ -283,19 +285,17 @@ window.toggleMobileSearch = function() {
 
 // Helper function to apply favorite state visually
 // Busca todos los botones de favorito para un producto dado y aplica/remueve la clase 'active'
-function applyFavoriteState(productoId, isFavorito) {
-  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
-  botones.forEach(btn => {
-    const icon = btn.querySelector("i");
-    if (!icon) return;
-    if (isFavorito) {
-      icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
-      icon.classList.add("fas", "text-red-500");
-    } else {
-      icon.classList.remove("fas", "text-red-500");
-      icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
-    }
-  });
+function applyFavoriteState(productId, isFavorite) {
+    document.querySelectorAll(`.btn-favorito[data-producto-id="${productId}"]`).forEach(button => {
+        const icon = button.querySelector('i');
+        if (icon) {
+            if (isFavorite) {
+                icon.classList.add('active');
+            } else {
+                icon.classList.remove('active');
+            }
+        }
+    });
 }
 
 // Toggle de submenús en móvil (para subcategorías)
@@ -305,8 +305,16 @@ window.toggleSubmenu = function(button) { // Global para onclick en HTML
         submenu.classList.toggle("hidden");
         const icon = button.querySelector("svg");
         if (icon) {
-            // Lógica de alternancia simplificada
-            icon.classList.toggle("rotate-180");
+            // Alternar entre rotación de 0 (flecha hacia abajo) y 90 (flecha hacia la derecha)
+            // Asumiendo que el estado inicial es 0 (cerrado) y 90 (abierto).
+            // Si el ícono ya tiene rotate-90, significa que está abierto, entonces lo cerramos a 0.
+            if (icon.classList.contains('rotate-90')) {
+                icon.classList.remove('rotate-90');
+                icon.classList.add('rotate-0');
+            } else {
+                icon.classList.remove('rotate-0');
+                icon.classList.add('rotate-90');
+            }
         }
     }
 };
@@ -318,7 +326,7 @@ function handleLiveSearch(searchInput, resultsContainer) {
 
     return async function() {
         const query = searchInput.value.trim();
-
+        
         clearTimeout(debounceTimer);
 
         if (query.length < minLength) {
@@ -341,8 +349,8 @@ function handleLiveSearch(searchInput, resultsContainer) {
                         resultItem.href = producto.url; // URL del producto
                         resultItem.classList.add('flex', 'items-center', 'p-2', 'hover:bg-gray-100', 'border-b', 'border-gray-200', 'transition-colors', 'duration-200');
                         resultItem.innerHTML = `
-                            <img src="${producto.imagen || window.placeholderImageUrl}"
-                                 alt="${producto.nombre}"
+                            <img src="${producto.imagen || window.placeholderImageUrl}" 
+                                 alt="${producto.nombre}" 
                                  class="w-12 h-12 object-cover rounded-md mr-3"
                                  onerror="this.onerror=null;this.src='${window.placeholderImageUrl}';">
                             <div class="flex-1">
@@ -378,7 +386,7 @@ function handleLiveSearch(searchInput, resultsContainer) {
 // Función para posicionar el contenedor de resultados de búsqueda
 function positionSearchResults(searchInput, resultsContainer) {
     const inputRect = searchInput.getBoundingClientRect();
-
+    
     resultsContainer.style.position = 'absolute';
     resultsContainer.style.top = `${inputRect.bottom + window.scrollY}px`;
     resultsContainer.style.left = `${inputRect.left}px`;
@@ -399,19 +407,19 @@ let indicators = []; // Indicadores de slide
 
 function cloneSlides() {
     if (!carousel || items.length === 0) return;
-
+    
     // Clonar el primer y último slide real
     const firstClone = items[0].cloneNode(true);
     const lastClone = items[items.length - 1].cloneNode(true);
-
+    
     // Añadir clases para identificarlos
     firstClone.classList.add('clone');
     lastClone.classList.add('clone');
-
+    
     // Añadir los clones al carrusel
     carousel.appendChild(firstClone);
     carousel.insertBefore(lastClone, items[0]);
-
+    
     // Re-obtener items para incluir los clones
     items = carousel.querySelectorAll(".carousel-item");
     totalSlides = items.length - 2; // El número real de slides sin clones
@@ -420,7 +428,7 @@ function cloneSlides() {
 
 function updateCarousel(animate = true) {
     if (!carousel || items.length === 0) return;
-
+    
     carousel.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none';
     const offset = -currentIndex * 100;
     carousel.style.transform = `translateX(${offset}%)`;
@@ -506,7 +514,6 @@ function setupColorOptions() {
                 addToCartButton.dataset.selectedVariantId = selectedVariantId;
                 addToCartButton.dataset.productPrice = selectedVariantPrice;
                 addToCartButton.dataset.selectedColor = selectedColorName;
-                // Asigna la URL de la imagen de la variante seleccionada al botón
                 addToCartButton.dataset.productImageUrl = selectedVariantImage;
             }
         });
@@ -533,24 +540,15 @@ function setupAddToCartButtons() {
 
     botonesAgregar.forEach(function (boton) {
         boton.addEventListener("click", function () {
-            // Busca el contenedor padre que puede ser una tarjeta de producto o la vista de detalle
-            const parentContainer = boton.closest('.bg-white, .detalle-producto-container');
-
             const productId = boton.getAttribute("data-product-id");
             const productName = boton.getAttribute("data-product-name");
             const productPrice = parseFloat(boton.getAttribute("data-product-price")) || 0;
             const variantId = boton.getAttribute("data-selected-variant-id") || productId;
             const color = boton.getAttribute("data-selected-color") || 'N/A';
-
-            // ✅ Lógica corregida para obtener la URL de la imagen:
-            // 1. Intenta obtener la URL de la variante seleccionada del botón.
-            // 2. Si no existe, busca la URL de la imagen principal del producto dentro del contenedor padre.
-            // 3. Como último recurso, usa la imagen de placeholder.
-            const imageUrl = boton.getAttribute("data-product-image-url")
-                || (parentContainer && parentContainer.querySelector('img.main-product-image')?.src)
-                || window.placeholderImageUrl;
+            const imageUrl = boton.getAttribute("data-product-image-url") || window.placeholderImageUrl;
 
             let quantity = 1;
+            const parentContainer = boton.closest('.bg-white');
             if (parentContainer) {
                 const quantityInput = parentContainer.querySelector("input[type='number']");
                 if (quantityInput) {
@@ -654,7 +652,7 @@ document.addEventListener("DOMContentLoaded", function () {
             prevBtn.addEventListener("click", () => {
                 if (!isTransitioning) {
                     stopAutoSlide();
-                    goToSlide(currentIndex + 1);
+                    goToSlide(currentIndex - 1);
                     startAutoSlide();
                 }
             });
@@ -664,7 +662,7 @@ document.addEventListener("DOMContentLoaded", function () {
             nextBtn.addEventListener("click", () => {
                 if (!isTransitioning) {
                     stopAutoSlide();
-                    goToSlide(currentIndex - 1);
+                    goToSlide(currentIndex + 1);
                     startAutoSlide();
                 }
             });
@@ -760,7 +758,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
         });
     });
-
+    
     // Configurar los botones de WhatsApp
     setupWhatsappButtons();
 
@@ -770,84 +768,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Configurar los botones de "Agregar al Carrito"
     setupAddToCartButtons();
-
-    // =========================================================================
-    // 🎨 Visual y animación para favoritos
-    function addBounceAnimation(icon) {
-      if (icon) {
-        icon.classList.add("animate-bounce");
-        setTimeout(() => {
-          icon.classList.remove("animate-bounce");
-        }, 500);
-      }
-    }
-    // =========================================================================
-    // ⚙️ Lógica de favoritos
-    window.toggleFavorito = function (button, productoId) {
-      if (button.classList.contains("animate")) return;
-      button.classList.add("animate");
-
-      const csrftoken = getCookie("csrftoken");
-      const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
-      const newFavoriteState = !isCurrentlyFavorite;
-
-      fetch("/toggle-favorito/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify({ producto_id: productoId }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            applyFavoriteState(productoId, newFavoriteState);
-            localStorage.setItem(`favorito-${productoId}`, newFavoriteState);
-            if (typeof showFavoriteMessage === "function") {
-              showFavoriteMessage(data.message);
-            }
-            const icon = button.querySelector("i");
-            addBounceAnimation(icon);
-          } else {
-            if (typeof showErrorNotification === "function") {
-              showErrorNotification(data.message || "No se pudo actualizar el estado de favoritos.");
-            }
-          }
-        })
-        .catch((error) => {
-          console.error("Error al actualizar favoritos:", error);
-          if (typeof showErrorNotification === "function") {
-            showErrorNotification("Hubo un problema al actualizar los favoritos.");
-          }
-        })
-        .finally(() => {
-          setTimeout(() => {
-            button.classList.remove("animate");
-          }, 300);
-        });
-    };
-
-    // =========================================================================
-    // 🚀 Inicialización favoritos
-    function initFavoritos() {
-      document.querySelectorAll(".btn-favorito").forEach(button => {
-        const productoId = button.dataset.productId;
-        const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
-        applyFavoriteState(productoId, isFavorito);
-      });
-    }
-
-    // Delegación de clics en botones de favorito
-    document.addEventListener("click", event => {
-      let button = event.target.closest(".btn-favorito");
-      if (button) {
-        const productoId = button.dataset.productId;
-        window.toggleFavorito(button, productoId);
-      }
-    });
-    // Se eliminó el listener redundante a 'DOMContentLoaded'
-    initFavoritos();
 
     // ===============================
     // Miniaturas que cambian imagen principal (página de detalle de producto)
@@ -890,7 +810,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
             const icon = mobileCategoriesButton.querySelector("svg");
             if (icon) {
-                // Lógica de alternancia simplificada
+                icon.classList.toggle("rotate-0");
                 icon.classList.toggle("rotate-180");
             }
         });
@@ -933,4 +853,109 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     }
+
+// Función para obtener el token CSRF desde las cookies
+function getCSRFToken() {
+  const name = "csrftoken";
+  const cookies = document.cookie.split(";");
+  for (let cookie of cookies) {
+    const [key, value] = cookie.trim().split("=");
+    if (key === name) return value;
+  }
+  return "";
+}
+
+// =========================================================================
+// 🎨 Visual y animación para favoritos
+function applyFavoriteState(productoId, isFavorito) {
+  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
+  botones.forEach(btn => {
+    const icon = btn.querySelector("i");
+    if (!icon) return;
+    if (isFavorito) {
+      icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
+      icon.classList.add("fas", "text-red-500");
+    } else {
+      icon.classList.remove("fas", "text-red-500");
+      icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
+    }
+  });
+}
+
+function addBounceAnimation(icon) {
+  if (icon) {
+    icon.classList.add("animate-bounce");
+    setTimeout(() => {
+      icon.classList.remove("animate-bounce");
+    }, 500);
+  }
+}
+// =========================================================================
+// ⚙️ Lógica de favoritos
+window.toggleFavorito = function (button, productoId) {
+  if (button.classList.contains("animate")) return;
+  button.classList.add("animate");
+
+  const csrftoken = getCSRFToken();
+  const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
+  const newFavoriteState = !isCurrentlyFavorite;
+
+  fetch("/toggle-favorito/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrftoken,
+    },
+    body: JSON.stringify({ producto_id: productoId }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        applyFavoriteState(productoId, newFavoriteState);
+        localStorage.setItem(`favorito-${productoId}`, newFavoriteState);
+        if (typeof showFavoriteMessage === "function") {
+          showFavoriteMessage(data.message);
+        }
+        const icon = button.querySelector("i");
+        addBounceAnimation(icon);
+      } else {
+        if (typeof showErrorNotification === "function") {
+          showErrorNotification(data.message || "No se pudo actualizar el estado de favoritos.");
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("Error al actualizar favoritos:", error);
+      if (typeof showErrorNotification === "function") {
+        showErrorNotification("Hubo un problema al actualizar los favoritos.");
+      }
+    })
+    .finally(() => {
+      setTimeout(() => {
+        button.classList.remove("animate");
+      }, 300);
+    });
+};
+
+// =========================================================================
+// 🚀 Inicialización favoritos
+function initFavoritos() {
+  document.querySelectorAll(".btn-favorito").forEach(button => {
+    const productoId = button.dataset.productId;
+    const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
+    applyFavoriteState(productoId, isFavorito);
+  });
+}
+
+  // Delegación de clics en botones de favorito
+  document.addEventListener("click", event => {
+    let button = event.target.closest(".btn-favorito");
+    if (button) {
+      const productoId = button.dataset.productId;
+      window.toggleFavorito(button, productoId);
+    }
+  });
+
+  // Inicializar favoritos
+  initFavoritos();
 });

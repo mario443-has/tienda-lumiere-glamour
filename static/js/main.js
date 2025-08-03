@@ -18,26 +18,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Las funciones showMessageModal y closeMessageModal ya son globales
-// (Asumiendo que notifications.js las define o que son definidas aquí)
-function showMessageModal(title, message) {
-    const messageModal = document.getElementById('message-modal');
-    const messageModalTitle = document.getElementById('message-modal-title');
-    const messageModalContent = document.getElementById('message-modal-content');
-    if (messageModal && messageModalTitle && messageModalContent) {
-        messageModalTitle.innerText = title;
-        messageModalContent.innerText = message;
-        messageModal.classList.remove('hidden');
-    }
-}
-
-function closeMessageModal() {
-    const messageModal = document.getElementById('message-modal');
-    if (messageModal) {
-        messageModal.classList.add('hidden');
-    }
-}
-
 // --- Funciones del Carrito ---
 // Referencias a elementos del DOM para las funciones globales del carrito
 // Estas se inicializarán en DOMContentLoaded
@@ -883,47 +863,6 @@ document.addEventListener("DOMContentLoaded", function () {
         applyFavoriteState(productId, isFavoriteInLocalStorage);
         console.log(`Inicializando: Producto ${productId}, localStorage: ${isFavoriteInLocalStorage ? 'marcado' : 'desmarcado'}`);
     });
-});
-// --- Favoritos (marcar y desmarcar) ---
-document.addEventListener("DOMContentLoaded", () => {
-  const botonesFavorito = document.querySelectorAll(".btn-favorito");
-
-  botonesFavorito.forEach(boton => {
-    boton.addEventListener("click", async function (e) {
-      e.preventDefault();
-
-      const productId = this.dataset.productId;
-      const icono = this.querySelector("i");
-
-      try {
-        const respuesta = await fetch("/toggle-favorito/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-          },
-          body: JSON.stringify({ producto_id: productId })
-        });
-
-        const data = await respuesta.json();
-
-        if (data.success) {
-          this.classList.toggle("active");
-
-          // Cambiar ícono dinámicamente
-          if (this.classList.contains("active")) {
-            icono.classList.remove("far", "text-gray-500");
-            icono.classList.add("fas", "text-red-500");
-          } else {
-            icono.classList.remove("fas", "text-red-500");
-            icono.classList.add("far", "text-gray-500");
-          }
-        }
-      } catch (error) {
-        console.error("Error al marcar favorito:", error);
-      }
-    });
-  });
 });
 
 // Función para obtener el token CSRF desde las cookies

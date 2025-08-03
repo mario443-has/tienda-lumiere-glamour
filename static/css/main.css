@@ -379,3 +379,16 @@
     color: white !important;
     border-color: #EC4899 !important;
 }
+/* Este código CSS se encarga de ocultar la barra de desplazamiento horizontal
+   en el carrusel de categorías para una vista más limpia. */
+
+/* Oculta la barra de desplazamiento para navegadores basados en WebKit (Chrome, Safari, Edge) */
+#category-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Oculta la barra de desplazamiento para navegadores como Firefox e Internet Explorer (antiguo) */
+#category-carousel {
+    -ms-overflow-style: none;  /* Oculta la barra en IE y Edge */
+    scrollbar-width: none;     /* Oculta la barra en Firefox */
+}

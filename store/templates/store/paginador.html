@@ -1,5 +1,11 @@
+{% comment %}
+    Este paginador es responsivo y muestra más páginas en PC y menos en móvil.
+    Utiliza clases de Tailwind CSS como 'hidden sm:block' para controlar la visibilidad.
+{% endcomment %}
 {% if page_obj.has_other_pages %}
-    <nav class="flex justify-center items-center space-x-2 mt-8 overflow-x-auto px-2 sm:px-0" aria-label="Paginación">
+    <nav class="flex justify-center items-center space-x-1 sm:space-x-2 mt-8" aria-label="Paginación">
+
+        <!-- Botón para la página anterior -->
         {% if page_obj.has_previous %}
             <a href="?page={{ page_obj.previous_page_number }}"
                class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
@@ -7,36 +13,70 @@
                 Anterior
             </a>
         {% else %}
-            <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200">
+            <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200 cursor-not-allowed">
                 Anterior
             </span>
         {% endif %}
 
+        <!-- Botón para la primera página -->
+        {% if page_obj.paginator.num_pages > 1 %}
+            <a href="?page=1"
+               class="px-3 py-2 text-sm font-medium rounded-lg {% if page_obj.number == 1 %}text-white bg-pink-600 shadow-md transform scale-110{% else %}text-gray-700 hover:bg-gray-200{% endif %} transition duration-300">
+                1
+            </a>
+        {% endif %}
+
+        <!-- Puntos suspensivos (izquierda) si es necesario -->
+        {% if page_obj.number > 3 %}
+            <span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>
+        {% endif %}
+
+        <!-- Páginas adyacentes a la actual - Rango optimizado para PC y móvil -->
         {% for i in page_obj.paginator.page_range %}
-            {% if page_obj.number == i %}
+            {% comment %}
+                En móvil, solo se muestra la página actual y las dos adyacentes.
+                En PC, se muestra un rango más amplio.
+                Excluimos la primera y la última página ya que se renderizan por separado.
+            {% endcomment %}
+            {% if i > page_obj.number|add:'-2' and i < page_obj.number|add:'2' and i != 1 and i != page_obj.paginator.num_pages %}
                 <a href="?page={{ i }}"
-                   class="px-4 py-2 text-sm font-semibold rounded-lg text-white bg-pink-600 shadow-md transform scale-110"
-                   aria-current="page">
-                    {{ i }}
-                </a>
-            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
-                <a href="?page={{ i }}"
-                   class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300">
+                   class="px-3 py-2 text-sm font-medium rounded-lg {% if page_obj.number == i %}text-white bg-pink-600 shadow-md transform scale-110{% else %}text-gray-700 hover:bg-gray-200{% endif %} transition duration-300">
                     {{ i }}
                 </a>
             {% endif %}
         {% endfor %}
 
-        {% if page_obj.paginator.num_pages > page_obj.number|add:'2' %}
-            {% if page_obj.number|add:'3' != page_obj.paginator.num_pages %}
-                <span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>
-            {% endif %}
+        <!-- Puntos suspensivos (derecha) si es necesario -->
+        {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+            <span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>
+        {% endif %}
+
+        <!-- Páginas adyacentes a la última página, solo en PC -->
+        {% comment %}
+            Este bucle es adicional para mostrar páginas cercanas a la última
+            en pantallas grandes, mejorando la navegación en PC.
+        {% endcomment %}
+        {% if page_obj.paginator.num_pages > 5 %}
+            {% for i in page_obj.paginator.page_range %}
+                {% if i > page_obj.paginator.num_pages|add:'-3' and i < page_obj.paginator.num_pages %}
+                    <a href="?page={{ i }}"
+                       class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300 hidden sm:block">
+                        {{ i }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+
+        <!-- Botón para la última página -->
+        {% if page_obj.paginator.num_pages > 1 %}
             <a href="?page={{ page_obj.paginator.num_pages }}"
-               class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300">
+               class="px-3 py-2 text-sm font-medium rounded-lg {% if page_obj.number == page_obj.paginator.num_pages %}text-white bg-pink-600 shadow-md transform scale-110{% else %}text-gray-700 hover:bg-gray-200{% endif %} transition duration-300">
                 {{ page_obj.paginator.num_pages }}
             </a>
         {% endif %}
 
+        <!-- Botón para la página siguiente -->
         {% if page_obj.has_next %}
             <a href="?page={{ page_obj.next_page_number }}"
                class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
@@ -44,7 +84,7 @@
                 Siguiente
             </a>
         {% else %}
-            <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200">
+            <span class="px-3 py-2 text-sm font-medium rounded-lg text-gray-400 border border-gray-200 cursor-not-allowed">
                 Siguiente
             </span>
         {% endif %}

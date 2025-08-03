@@ -854,17 +854,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Lógica para inicializar el estado de favoritos desde localStorage al cargar la página
-    // Ahora usa la función applyFavoriteState para mayor consistencia
-    const favoriteButtons = document.querySelectorAll(".btn-favorito");
-    favoriteButtons.forEach(button => {
-        const productId = button.dataset.productId;
-        const isFavoriteInLocalStorage = localStorage.getItem(`favorito-${productId}`) === 'true';
-        applyFavoriteState(productId, isFavoriteInLocalStorage);
-        console.log(`Inicializando: Producto ${productId}, localStorage: ${isFavoriteInLocalStorage ? 'marcado' : 'desmarcado'}`);
-    });
-});
-
 // Función para obtener el token CSRF desde las cookies
 function getCSRFToken() {
   const name = "csrftoken";
@@ -875,3 +864,99 @@ function getCSRFToken() {
   }
   return "";
 }
+
+// =========================================================================
+// 🎨 Visual y animación para favoritos
+function applyFavoriteState(productoId, isFavorito) {
+  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
+  botones.forEach(btn => {
+    const icon = btn.querySelector("i");
+    if (!icon) return;
+    if (isFavorito) {
+      icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
+      icon.classList.add("fas", "text-red-500");
+    } else {
+      icon.classList.remove("fas", "text-red-500");
+      icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
+    }
+  });
+}
+
+function addBounceAnimation(icon) {
+  if (icon) {
+    icon.classList.add("animate-bounce");
+    setTimeout(() => {
+      icon.classList.remove("animate-bounce");
+    }, 500);
+  }
+}
+
+// =========================================================================
+// ⚙️ Lógica de favoritos
+window.toggleFavorito = function (button, productoId) {
+  if (button.classList.contains("animate")) return;
+  button.classList.add("animate");
+
+  const csrftoken = getCookie("csrftoken");
+  const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
+  const newFavoriteState = !isCurrentlyFavorite;
+
+  fetch("/toggle-favorito/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrftoken,
+    },
+    body: JSON.stringify({ producto_id: productoId }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        applyFavoriteState(productoId, newFavoriteState);
+        localStorage.setItem(`favorito-${productoId}`, newFavoriteState);
+        if (typeof showFavoriteMessage === "function") {
+          showFavoriteMessage(data.message);
+        }
+        const icon = button.querySelector("i");
+        addBounceAnimation(icon);
+      } else {
+        if (typeof showErrorNotification === "function") {
+          showErrorNotification(data.message || "No se pudo actualizar el estado de favoritos.");
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("Error al actualizar favoritos:", error);
+      if (typeof showErrorNotification === "function") {
+        showErrorNotification("Hubo un problema al actualizar los favoritos.");
+      }
+    })
+    .finally(() => {
+      setTimeout(() => {
+        button.classList.remove("animate");
+      }, 300);
+    });
+};
+
+// =========================================================================
+// 🚀 Inicialización favoritos
+function initFavoritos() {
+  document.querySelectorAll(".btn-favorito").forEach(button => {
+    const productoId = button.dataset.productId;
+    const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
+    applyFavoriteState(productoId, isFavorito);
+  });
+}
+
+// Delegación de clics en botones de favorito
+document.addEventListener("click", event => {
+  let button = event.target.closest(".btn-favorito");
+  if (button) {
+    const productoId = button.dataset.productId;
+    window.toggleFavorito(button, productoId);
+  }
+});
+
+// Ejecutar favoritos al cargar
+document.addEventListener("DOMContentLoaded", initFavoritos);
+

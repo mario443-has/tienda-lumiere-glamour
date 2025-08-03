@@ -316,71 +316,96 @@
                         {# ELIMINADO: Badge de favoritos #}
                     </a>
                 </nav>
-                <!-- Footer Section -->
-                <footer class="bg-gray-800 text-white py-8 mt-8">
-                    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div class="footer-col text-center md:text-left">
-                            <h4 class="text-xl font-semibold mb-4">Lumiere Glamour</h4>
-                            <p class="text-gray-300">Tienda de maquillaje profesional, cuidado facial y accesorios.</p>
-                            <p class="text-gray-300 mt-2">
-                                <strong>Ipiales - Nariño - Colombia</strong>
-                            </p>
-                        </div>
-                        <div class="footer-col text-center md:text-left">
-                            <h4 class="text-xl font-semibold mb-4">Enlaces Rápidos</h4>
-                            <ul>
-                                <li class="mb-2">
-                                    <a href="#"
-                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Brochas</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#"
-                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Bases</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#"
-                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Cuidado Facial</a>
-                                </li>
-                                <li class="mb-2">
-                                    <a href="#"
-                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Descuentos</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="footer-col text-center md:text-left">
-                            <h4 class="text-xl font-semibold mb-4">Contáctanos</h4>
-                            <div class="space-y-2">
-                                <a href="https://wa.me/573007221200"
-                                   target="_blank"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                                   title="Enviar mensaje por WhatsApp">
-                                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp
-                                </a>
-                                <a href="https://www.instagram.com/lumiere_glamour_"
-                                   target="_blank"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                                   title="Visitar Instagram">
-                                    <i class="fab fa-instagram mr-2"></i> Instagram
-                                </a>
-                                <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr"
-                                   target="_blank"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                                   title="Ir a nuestra página de Facebook">
-                                    <i class="fab fa-facebook mr-2"></i> Facebook
-                                </a>
-                                <a href="https://www.tiktok.com/@lumiere.glamour3"
-                                   target="_blank"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                                   title="Ver en TikTok">
-                                    <i class="fab fa-tiktok mr-2"></i> TikTok
-                                </a>
-                            </div>
-                        </div>
+               <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<!-- Google Fonts: Great Vibes para el logo, Inter para el texto general -->
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* Estilo para el logo y el texto general */
+    .logo-font {
+        font-family: 'Great Vibes', cursive;
+    }
+    .general-font {
+        font-family: 'Inter', sans-serif;
+    }
+</style>
+<footer class="bg-gray-50 py-12">
+    <div class="container mx-auto px-4 md:px-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center md:text-left">
+            <!-- Columna 1: Logo y Descripción -->
+            <div class="flex flex-col items-center md:items-start">
+                <div class="flex items-center space-x-2 mb-4">
+                    <img src="{% static 'img/logo.png' %}"
+                         alt="Lumiere Glamour Logo"
+                         class="h-16 w-auto rounded-full shadow-md" />
+                    <span class="text-3xl logo-font text-pink-600">Lumiere Glamour</span>
+                </div>
+                <p class="text-sm text-gray-500 my-2 general-font">
+                    Tienda de Belleza Lumiere Glamour, una tienda de cosméticos en Colombia. Ofrecemos productos de maquillaje de alta calidad a precios competitivos.
+                </p>
+                <p class="text-sm text-gray-500 general-font">
+                    Ipiales, Nariño, Colombia
+                </p>
+            </div>
+            <!-- Columna 2: Enlaces Útiles -->
+            <div>
+                <h3 class="font-bold text-gray-800 mb-4 general-font">Enlaces Útiles</h3>
+                <ul class="space-y-2 text-sm text-gray-500 general-font">
+                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Acerca de Nosotros</a></li>
+                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Contacto</a></li>
+                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Términos y Condiciones</a></li>
+                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Política de Privacidad</a></li>
+                </ul>
+            </div>
+            <!-- Columna 3: Lo más Buscado -->
+            <div>
+                <h3 class="font-bold text-gray-800 mb-4 general-font">Lo más Buscado</h3>
+                <ul class="space-y-2 text-sm text-gray-500 general-font">
+                    <li><a href="/buscar?q=brochas" class="hover:text-pink-500 transition-colors duration-200">Brochas de Maquillaje</a></li>
+                    <li><a href="/buscar?q=bases" class="hover:text-pink-500 transition-colors duration-200">Bases de Maquillaje</a></li>
+                    <li><a href="/categoria/cuidado-facial/" class="hover:text-pink-500 transition-colors duration-200">Cuidado Facial</a></li>
+                    <li><a href="/buscar?q=polvos" class="hover:text-pink-500 transition-colors duration-200">Polvos de Maquillaje</a></li>
+                    <li><a href="/etiqueta/oferta/" class="hover:text-pink-500 transition-colors duration-200">Maquillaje en Descuento</a></li>
+                </ul>
+            </div>
+            <!-- Columna 4: Newsletter y Redes Sociales -->
+            <div class="flex flex-col items-center md:items-start relative">
+                <h3 class="font-bold text-gray-800 mb-4 general-font">Suscríbete y obtén descuentos exclusivos</h3>
+                <form action="#" method="post" class="w-full max-w-sm mb-4">
+                    <div class="flex items-center border-b-2 border-pink-500 py-2">
+                        <input class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                               type="email"
+                               placeholder="Ingresa tu correo electrónico"
+                               aria-label="Correo para newsletter" />
+                        <button class="flex-shrink-0 bg-pink-500 hover:bg-pink-700 border-pink-500 hover:border-pink-700 text-sm border-4 text-white py-1 px-2 rounded"
+                                type="submit">
+                            Suscribirse
+                        </button>
                     </div>
-                    <p class="copyright text-center text-gray-400 text-sm mt-8">
-                        © {{ "now"|date:"Y" }} Lumiere Glamour. Todos los derechos reservados.
-                    </p>
-                </footer>
+                </form>
+                <div class="text-xs text-gray-400 mb-4 text-center md:text-left">
+                    <p>Al suscribirte, aceptas nuestra Política de Privacidad.</p>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-2 general-font mt-4">Síguenos</h3>
+                <div class="flex space-x-2">
+                    <!-- Íconos de redes sociales -->
+                     <a href="https://wa.me/573007221200" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/lumiere_glamour_" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@lumiere.glamour3" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    
+                </div>
+            </div>
+        </div>
+        <!-- Sección de Copyright y Crédito del Desarrollador -->
+        <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500 general-font">
+            <p>LumiereGlamour.com &copy; Todos los Derechos Reservados.</p>
+            <p class="mt-1">
+                Desarrollado por: <a href="https://tu_portfolio.com" target="_blank" class="text-pink-600 font-semibold hover:underline">Mario Alexander Chitán</a>
+            </p>
+        </div>
+    </div>
+</footer>
                 <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
                 <a
                     href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."

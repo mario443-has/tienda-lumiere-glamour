@@ -46,7 +46,7 @@ function initializeCartDomElements() {
     // Nuevos botones del HTML del usuario para abrir/cerrar el modal
     const closeCartButton = document.getElementById("cerrar-carrito");
     const continueShoppingButton = document.getElementById("seguir-comprando");
-    
+
     // Obtener ambos botones de abrir carrito por sus IDs únicos
     const openCartButtonDesktop = document.getElementById("abrir-carrito-desktop");
     const openCartButtonMobile = document.getElementById("abrir-carrito-mobile");
@@ -185,7 +185,7 @@ function renderCartItems() {
         });
         cartContentContainer.innerHTML = html;
     }
-    
+
     // Actualizar el total en el modal
     if (cartTotalSpan) cartTotalSpan.textContent = formatPriceForDisplay(total);
 
@@ -253,12 +253,10 @@ function sendCartToWhatsApp() {
 
     const totalCalculado = window.cart.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * ((typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1), 0);
     const whatsappUrl = generarMensajeWhatsApp(window.cart, totalCalculado);
-    
+
     window.open(whatsappUrl, "_blank");
 
-    window.cart = []; // Limpiar el carrito después de enviar el pedido
-    guardarCarritoLocal();
-    updateCartDisplay();
+    // Se eliminó la línea que vacía el carrito
     showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
     closeCartModal();
 }
@@ -285,17 +283,19 @@ window.toggleMobileSearch = function() {
 
 // Helper function to apply favorite state visually
 // Busca todos los botones de favorito para un producto dado y aplica/remueve la clase 'active'
-function applyFavoriteState(productId, isFavorite) {
-    document.querySelectorAll(`.btn-favorito[data-producto-id="${productId}"]`).forEach(button => {
-        const icon = button.querySelector('i');
-        if (icon) {
-            if (isFavorite) {
-                icon.classList.add('active');
-            } else {
-                icon.classList.remove('active');
-            }
-        }
-    });
+function applyFavoriteState(productoId, isFavorito) {
+  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
+  botones.forEach(btn => {
+    const icon = btn.querySelector("i");
+    if (!icon) return;
+    if (isFavorito) {
+      icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
+      icon.classList.add("fas", "text-red-500");
+    } else {
+      icon.classList.remove("fas", "text-red-500");
+      icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
+    }
+  });
 }
 
 // Toggle de submenús en móvil (para subcategorías)
@@ -326,7 +326,7 @@ function handleLiveSearch(searchInput, resultsContainer) {
 
     return async function() {
         const query = searchInput.value.trim();
-        
+
         clearTimeout(debounceTimer);
 
         if (query.length < minLength) {
@@ -349,8 +349,8 @@ function handleLiveSearch(searchInput, resultsContainer) {
                         resultItem.href = producto.url; // URL del producto
                         resultItem.classList.add('flex', 'items-center', 'p-2', 'hover:bg-gray-100', 'border-b', 'border-gray-200', 'transition-colors', 'duration-200');
                         resultItem.innerHTML = `
-                            <img src="${producto.imagen || window.placeholderImageUrl}" 
-                                 alt="${producto.nombre}" 
+                            <img src="${producto.imagen || window.placeholderImageUrl}"
+                                 alt="${producto.nombre}"
                                  class="w-12 h-12 object-cover rounded-md mr-3"
                                  onerror="this.onerror=null;this.src='${window.placeholderImageUrl}';">
                             <div class="flex-1">
@@ -386,7 +386,7 @@ function handleLiveSearch(searchInput, resultsContainer) {
 // Función para posicionar el contenedor de resultados de búsqueda
 function positionSearchResults(searchInput, resultsContainer) {
     const inputRect = searchInput.getBoundingClientRect();
-    
+
     resultsContainer.style.position = 'absolute';
     resultsContainer.style.top = `${inputRect.bottom + window.scrollY}px`;
     resultsContainer.style.left = `${inputRect.left}px`;
@@ -407,19 +407,19 @@ let indicators = []; // Indicadores de slide
 
 function cloneSlides() {
     if (!carousel || items.length === 0) return;
-    
+
     // Clonar el primer y último slide real
     const firstClone = items[0].cloneNode(true);
     const lastClone = items[items.length - 1].cloneNode(true);
-    
+
     // Añadir clases para identificarlos
     firstClone.classList.add('clone');
     lastClone.classList.add('clone');
-    
+
     // Añadir los clones al carrusel
     carousel.appendChild(firstClone);
     carousel.insertBefore(lastClone, items[0]);
-    
+
     // Re-obtener items para incluir los clones
     items = carousel.querySelectorAll(".carousel-item");
     totalSlides = items.length - 2; // El número real de slides sin clones
@@ -428,7 +428,7 @@ function cloneSlides() {
 
 function updateCarousel(animate = true) {
     if (!carousel || items.length === 0) return;
-    
+
     carousel.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none';
     const offset = -currentIndex * 100;
     carousel.style.transform = `translateX(${offset}%)`;
@@ -652,7 +652,7 @@ document.addEventListener("DOMContentLoaded", function () {
             prevBtn.addEventListener("click", () => {
                 if (!isTransitioning) {
                     stopAutoSlide();
-                    goToSlide(currentIndex - 1);
+                    goToSlide(currentIndex + 1);
                     startAutoSlide();
                 }
             });
@@ -662,7 +662,7 @@ document.addEventListener("DOMContentLoaded", function () {
             nextBtn.addEventListener("click", () => {
                 if (!isTransitioning) {
                     stopAutoSlide();
-                    goToSlide(currentIndex + 1);
+                    goToSlide(currentIndex - 1);
                     startAutoSlide();
                 }
             });
@@ -758,7 +758,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.stopPropagation();
         });
     });
-    
+
     // Configurar los botones de WhatsApp
     setupWhatsappButtons();
 
@@ -769,108 +769,83 @@ document.addEventListener("DOMContentLoaded", function () {
     // Configurar los botones de "Agregar al Carrito"
     setupAddToCartButtons();
 
-    // Función para obtener el token CSRF desde las cookies
-function getCSRFToken() {
-  const name = "csrftoken";
-  const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
-    const [key, value] = cookie.trim().split("=");
-    if (key === name) return value;
-  }
-  return "";
-}
-
-// =========================================================================
-// 🎨 Visual y animación para favoritos
-function applyFavoriteState(productoId, isFavorito) {
-  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
-  botones.forEach(btn => {
-    const icon = btn.querySelector("i");
-    if (!icon) return;
-    if (isFavorito) {
-      icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
-      icon.classList.add("fas", "text-red-500");
-    } else {
-      icon.classList.remove("fas", "text-red-500");
-      icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
+    // =========================================================================
+    // 🎨 Visual y animación para favoritos
+    function addBounceAnimation(icon) {
+      if (icon) {
+        icon.classList.add("animate-bounce");
+        setTimeout(() => {
+          icon.classList.remove("animate-bounce");
+        }, 500);
+      }
     }
-  });
-}
+    // =========================================================================
+    // ⚙️ Lógica de favoritos
+    window.toggleFavorito = function (button, productoId) {
+      if (button.classList.contains("animate")) return;
+      button.classList.add("animate");
 
-function addBounceAnimation(icon) {
-  if (icon) {
-    icon.classList.add("animate-bounce");
-    setTimeout(() => {
-      icon.classList.remove("animate-bounce");
-    }, 500);
-  }
-}
-// =========================================================================
-// ⚙️ Lógica de favoritos
-window.toggleFavorito = function (button, productoId) {
-  if (button.classList.contains("animate")) return;
-  button.classList.add("animate");
+      const csrftoken = getCookie("csrftoken");
+      const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
+      const newFavoriteState = !isCurrentlyFavorite;
 
-  const csrftoken = getCSRFToken();
-  const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
-  const newFavoriteState = !isCurrentlyFavorite;
+      fetch("/toggle-favorito/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({ producto_id: productoId }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            applyFavoriteState(productoId, newFavoriteState);
+            localStorage.setItem(`favorito-${productoId}`, newFavoriteState);
+            if (typeof showFavoriteMessage === "function") {
+              showFavoriteMessage(data.message);
+            }
+            const icon = button.querySelector("i");
+            addBounceAnimation(icon);
+          } else {
+            if (typeof showErrorNotification === "function") {
+              showErrorNotification(data.message || "No se pudo actualizar el estado de favoritos.");
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error al actualizar favoritos:", error);
+          if (typeof showErrorNotification === "function") {
+            showErrorNotification("Hubo un problema al actualizar los favoritos.");
+          }
+        })
+        .finally(() => {
+          setTimeout(() => {
+            button.classList.remove("animate");
+          }, 300);
+        });
+    };
 
-  fetch("/toggle-favorito/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrftoken,
-    },
-    body: JSON.stringify({ producto_id: productoId }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        applyFavoriteState(productoId, newFavoriteState);
-        localStorage.setItem(`favorito-${productoId}`, newFavoriteState);
-        if (typeof showFavoriteMessage === "function") {
-          showFavoriteMessage(data.message);
-        }
-        const icon = button.querySelector("i");
-        addBounceAnimation(icon);
-      } else {
-        if (typeof showErrorNotification === "function") {
-          showErrorNotification(data.message || "No se pudo actualizar el estado de favoritos.");
-        }
+    // =========================================================================
+    // 🚀 Inicialización favoritos
+    function initFavoritos() {
+      document.querySelectorAll(".btn-favorito").forEach(button => {
+        const productoId = button.dataset.productId;
+        const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
+        applyFavoriteState(productoId, isFavorito);
+      });
+    }
+
+    // Delegación de clics en botones de favorito
+    document.addEventListener("click", event => {
+      let button = event.target.closest(".btn-favorito");
+      if (button) {
+        const productoId = button.dataset.productId;
+        window.toggleFavorito(button, productoId);
       }
-    })
-    .catch((error) => {
-      console.error("Error al actualizar favoritos:", error);
-      if (typeof showErrorNotification === "function") {
-        showErrorNotification("Hubo un problema al actualizar los favoritos.");
-      }
-    })
-    .finally(() => {
-      setTimeout(() => {
-        button.classList.remove("animate");
-      }, 300);
     });
-};
-
-// =========================================================================
-// 🚀 Inicialización favoritos
-function initFavoritos() {
-  document.querySelectorAll(".btn-favorito").forEach(button => {
-    const productoId = button.dataset.productId;
-    const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
-    applyFavoriteState(productoId, isFavorito);
-  });
-}
-
-// Delegación de clics en botones de favorito
-document.addEventListener("click", event => {
-  let button = event.target.closest(".btn-favorito");
-  if (button) {
-    const productoId = button.dataset.productId;
-    window.toggleFavorito(button, productoId);
-  }
-});
-document.addEventListener("DOMContentLoaded", initFavoritos);
+    // Se eliminó el listener redundante a 'DOMContentLoaded'
+    initFavoritos();
 
     // ===============================
     // Miniaturas que cambian imagen principal (página de detalle de producto)
@@ -913,7 +888,7 @@ document.addEventListener("DOMContentLoaded", initFavoritos);
             if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
             const icon = mobileCategoriesButton.querySelector("svg");
             if (icon) {
-                icon.classList.toggle("rotate-0");
+                // Lógica de alternancia simplificada
                 icon.classList.toggle("rotate-180");
             }
         });
@@ -956,3 +931,4 @@ document.addEventListener("DOMContentLoaded", initFavoritos);
         });
       }
     }
+});

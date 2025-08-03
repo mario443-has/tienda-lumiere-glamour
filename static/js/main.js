@@ -897,7 +897,7 @@ window.toggleFavorito = function (button, productoId) {
   if (button.classList.contains("animate")) return;
   button.classList.add("animate");
 
-  const csrftoken = getCookie("csrftoken");
+  const csrftoken = getCSRFToken();
   const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
   const newFavoriteState = !isCurrentlyFavorite;
 

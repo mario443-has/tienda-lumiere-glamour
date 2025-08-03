@@ -681,3 +681,19 @@ def ver_favoritos(request):
 
     context["favoritos_productos"] = productos_procesados
     return render(request, "store/favoritos.html", context)
+
+
+def productos_por_etiqueta(request, badge):
+    badge_display = {
+        "nuevo": "Productos Nuevos",
+        "tendencia": "Tendencias",
+        "oferta": "Ofertas Especiales",
+    }
+
+    productos = Producto.objects.filter(badge=badge, is_active=True)
+    context = {
+        "pagina_productos": productos,  # Puedes aplicar paginación si lo prefieres
+        "nombre_categoria_actual": badge_display.get(badge, "Productos"),
+        "categoria_actual": badge,
+    }
+    return render(request, "store/index.html", context)

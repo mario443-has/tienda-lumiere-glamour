@@ -191,24 +191,19 @@
                                        class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">{{ item.nombre }}</a>
                                 </li>
                             {% endfor %}
-                        {% else %}
-                            <li>
-                                <a href="{% url 'home' %}"
-                                   class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Ofertas</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Contacto</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Cibermake</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Blog</a>
-                            </li>
                         {% endif %}
+                        <li>
+                            <a href="{% url 'productos_por_etiqueta' 'oferta' %}"
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Ofertas</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'productos_por_etiqueta' 'nuevo' %}"
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Nuevos</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'productos_por_etiqueta' 'tendencia' %}"
+                               class="text-gray-700 hover:text-pink-600 font-medium transition duration-300">Tendencia</a>
+                        </li>
                     </ul>
                 </nav>
                 <!-- Menú Móvil (Oculto por defecto) -->
@@ -268,207 +263,203 @@
                             <a href="{{ item.url }}"
                                class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">{{ item.nombre }}</a>
                         {% endfor %}
-                    {% else %}
-                        <a href="{% url 'home' %}"
+                        <a href="{% url 'productos_por_etiqueta' 'oferta' %}"
                            class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Ofertas</a>
-                        <a href="#"
-                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Contacto</a>
-                        <a href="#"
-                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Cibermake</a>
-                        <a href="#"
-                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Blog</a>
-                    {% endif %}
-                </div>
-            </header>
-            {# Contenido dinámico de cada página #}
-            {% block content %}{% endblock %}
-            <!-- Barra de navegación inferior móvil -->
-            <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-top flex justify-around items-center py-2 px-4 z-50">
-                <a href="{% url 'home' %}"
-                   class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
-                    <i class="fas fa-home text-2xl mb-1"></i>
-                    <span class="text-xs">Inicio</span>
-                </a>
-                <!-- Botón de Categorías para móvil en la barra inferior -->
-                <button id="bottom-nav-categories-button"
-                        class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="mb-1"
-                         width="24"
-                         height="24"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h5v5H4V6zm0 7h5v5H4v-5zm7-7h9v5h-9V6zm0 7h9v5h-9v-5z" />
-                    </svg>
-                    <span class="text-xs">Categorías</span>
-                </button>
-                <button id="abrir-carrito-mobile"
-                        class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
-                    {# ID ÚNICO para el botón de abrir el carrito móvil #}
-                    <i class="fas fa-shopping-bag text-2xl mb-1"></i>
-                    <span class="text-xs">Carrito</span>
-                    <span id="bottom-nav-cart-count"
-                          class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                </button>
-                <a href="{% url 'ver_favoritos' %}"
-                   class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
-                    <i class="fas fa-heart text-2xl mb-1"></i>
-                    <span class="text-xs">Favoritos</span>
-                    {# ELIMINADO: Badge de favoritos #}
-                </a>
-            </nav>
-            <!-- Footer Section -->
-            <footer class="bg-gray-800 text-white py-8 mt-8">
-                <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="footer-col text-center md:text-left">
-                        <h4 class="text-xl font-semibold mb-4">Lumiere Glamour</h4>
-                        <p class="text-gray-300">Tienda de maquillaje profesional, cuidado facial y accesorios.</p>
-                        <p class="text-gray-300 mt-2">
-                            <strong>Ipiales - Nariño - Colombia</strong>
-                        </p>
+                        <a href="{% url 'productos_por_etiqueta' 'nuevo' %}"
+                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Nuevos</a>
+                        <a href="{% url 'productos_por_etiqueta' 'tendencia' %}"
+                           class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600">Tendencia</a>
                     </div>
-                    <div class="footer-col text-center md:text-left">
-                        <h4 class="text-xl font-semibold mb-4">Enlaces Rápidos</h4>
-                        <ul>
-                            <li class="mb-2">
-                                <a href="#"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300">Brochas</a>
-                            </li>
-                            <li class="mb-2">
-                                <a href="#"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300">Bases</a>
-                            </li>
-                            <li class="mb-2">
-                                <a href="#"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300">Cuidado Facial</a>
-                            </li>
-                            <li class="mb-2">
-                                <a href="#"
-                                   class="text-gray-300 hover:text-pink-500 transition duration-300">Descuentos</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="footer-col text-center md:text-left">
-                        <h4 class="text-xl font-semibold mb-4">Contáctanos</h4>
-                        <div class="space-y-2">
-                            <a href="https://wa.me/573007221200"
-                               target="_blank"
-                               class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                               title="Enviar mensaje por WhatsApp">
-                                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
-                            </a>
-                            <a href="https://www.instagram.com/lumiere_glamour_"
-                               target="_blank"
-                               class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                               title="Visitar Instagram">
-                                <i class="fab fa-instagram mr-2"></i> Instagram
-                            </a>
-                            <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr"
-                               target="_blank"
-                               class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                               title="Ir a nuestra página de Facebook">
-                                <i class="fab fa-facebook mr-2"></i> Facebook
-                            </a>
-                            <a href="https://www.tiktok.com/@lumiere.glamour3"
-                               target="_blank"
-                               class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
-                               title="Ver en TikTok">
-                                <i class="fab fa-tiktok mr-2"></i> TikTok
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <p class="copyright text-center text-gray-400 text-sm mt-8">
-                    © {{ "now"|date:"Y" }} Lumiere Glamour. Todos los derechos reservados.
-                </p>
-            </footer>
-            <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
-            <a
-                href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
-                class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
-                target="_blank"
-                title="Escríbenos por WhatsApp (Consulta General)"
-                >
-                <i class="fab fa-whatsapp text-2xl"></i>
-            </a>
-            <!-- NUEVO BOTÓN FLOTANTE "Comprar por WhatsApp" (para el carrito) -->
-            <button id="buy-whatsapp-button"
-                    class="fixed bottom-20 right-6 bg-purple-600 text-white py-3 px-4 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 z-40 flex items-center space-x-2 hidden">
-                <i class="fab fa-whatsapp text-xl"></i>
-                <span>Comprar Carrito</span>
-                <span id="buy-whatsapp-cart-count"
-                      class="bg-white text-purple-600 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
-            </button>
-            <!-- MODAL DEL CARRITO - NUEVA ESTRUCTURA -->
-            <div id="carrito-modal"
-                 class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-                <div class="bg-white w-full max-w-lg mx-4 p-6 rounded-lg shadow-lg relative">
-                    <button id="cerrar-carrito"
-                            class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold">
-                        &times;
+                </header>
+                {# Contenido dinámico de cada página #}
+                {% block content %}{% endblock %}
+                <!-- Barra de navegación inferior móvil -->
+                <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-top flex justify-around items-center py-2 px-4 z-50">
+                    <a href="{% url 'home' %}"
+                       class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+                        <i class="fas fa-home text-2xl mb-1"></i>
+                        <span class="text-xs">Inicio</span>
+                    </a>
+                    <!-- Botón de Categorías para móvil en la barra inferior -->
+                    <button id="bottom-nav-categories-button"
+                            class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="mb-1"
+                             width="24"
+                             height="24"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h5v5H4V6zm0 7h5v5H4v-5zm7-7h9v5h-9V6zm0 7h9v5h-9v-5z" />
+                        </svg>
+                        <span class="text-xs">Categorías</span>
                     </button>
-                    <h2 class="text-xl font-bold mb-4">🛒 Tu carrito</h2>
-                    <div id="contenido-carrito" class="py-4 max-h-80 overflow-y-auto">
-                        <!-- Los productos del carrito se renderizarán aquí dinámicamente por JS -->
-                    </div>
-                    <div class="pt-4 border-t border-gray-200">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-xl font-semibold text-gray-900">Total:</span>
-                            <span id="cart-total" class="text-2xl font-bold text-pink-600">$0.00</span> {# Mantener ID para el total #}
+                    <button id="abrir-carrito-mobile"
+                            class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200 relative">
+                        {# ID ÚNICO para el botón de abrir el carrito móvil #}
+                        <i class="fas fa-shopping-bag text-2xl mb-1"></i>
+                        <span class="text-xs">Carrito</span>
+                        <span id="bottom-nav-cart-count"
+                              class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <a href="{% url 'ver_favoritos' %}"
+                       class="flex flex-col items-center text-pink-600 hover:text-pink-700 transition-colors duration-200">
+                        <i class="fas fa-heart text-2xl mb-1"></i>
+                        <span class="text-xs">Favoritos</span>
+                        {# ELIMINADO: Badge de favoritos #}
+                    </a>
+                </nav>
+                <!-- Footer Section -->
+                <footer class="bg-gray-800 text-white py-8 mt-8">
+                    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="footer-col text-center md:text-left">
+                            <h4 class="text-xl font-semibold mb-4">Lumiere Glamour</h4>
+                            <p class="text-gray-300">Tienda de maquillaje profesional, cuidado facial y accesorios.</p>
+                            <p class="text-gray-300 mt-2">
+                                <strong>Ipiales - Nariño - Colombia</strong>
+                            </p>
                         </div>
-                        <div class="flex flex-col space-y-3">
-                            <a id="whatsapp-pedido"
-                               target="_blank"
-                               class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
-                                <i class="fab fa-whatsapp"></i>
-                                <span>Pedir por WhatsApp</span>
-                            </a>
-                            <button id="seguir-comprando"
-                                    type="button"
-                                    class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition duration-300">
-                                Seguir Comprando
+                        <div class="footer-col text-center md:text-left">
+                            <h4 class="text-xl font-semibold mb-4">Enlaces Rápidos</h4>
+                            <ul>
+                                <li class="mb-2">
+                                    <a href="#"
+                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Brochas</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#"
+                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Bases</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#"
+                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Cuidado Facial</a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#"
+                                       class="text-gray-300 hover:text-pink-500 transition duration-300">Descuentos</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="footer-col text-center md:text-left">
+                            <h4 class="text-xl font-semibold mb-4">Contáctanos</h4>
+                            <div class="space-y-2">
+                                <a href="https://wa.me/573007221200"
+                                   target="_blank"
+                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+                                   title="Enviar mensaje por WhatsApp">
+                                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                                </a>
+                                <a href="https://www.instagram.com/lumiere_glamour_"
+                                   target="_blank"
+                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+                                   title="Visitar Instagram">
+                                    <i class="fab fa-instagram mr-2"></i> Instagram
+                                </a>
+                                <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr"
+                                   target="_blank"
+                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+                                   title="Ir a nuestra página de Facebook">
+                                    <i class="fab fa-facebook mr-2"></i> Facebook
+                                </a>
+                                <a href="https://www.tiktok.com/@lumiere.glamour3"
+                                   target="_blank"
+                                   class="text-gray-300 hover:text-pink-500 transition duration-300 flex items-center justify-center md:justify-start"
+                                   title="Ver en TikTok">
+                                    <i class="fab fa-tiktok mr-2"></i> TikTok
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="copyright text-center text-gray-400 text-sm mt-8">
+                        © {{ "now"|date:"Y" }} Lumiere Glamour. Todos los derechos reservados.
+                    </p>
+                </footer>
+                <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
+                <a
+                    href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
+                    class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
+                    target="_blank"
+                    title="Escríbenos por WhatsApp (Consulta General)"
+                    >
+                    <i class="fab fa-whatsapp text-2xl"></i>
+                </a>
+                <!-- NUEVO BOTÓN FLOTANTE "Comprar por WhatsApp" (para el carrito) -->
+                <button id="buy-whatsapp-button"
+                        class="fixed bottom-20 right-6 bg-purple-600 text-white py-3 px-4 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 z-40 flex items-center space-x-2 hidden">
+                    <i class="fab fa-whatsapp text-xl"></i>
+                    <span>Comprar Carrito</span>
+                    <span id="buy-whatsapp-cart-count"
+                          class="bg-white text-purple-600 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+                <!-- MODAL DEL CARRITO - NUEVA ESTRUCTURA -->
+                <div id="carrito-modal"
+                     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                    <div class="bg-white w-full max-w-lg mx-4 p-6 rounded-lg shadow-lg relative">
+                        <button id="cerrar-carrito"
+                                class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold">
+                            &times;
+                        </button>
+                        <h2 class="text-xl font-bold mb-4">🛒 Tu carrito</h2>
+                        <div id="contenido-carrito" class="py-4 max-h-80 overflow-y-auto">
+                            <!-- Los productos del carrito se renderizarán aquí dinámicamente por JS -->
+                        </div>
+                        <div class="pt-4 border-t border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xl font-semibold text-gray-900">Total:</span>
+                                <span id="cart-total" class="text-2xl font-bold text-pink-600">$0.00</span> {# Mantener ID para el total #}
+                            </div>
+                            <div class="flex flex-col space-y-3">
+                                <a id="whatsapp-pedido"
+                                   target="_blank"
+                                   class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span>Pedir por WhatsApp</span>
+                                </a>
+                                <button id="seguir-comprando"
+                                        type="button"
+                                        class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition duration-300">
+                                    Seguir Comprando
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Custom Message Modal -->
+                <div id="message-modal"
+                     class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md mx-auto">
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                            <h3 id="message-modal-title" class="text-xl font-semibold text-gray-900">Mensaje</h3>
+                            <button type="button"
+                                    class="text-gray-400 hover:text-gray-600"
+                                    onclick="closeMessageModal()">
+                                <i class="fas fa-times text-xl"></i>
                             </button>
                         </div>
+                        <div class="py-4">
+                            <p id="message-modal-content" class="text-gray-700"></p>
+                        </div>
+                        <div class="pt-4 border-t border-gray-200 text-right">
+                            <button type="button"
+                                    class="bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition"
+                                    onclick="closeMessageModal()">Aceptar</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!-- Custom Message Modal -->
-            <div id="message-modal"
-                 class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
-                <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md mx-auto">
-                    <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <h3 id="message-modal-title" class="text-xl font-semibold text-gray-900">Mensaje</h3>
-                        <button type="button"
-                                class="text-gray-400 hover:text-gray-600"
-                                onclick="closeMessageModal()">
-                            <i class="fas fa-times text-xl"></i>
+                <!-- Modal personalizado -->
+                <div id="custom-modal"
+                     class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-50">
+                    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 text-center">
+                        <h2 id="modal-title" class="text-xl font-bold mb-2 text-gray-800">Título</h2>
+                        <p id="modal-message" class="text-gray-600 mb-4">Mensaje del modal...</p>
+                        <button id="modal-close-btn"
+                                class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
+                            Cerrar
                         </button>
                     </div>
-                    <div class="py-4">
-                        <p id="message-modal-content" class="text-gray-700"></p>
-                    </div>
-                    <div class="pt-4 border-t border-gray-200 text-right">
-                        <button type="button"
-                                class="bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition"
-                                onclick="closeMessageModal()">Aceptar</button>
-                    </div>
                 </div>
-            </div>
-            <!-- Modal personalizado -->
-            <div id="custom-modal"
-                 class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-50">
-                <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 text-center">
-                    <h2 id="modal-title" class="text-xl font-bold mb-2 text-gray-800">Título</h2>
-                    <p id="modal-message" class="text-gray-600 mb-4">Mensaje del modal...</p>
-                    <button id="modal-close-btn"
-                            class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-            <!-- Enlace a tu archivo JavaScript principal externo -->
-            <script>
+                <!-- Enlace a tu archivo JavaScript principal externo -->
+                <script>
         // Define el número de WhatsApp globalmente para que main.js pueda acceder a él
         window.whatsappNumber = "{{ whatsapp_number|default:'573007221200' }}";
         // Define la URL de la imagen de placeholder globalmente
@@ -493,13 +484,13 @@
         function showFavoriteMessage(message) {
             showSuccessNotification(message, 'Favoritos');
         }
-            </script>
-            <script src="{% static 'js/notifications.js' %}"></script>
-            <script src="{% static 'js/main.js' %}"></script>
-            <script src="{% static 'js/favoritos.js' %}"></script>
-            <script src="{% static 'js/modals.js' %}"></script>
-            {% block extra_js %}
-            {% endblock %}
-            {# Este es el bloque para JS específico de cada página #}
-        </body>
-    </html>
+                </script>
+                <script src="{% static 'js/notifications.js' %}"></script>
+                <script src="{% static 'js/main.js' %}"></script>
+                <script src="{% static 'js/favoritos.js' %}"></script>
+                <script src="{% static 'js/modals.js' %}"></script>
+                {% block extra_js %}
+                {% endblock %}
+                {# Este es el bloque para JS específico de cada página #}
+            </body>
+        </html>

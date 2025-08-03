@@ -2,8 +2,8 @@
 {% load static %}
 {% block title %}Inicio - Lumiere Glamour{% endblock %}
 {% block content %}
-    {# Carrusel de Anuncios #}
-    {% if anuncios %}
+    {# Carrusel de Anuncios: Solo se muestra en la página principal si hay anuncios #}
+    {% if anuncios and not ofertas_activas and not query and not categoria_actual %}
         <section class="relative w-full max-w-5xl mx-auto mt-0 rounded-lg shadow-lg overflow-hidden">
             <div id="announcement-carousel-wrapper">
                 <div id="announcement-carousel">
@@ -40,8 +40,8 @@
         </section>
     {% endif %}
     <main class="container mx-auto px-4 py-8">
-        {# Categorías Circulares #}
-        {% if categorias_principales %}
+        {# Categorías Circulares: Solo se muestran en la página principal #}
+        {% if categorias_principales and not ofertas_activas and not query and not categoria_actual %}
             <section class="py-8">
                 <p class="text-pink-600 text-sm font-semibold text-center uppercase mb-2 tracking-wide">DESCUBRE NUESTROS PRODUCTOS</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-10">ELIGE UNA CATEGORÍA</h2>
@@ -106,94 +106,65 @@
                 </div>
             {% endfor %}
         </div>
-        <!-- Sección de Paginación -->
-<div class="flex flex-col md:flex-row items-center justify-between mt-8 p-4 bg-white rounded-xl shadow-lg">
-    <!-- Contenedor de los botones de paginación -->
-    <div class="flex items-center space-x-1 mb-4 md:mb-0">
-        <!-- Botón "Anterior" -->
-        <a href="{% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}#{% endif %}"
-           class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300 {% if not page_obj.has_previous %}cursor-not-allowed opacity-50{% endif %}">
-            <i class="fas fa-chevron-left"></i>
-        </a>
-        <!-- Números de página -->
-        {% for num in paginas %}
-            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
-               class="w-10 h-10 flex items-center justify-center border rounded-full text-sm font-medium transition-colors duration-300
-               {% if num == page_obj.number %}
-               bg-pink-600 text-white border-pink-600 shadow-md
-               {% else %}
-               text-gray-600 hover:bg-pink-100 hover:text-pink-600 border-gray-300
-               {% endif %}">
-                {{ num }}
-            </a>
-        {% endfor %}
-        <!-- Botón "Siguiente" -->
-        <a href="{% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}#{% endif %}"
-           class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300 {% if not page_obj.has_next %}cursor-not-allowed opacity-50{% endif %}">
-            <i class="fas fa-chevron-right"></i>
-        </a>
-    </div>
 
-    <!-- Mensaje de conteo de productos -->
-    <span class="text-sm text-gray-600">
-        Mostrando <span class="font-bold text-gray-800">{{ start_index }}</span> a <span class="font-bold text-gray-800">{{ end_index }}</span> de <span class="font-bold text-gray-800">{{ total_productos }}</span> productos
-    </span>
-</div>
-
+        {# CAMBIO: Se ha reemplazado el código de paginación existente por el nuevo diseño y se ha corregido la estructura #}
+        {% if pagina_productos.paginator.num_pages > 1 %}
+            <!-- Sección de Paginación -->
+            <div class="flex flex-col md:flex-row items-center justify-between mt-8 p-4 bg-white rounded-xl shadow-lg">
+                <!-- Contenedor de los botones de paginación -->
+                <div class="flex items-center space-x-1 mb-4 md:mb-0">
+                    <!-- Botón "Anterior" -->
+                    <a href="{% if pagina_productos.has_previous %}?page={{ pagina_productos.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% else %}#{% endif %}"
+                       class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300 {% if not pagina_productos.has_previous %}cursor-not-allowed opacity-50{% endif %}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <!-- Números de página -->
                     {% for num in pagina_productos.paginator.page_range %}
-                        {% if num == pagina_productos.number %}
-                            <span class="relative inline-flex items-center px-4 py-2 border border-pink-500 bg-pink-50 text-sm font-medium text-pink-700">
-                                {{ num }}
-                            </span>
+                        {% if pagina_productos.number == num %}
+                        <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                           class="w-10 h-10 flex items-center justify-center border rounded-full text-sm font-medium transition-colors duration-300 bg-pink-600 text-white border-pink-600 shadow-md">
+                            {{ num }}
+                        </a>
                         {% elif num > pagina_productos.number|add:'-3' and num < pagina_productos.number|add:'3' %}
-                            <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                               class="relative inline-flex items-center px-4 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                                {{ num }}
-                            </a>
+                        <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+                           class="w-10 h-10 flex items-center justify-center border rounded-full text-sm font-medium transition-colors duration-300 text-gray-600 hover:bg-pink-100 hover:text-pink-600 border-gray-300">
+                            {{ num }}
+                        </a>
                         {% endif %}
                     {% endfor %}
-                    {% if pagina_productos.has_next %}
-                        <a href="?page={{ pagina_productos.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Siguiente</span>
-                            <i class="fas fa-angle-right"></i>
-                        </a>
-                        <a href="?page={{ pagina_productos.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Última</span>
-                            <i class="fas fa-angle-double-right"></i>
-                        </a>
-                    {% endif %}
-                </nav>
-                <p class="text-sm text-gray-700 mt-4 text-center">
-                    Mostrando <span class="font-medium">{{ pagina_productos.start_index }}</span> a
-                    <span class="font-medium">{{ pagina_productos.end_index }}</span> de
-                    <span class="font-medium">{{ pagina_productos.paginator.count }}</span> productos
-                </p>
+                    <!-- Botón "Siguiente" -->
+                    <a href="{% if pagina_productos.has_next %}?page={{ pagina_productos.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% else %}#{% endif %}"
+                       class="px-4 py-2 border rounded-full text-gray-500 hover:bg-pink-100 hover:text-pink-600 transition-colors duration-300 {% if not pagina_productos.has_next %}cursor-not-allowed opacity-50{% endif %}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+                <!-- Mensaje de conteo de productos -->
+                <span class="text-sm text-gray-600">
+                    Mostrando <span class="font-bold text-gray-800">{{ pagina_productos.start_index }}</span> a <span class="font-bold text-gray-800">{{ pagina_productos.end_index }}</span> de <span class="font-bold text-gray-800">{{ pagina_productos.paginator.count }}</span> productos
+                </span>
             </div>
-    </div>
-</div>
-</main>
-<section class="container mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-center">
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-shield-alt text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Compra Segura</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-paper-plane text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Envíos a Toda Colombia</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-box text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Distribuidores de Maquillaje</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-magic text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Maquillaje Profesional</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-award text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Calidad Garantizada</p>
-    </div>
-</section>
+        {% endif %}
+    </main>
+    <section class="container mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-center">
+        <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+            <i class="fas fa-shield-alt text-4xl text-pink-600 mb-3"></i>
+            <p class="font-semibold text-lg">Compra Segura</p>
+        </div>
+        <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+            <i class="fas fa-paper-plane text-4xl text-pink-600 mb-3"></i>
+            <p class="font-semibold text-lg">Envíos a Toda Colombia</p>
+        </div>
+        <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+            <i class="fas fa-box text-4xl text-pink-600 mb-3"></i>
+            <p class="font-semibold text-lg">Distribuidores de Maquillaje</p>
+        </div>
+        <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+            <i class="fas fa-magic text-4xl text-pink-600 mb-3"></i>
+            <p class="font-semibold text-lg">Maquillaje Profesional</p>
+        </div>
+        <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+            <i class="fas fa-award text-4xl text-pink-600 mb-3"></i>
+            <p class="font-semibold text-lg">Calidad Garantizada</p>
+        </div>
+    </section>
 {% endblock %}

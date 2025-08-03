@@ -769,92 +769,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Configurar los botones de "Agregar al Carrito"
     setupAddToCartButtons();
 
-    // ===============================
-    // Miniaturas que cambian imagen principal (página de detalle de producto)
-    // ===============================
-    const mainImage = document.getElementById("main-product-image");
-    const thumbnails = document.querySelectorAll(".thumbnail-image");
-
-    thumbnails.forEach((thumbnail) => {
-      thumbnail.addEventListener("click", function () {
-        if (mainImage) {
-          mainImage.src = this.src;
-        }
-        thumbnails.forEach(t => t.classList.remove("ring-2", "ring-pink-500"));
-        this.classList.add("ring-2", "ring-pink-500");
-      });
-    });
-
-    // Lógica para el menú móvil (Hamburger)
-    const mobileMenuButton = document.getElementById("mobile-menu-button");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const mobileCategoriesButton = document.getElementById("mobile-categories-button");
-    const mobileCategoriesDropdown = document.getElementById("mobile-categories-dropdown");
-    const bottomNavCategoriesButton = document.getElementById("bottom-nav-categories-button"); // Botón de categorías en la barra inferior
-
-    // Toggle del menú principal móvil
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener("click", function() {
-            mobileMenu.classList.toggle("hidden");
-            // Asegurarse de que la barra de búsqueda móvil esté oculta si el menú se abre
-            const mobileSearchBar = document.getElementById('mobile-search-bar');
-            if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
-                mobileSearchBar.classList.add('hidden');
-            }
-        });
-    }
-
-    // Toggle del dropdown de categorías en móvil (menú principal)
-    if (mobileCategoriesButton) {
-        mobileCategoriesButton.addEventListener("click", () => {
-            if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
-            const icon = mobileCategoriesButton.querySelector("svg");
-            if (icon) {
-                icon.classList.toggle("rotate-0");
-                icon.classList.toggle("rotate-180");
-            }
-        });
-    }
-
-    // Manejar el botón de categorías de la barra de navegación inferior
-    if (bottomNavCategoriesButton) {
-        bottomNavCategoriesButton.addEventListener('click', function() {
-            mobileMenu.classList.remove('hidden'); // Abrir el menú móvil
-            // Asegurarse de que el dropdown de categorías esté visible dentro del menú móvil
-            if (mobileCategoriesDropdown && mobileCategoriesDropdown.classList.contains('hidden')) {
-                mobileCategoriesDropdown.classList.remove('hidden');
-                if (mobileCategoriesButton) {
-                    // Asegurar que el ícono de la flecha de categorías esté en estado "abierto"
-                    mobileCategoriesButton.querySelector('svg').classList.remove('rotate-0');
-                    mobileCategoriesButton.querySelector('svg').classList.add('rotate-180');
-                }
-            }
-            // Ocultar la barra de búsqueda móvil si está abierta
-            const mobileSearchBar = document.getElementById('mobile-search-bar');
-            if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
-                mobileSearchBar.classList.add('hidden');
-            }
-        });
-    }
-
-    // Lógica para el slider horizontal de productos (si existe)
-    const slider = document.getElementById("slider");
-    const slideLeft = document.getElementById("slideLeft");
-    const slideRight = document.getElementById("slideRight");
-    if (slider) {
-      if (slideLeft) {
-        slideLeft.addEventListener("click", () => {
-          slider.scrollLeft -= 300;
-        });
-      }
-      if (slideRight) {
-        slideRight.addEventListener("click", () => {
-          slider.scrollLeft += 300;
-        });
-      }
-    }
-
-// Función para obtener el token CSRF desde las cookies
+    // Función para obtener el token CSRF desde las cookies
 function getCSRFToken() {
   const name = "csrftoken";
   const cookies = document.cookie.split(";");
@@ -956,3 +871,88 @@ document.addEventListener("click", event => {
   }
 });
 document.addEventListener("DOMContentLoaded", initFavoritos);
+
+    // ===============================
+    // Miniaturas que cambian imagen principal (página de detalle de producto)
+    // ===============================
+    const mainImage = document.getElementById("main-product-image");
+    const thumbnails = document.querySelectorAll(".thumbnail-image");
+
+    thumbnails.forEach((thumbnail) => {
+      thumbnail.addEventListener("click", function () {
+        if (mainImage) {
+          mainImage.src = this.src;
+        }
+        thumbnails.forEach(t => t.classList.remove("ring-2", "ring-pink-500"));
+        this.classList.add("ring-2", "ring-pink-500");
+      });
+    });
+
+    // Lógica para el menú móvil (Hamburger)
+    const mobileMenuButton = document.getElementById("mobile-menu-button");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const mobileCategoriesButton = document.getElementById("mobile-categories-button");
+    const mobileCategoriesDropdown = document.getElementById("mobile-categories-dropdown");
+    const bottomNavCategoriesButton = document.getElementById("bottom-nav-categories-button"); // Botón de categorías en la barra inferior
+
+    // Toggle del menú principal móvil
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener("click", function() {
+            mobileMenu.classList.toggle("hidden");
+            // Asegurarse de que la barra de búsqueda móvil esté oculta si el menú se abre
+            const mobileSearchBar = document.getElementById('mobile-search-bar');
+            if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
+                mobileSearchBar.classList.add('hidden');
+            }
+        });
+    }
+
+    // Toggle del dropdown de categorías en móvil (menú principal)
+    if (mobileCategoriesButton) {
+        mobileCategoriesButton.addEventListener("click", () => {
+            if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
+            const icon = mobileCategoriesButton.querySelector("svg");
+            if (icon) {
+                icon.classList.toggle("rotate-0");
+                icon.classList.toggle("rotate-180");
+            }
+        });
+    }
+
+    // Manejar el botón de categorías de la barra de navegación inferior
+    if (bottomNavCategoriesButton) {
+        bottomNavCategoriesButton.addEventListener('click', function() {
+            mobileMenu.classList.remove('hidden'); // Abrir el menú móvil
+            // Asegurarse de que el dropdown de categorías esté visible dentro del menú móvil
+            if (mobileCategoriesDropdown && mobileCategoriesDropdown.classList.contains('hidden')) {
+                mobileCategoriesDropdown.classList.remove('hidden');
+                if (mobileCategoriesButton) {
+                    // Asegurar que el ícono de la flecha de categorías esté en estado "abierto"
+                    mobileCategoriesButton.querySelector('svg').classList.remove('rotate-0');
+                    mobileCategoriesButton.querySelector('svg').classList.add('rotate-180');
+                }
+            }
+            // Ocultar la barra de búsqueda móvil si está abierta
+            const mobileSearchBar = document.getElementById('mobile-search-bar');
+            if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
+                mobileSearchBar.classList.add('hidden');
+            }
+        });
+    }
+
+    // Lógica para el slider horizontal de productos (si existe)
+    const slider = document.getElementById("slider");
+    const slideLeft = document.getElementById("slideLeft");
+    const slideRight = document.getElementById("slideRight");
+    if (slider) {
+      if (slideLeft) {
+        slideLeft.addEventListener("click", () => {
+          slider.scrollLeft -= 300;
+        });
+      }
+      if (slideRight) {
+        slideRight.addEventListener("click", () => {
+          slider.scrollLeft += 300;
+        });
+      }
+    }

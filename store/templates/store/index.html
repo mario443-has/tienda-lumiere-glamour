@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Inicio - Lumiere Glamour{% endblock %}
-
 {% block content %}
     {# Carrusel de Anuncios: Solo se muestra en la página principal si hay anuncios #}
     {% if anuncios and not ofertas_activas and not query and not categoria_actual %}
@@ -40,38 +39,36 @@
             </div>
         </section>
     {% endif %}
-    
     <main class="container mx-auto px-4 py-8">
         {# Categorías Circulares #}
         {% if categorias_principales and not ofertas_activas and not query and not categoria_actual %}
             <section class="py-8 max-w-7xl mx-auto">
                 <p class="text-pink-600 text-sm font-semibold text-center uppercase mb-2 tracking-wide">DESCUBRE NUESTROS PRODUCTOS</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-10">ELIGE UNA CATEGORÍA</h2>
-
                 {# Carrusel de Categorías (solo para móvil) #}
                 <div id="category-carousel-wrapper" class="relative block md:hidden">
-                    <div id="category-carousel" class="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth pb-4" style="-webkit-overflow-scrolling: touch;">
+                    <div id="category-carousel"
+                         class="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth pb-4"
+                         style="-webkit-overflow-scrolling: touch">
                         {% for categoria in categorias_principales %}
                             {# Cada 9 categorías se inicia un nuevo "slide" de carrusel con 3x3 círculos #}
                             {% if forloop.counter0|divisibleby:9 %}
                                 <div class="carousel-item flex-shrink-0 snap-center w-full grid grid-cols-3 gap-6 p-4">
-                            {% endif %}
-                            <a href="{% url 'categoria' categoria.slug %}"
-                               class="category-circle-link flex flex-col items-center text-center group">
-                                <div class="category-circle-image-container w-24 h-24 rounded-full overflow-hidden border-4 border-transparent group-hover:border-pink-500 transition-all duration-300 shadow-md group-hover:shadow-lg">
-                                    <img loading="lazy"
-                                         src="{% if categoria.imagen_circular %}{{ categoria.imagen_circular.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
-                                         alt="Categoría: {{ categoria.nombre }}"
-                                         class="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
-                                         onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';" />
-                                </div>
-                                <p class="text-gray-800 font-semibold mt-3 text-sm group-hover:text-pink-600 transition-colors duration-300">
-                                    {{ categoria.nombre }}
-                                </p>
-                            </a>
-                            {% if forloop.counter|divisibleby:9 or forloop.last %}
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                                <a href="{% url 'categoria' categoria.slug %}"
+                                   class="category-circle-link flex flex-col items-center text-center group">
+                                    <div class="category-circle-image-container w-24 h-24 rounded-full overflow-hidden border-4 border-transparent group-hover:border-pink-500 transition-all duration-300 shadow-md group-hover:shadow-lg">
+                                        <img loading="lazy"
+                                             src="{% if categoria.imagen_circular %}{{ categoria.imagen_circular.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                                             alt="Categoría: {{ categoria.nombre }}"
+                                             class="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
+                                             onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';" />
+                                    </div>
+                                    <p class="text-gray-800 font-semibold mt-3 text-sm group-hover:text-pink-600 transition-colors duration-300">
+                                        {{ categoria.nombre }}
+                                    </p>
+                                </a>
+                                {% if forloop.counter|divisibleby:9 or forloop.last %}</div>{% endif %}
                         {% endfor %}
                     </div>
                     <!-- Navegación del Carrusel de Categorías -->
@@ -95,7 +92,6 @@
                         {% endfor %}
                     </div>
                 </div>
-
                 {# Cuadrícula de Categorías (solo para tablet y escritorio) #}
                 <div class="hidden md:flex flex-wrap justify-center gap-6 sm:gap-8">
                     {% for categoria in categorias_principales %}
@@ -117,7 +113,6 @@
                 <p class="text-pink-600 text-sm font-semibold text-center uppercase mt-10 tracking-wide">¡LOS MEJORES PRECIOS!</p>
             </section>
         {% endif %}
-        
         {# Productos #}
         <h2 class="text-3xl font-semibold text-center text-gray-900 mb-8">
             {% if query %}
@@ -132,7 +127,8 @@
             {% endif %}
         </h2>
         <!-- Contenedor principal de la cuadrícula de productos. ¡IMPORTANTE! El ID 'product-grid' es necesario para el script de paginación. -->
-        <section id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <section id="productos-grid"
+                 class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {# Corregido: grid-cols-2 para móvil #}
             {% for producto in pagina_productos %}
                 {# Incluye la tarjeta de producto desde un template parcial #}
@@ -160,14 +156,12 @@
                 </div>
             {% endfor %}
         </section>
-
         <!-- Sección de Paginación. -->
         <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
             {% if pagina_productos.has_other_pages %}
                 {% include 'store/paginador.html' with page_obj=pagina_productos %}
             {% endif %}
         </section>
-
         <!-- Sección de Beneficios (la moví fuera del main, si tu layout lo requiere) -->
         <section class="container mx-auto px-4 py-8">
             <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">Nuestros Beneficios</h2>
@@ -191,7 +185,6 @@
             </div>
         </section>
     </main>
-
     {% block extra_js %}
         <script src="{% static 'js/carousel.js' %}"></script>
     {% endblock %}

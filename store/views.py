@@ -698,11 +698,13 @@ def productos_por_etiqueta(request, badge):
 
     productos = Producto.objects.filter(badge=badge, is_active=True)
     context = get_common_context(request)
-    context.update({
-        "pagina_productos": productos,
-        "nombre_categoria_actual": badge_display.get(badge, "Productos"),
-        "categoria_actual": badge,
-    })
+    context.update(
+        {
+            "pagina_productos": productos,
+            "nombre_categoria_actual": badge_display.get(badge, "Productos"),
+            "categoria_actual": badge,
+        }
+    )
     # ✅ Se establece el 'badge' (oferta, nuevo, tendencia) como la página activa.
     context["active_page"] = badge
     return render(request, "store/index.html", context)

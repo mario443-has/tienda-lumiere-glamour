@@ -43,7 +43,7 @@
         <!-- Header Section - Barra de Navegación Unificada -->
         <header class="bg-white shadow-md sticky top-0 z-50">
             <!-- Barra Superior de Información -->
-           <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-center text-sm py-2 px-4 relative overflow-hidden">
+            <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-center text-sm py-2 px-4 relative overflow-hidden">
                 <!-- Contenedor de la cinta optimizado para un bucle sin fin -->
                 <div class="marquee-container">
                     <div class="marquee-content">
@@ -51,7 +51,6 @@
                         <span class="marquee-item">Envíos a toda Colombia 100% seguros y garantizados</span>
                         <span class="marquee-item">Contra Entrega en Ipiales y Pasto</span>
                         <span class="marquee-item">Envíos y Domicilios Gratis por Compras iguales o mayores a $100.000</span>
-                        
                         <!-- Segundo conjunto de mensajes (duplicado para el bucle) -->
                         <span class="marquee-item">Envíos a toda Colombia 100% seguros y garantizados</span>
                         <span class="marquee-item">Contra Entrega en Ipiales y Pasto</span>
@@ -287,53 +286,55 @@
                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'nuevo' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Nuevos</a>
                     <a href="{% url 'productos_por_etiqueta' 'tendencia' %}"
                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-pink-600 {% if active_page == 'tendencia' %}bg-gray-100 text-pink-600 font-semibold{% endif %}">Tendencia</a>
-                    </div>
-                </header>
-                {# Contenido dinámico de cada página #}
-                {% block content %}{% endblock %}
-                <!-- Barra de navegación inferior móvil -->
-                <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-top flex justify-around items-center py-2 px-4 z-50">
-                    {# CAMBIO: Se usa active_page para marcar el enlace activo #}
-                    <a href="{% url 'home' %}"
-                       class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 {% if active_page == 'inicio' %}text-pink-600{% else %}text-gray-500{% endif %}">
-                        <i class="fas fa-home text-2xl mb-1"></i>
-                        <span class="text-xs">Inicio</span>
-                    </a>
-                    <!-- Botón de Categorías para móvil en la barra inferior -->
-                    <button id="bottom-nav-categories-button"
-                            class="flex flex-col items-center text-gray-500 hover:text-pink-700 transition-colors duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="mb-1"
-                             width="24"
-                             height="24"
-                             fill="none"
-                             viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h5v5H4V6zm0 7h5v5H4v-5zm7-7h9v5h-9V6zm0 7h9v5h-9v-5z" />
-                        </svg>
-                        <span class="text-xs">Categorías</span>
-                    </button>
-                    <button id="abrir-carrito-mobile"
-                            class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 relative text-pink-600">
-                        {# ID ÚNICO para el botón de abrir el carrito móvil #}
-                        <i class="fas fa-shopping-bag text-2xl mb-1"></i>
-                        <span class="text-xs">Carrito</span>
-                        <span id="bottom-nav-cart-count"
-                              class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
-                    </button>
-                    {# CAMBIO: Se usa active_page para marcar el enlace activo #}
-                    <a href="{% url 'ver_favoritos' %}"
-                       class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 {% if active_page == 'favoritos' %}text-pink-600{% else %}text-gray-500{% endif %}">
-                        <i class="fas fa-heart text-2xl mb-1"></i>
-                        <span class="text-xs">Favoritos</span>
-                        {# ELIMINADO: Badge de favoritos #}
-                    </a>
-                </nav>
-               <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-<!-- Google Fonts: Great Vibes para el logo, Inter para el texto general -->
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
+                </div>
+            </header>
+            {# Contenido dinámico de cada página #}
+            {% block content %}{% endblock %}
+            <!-- Barra de navegación inferior móvil -->
+            <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white shadow-top flex justify-around items-center py-2 px-4 z-50">
+                {# CAMBIO: Se usa active_page para marcar el enlace activo #}
+                <a href="{% url 'home' %}"
+                   class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 {% if active_page == 'inicio' %}text-pink-600{% else %}text-gray-500{% endif %}">
+                    <i class="fas fa-home text-2xl mb-1"></i>
+                    <span class="text-xs">Inicio</span>
+                </a>
+                <!-- Botón de Categorías para móvil en la barra inferior -->
+                <button id="bottom-nav-categories-button"
+                        class="flex flex-col items-center text-gray-500 hover:text-pink-700 transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="mb-1"
+                         width="24"
+                         height="24"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h5v5H4V6zm0 7h5v5H4v-5zm7-7h9v5h-9V6zm0 7h9v5h-9v-5z" />
+                    </svg>
+                    <span class="text-xs">Categorías</span>
+                </button>
+                <button id="abrir-carrito-mobile"
+                        class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 relative text-pink-600">
+                    {# ID ÚNICO para el botón de abrir el carrito móvil #}
+                    <i class="fas fa-shopping-bag text-2xl mb-1"></i>
+                    <span class="text-xs">Carrito</span>
+                    <span id="bottom-nav-cart-count"
+                          class="absolute -top-1 right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                </button>
+                {# CAMBIO: Se usa active_page para marcar el enlace activo #}
+                <a href="{% url 'ver_favoritos' %}"
+                   class="flex flex-col items-center hover:text-pink-700 transition-colors duration-200 {% if active_page == 'favoritos' %}text-pink-600{% else %}text-gray-500{% endif %}">
+                    <i class="fas fa-heart text-2xl mb-1"></i>
+                    <span class="text-xs">Favoritos</span>
+                    {# ELIMINADO: Badge de favoritos #}
+                </a>
+            </nav>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+                  rel="stylesheet">
+            <!-- Google Fonts: Great Vibes para el logo, Inter para el texto general -->
+            <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap"
+                  rel="stylesheet" />
+            <script src="https://cdn.tailwindcss.com"></script>
+            <style>
     /* Estilo para el logo y el texto general */
     .logo-font {
         font-family: 'Great Vibes', cursive;
@@ -341,171 +342,203 @@
     .general-font {
         font-family: 'Inter', sans-serif;
     }
-</style>
-<footer class="bg-gray-50 py-12">
-    <div class="container mx-auto px-4 md:px-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center md:text-left">
-            <!-- Columna 1: Logo y Descripción -->
-            <div class="flex flex-col items-center md:items-start">
-                <div class="flex items-center space-x-2 mb-4">
-                    <img src="{% static 'img/logo.png' %}"
-                         alt="Lumiere Glamour Logo"
-                         class="h-16 w-auto rounded-full shadow-md" />
-                    <span class="text-3xl logo-font text-pink-600">Lumiere Glamour</span>
-                </div>
-                <p class="text-sm text-gray-500 my-2 general-font">
-                    Tienda de Belleza Lumiere Glamour, una tienda de cosméticos en Colombia. Ofrecemos productos de maquillaje de alta calidad a precios competitivos.
-                </p>
-                <p class="text-sm text-gray-500 general-font">
-                    Ipiales, Nariño, Colombia
-                </p>
-            </div>
-            <!-- Columna 2: Enlaces Útiles -->
-            <div>
-                <h3 class="font-bold text-gray-800 mb-4 general-font">Enlaces Útiles</h3>
-                <ul class="space-y-2 text-sm text-gray-500 general-font">
-                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Acerca de Nosotros</a></li>
-                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Contacto</a></li>
-                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Términos y Condiciones</a></li>
-                    <li><a href="#" class="hover:text-pink-500 transition-colors duration-200">Política de Privacidad</a></li>
-                </ul>
-            </div>
-            <!-- Columna 3: Lo más Buscado -->
-            <div>
-                <h3 class="font-bold text-gray-800 mb-4 general-font">Lo más Buscado</h3>
-                <ul class="space-y-2 text-sm text-gray-500 general-font">
-                    <li><a href="/buscar?q=brochas" class="hover:text-pink-500 transition-colors duration-200">Brochas de Maquillaje</a></li>
-                    <li><a href="/buscar?q=bases" class="hover:text-pink-500 transition-colors duration-200">Bases de Maquillaje</a></li>
-                    <li><a href="/categoria/cuidado-facial/" class="hover:text-pink-500 transition-colors duration-200">Cuidado Facial</a></li>
-                    <li><a href="/buscar?q=polvos" class="hover:text-pink-500 transition-colors duration-200">Polvos de Maquillaje</a></li>
-                    <li><a href="/etiqueta/oferta/" class="hover:text-pink-500 transition-colors duration-200">Maquillaje en Descuento</a></li>
-                </ul>
-            </div>
-            <!-- Columna 4: Newsletter y Redes Sociales -->
-            <div class="flex flex-col items-center md:items-start relative">
-                <h3 class="font-bold text-gray-800 mb-4 general-font">Suscríbete y obtén descuentos exclusivos</h3>
-                <form action="#" method="post" class="w-full max-w-sm mb-4">
-                    {% csrf_token %}
-                    <div class="flex items-center border-b-2 border-pink-500 py-2">
-                        <input class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
-                               type="email"
-                               placeholder="Ingresa tu correo electrónico"
-                               aria-label="Correo para newsletter" />
-                        <button class="flex-shrink-0 bg-pink-500 hover:bg-pink-700 border-pink-500 hover:border-pink-700 text-sm border-4 text-white py-1 px-2 rounded"
-                                type="submit">
-                            Suscribirse
-                        </button>
-                    </div>
-                </form>
-                <div class="text-xs text-gray-400 mb-4 text-center md:text-left">
-                    <p>Al suscribirte, aceptas nuestra Política de Privacidad.</p>
-                </div>
-                <h3 class="font-bold text-gray-800 mb-2 general-font mt-4">Síguenos</h3>
-                <div class="flex space-x-2">
-                    <!-- Íconos de redes sociales -->
-                     <a href="https://wa.me/573007221200" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/lumiere_glamour_" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="https://www.tiktok.com/@lumiere.glamour3" target="_blank" class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-                    
-                </div>
-            </div>
-        </div>
-        <!-- Sección de Copyright y Crédito del Desarrollador -->
-        <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500 general-font">
-            <p>LumiereGlamour.com &copy; Todos los Derechos Reservados.</p>
-            <p class="mt-1">
-                Desarrollado por: <a href="https://tu_portfolio.com" target="_blank" class="text-pink-600 font-semibold hover:underline">Mario Alexander Chitán</a>
-            </p>
-        </div>
-    </div>
-</footer>
-                <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
-                <a
-                    href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
-                    class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
-                    target="_blank"
-                    title="Escríbenos por WhatsApp (Consulta General)"
-                    >
-                    <i class="fab fa-whatsapp text-2xl"></i>
-                </a>
-                <!-- NUEVO BOTÓN FLOTANTE "Comprar por WhatsApp" (para el carrito) -->
-                <button id="buy-whatsapp-button"
-                        class="fixed bottom-20 right-6 bg-purple-600 text-white py-3 px-4 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 z-40 flex items-center space-x-2 hidden">
-                    <i class="fab fa-whatsapp text-xl"></i>
-                    <span>Comprar Carrito</span>
-                    <span id="buy-whatsapp-cart-count"
-                          class="bg-white text-purple-600 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
-                </button>
-                <!-- MODAL DEL CARRITO - NUEVA ESTRUCTURA -->
-                <div id="carrito-modal"
-                     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-                    <div class="bg-white w-full max-w-lg mx-4 p-6 rounded-lg shadow-lg relative">
-                        <button id="cerrar-carrito"
-                                class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold">
-                            &times;
-                        </button>
-                        <h2 class="text-xl font-bold mb-4">🛒 Tu carrito</h2>
-                        <div id="contenido-carrito" class="py-4 max-h-80 overflow-y-auto">
-                            <!-- Los productos del carrito se renderizarán aquí dinámicamente por JS -->
-                        </div>
-                        <div class="pt-4 border-t border-gray-200">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-xl font-semibold text-gray-900">Total:</span>
-                                <span id="cart-total" class="text-2xl font-bold text-pink-600">$0.00</span> {# Mantener ID para el total #}
+            </style>
+            <footer class="bg-gray-50 py-12">
+                <div class="container mx-auto px-4 md:px-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center md:text-left">
+                        <!-- Columna 1: Logo y Descripción -->
+                        <div class="flex flex-col items-center md:items-start">
+                            <div class="flex items-center space-x-2 mb-4">
+                                <img src="{% static 'img/logo.png' %}"
+                                     alt="Lumiere Glamour Logo"
+                                     class="h-16 w-auto rounded-full shadow-md" />
+                                <span class="text-3xl logo-font text-pink-600">Lumiere Glamour</span>
                             </div>
-                            <div class="flex flex-col space-y-3">
-                                <a id="whatsapp-pedido"
+                            <p class="text-sm text-gray-500 my-2 general-font">
+                                Tienda de Belleza Lumiere Glamour, una tienda de cosméticos en Colombia. Ofrecemos productos de maquillaje de alta calidad a precios competitivos.
+                            </p>
+                            <p class="text-sm text-gray-500 general-font">Ipiales, Nariño, Colombia</p>
+                        </div>
+                        <!-- Columna 2: Enlaces Útiles -->
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-4 general-font">Enlaces Útiles</h3>
+                            <ul class="space-y-2 text-sm text-gray-500 general-font">
+                                <li>
+                                    <a href="#" class="hover:text-pink-500 transition-colors duration-200">Acerca de Nosotros</a>
+                                </li>
+                                <li>
+                                    <a href="#" class="hover:text-pink-500 transition-colors duration-200">Contacto</a>
+                                </li>
+                                <li>
+                                    <a href="#" class="hover:text-pink-500 transition-colors duration-200">Términos y Condiciones</a>
+                                </li>
+                                <li>
+                                    <a href="#" class="hover:text-pink-500 transition-colors duration-200">Política de Privacidad</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Columna 3: Lo más Buscado -->
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-4 general-font">Lo más Buscado</h3>
+                            <ul class="space-y-2 text-sm text-gray-500 general-font">
+                                <li>
+                                    <a href="/buscar?q=brochas"
+                                       class="hover:text-pink-500 transition-colors duration-200">Brochas de Maquillaje</a>
+                                </li>
+                                <li>
+                                    <a href="/buscar?q=bases"
+                                       class="hover:text-pink-500 transition-colors duration-200">Bases de Maquillaje</a>
+                                </li>
+                                <li>
+                                    <a href="/categoria/cuidado-facial/"
+                                       class="hover:text-pink-500 transition-colors duration-200">Cuidado Facial</a>
+                                </li>
+                                <li>
+                                    <a href="/buscar?q=polvos"
+                                       class="hover:text-pink-500 transition-colors duration-200">Polvos de Maquillaje</a>
+                                </li>
+                                <li>
+                                    <a href="/etiqueta/oferta/"
+                                       class="hover:text-pink-500 transition-colors duration-200">Maquillaje en Descuento</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Columna 4: Newsletter y Redes Sociales -->
+                        <div class="flex flex-col items-center md:items-start relative">
+                            <h3 class="font-bold text-gray-800 mb-4 general-font">Suscríbete y obtén descuentos exclusivos</h3>
+                            <form action="#" method="post" class="w-full max-w-sm mb-4">
+                                {% csrf_token %}
+                                <div class="flex items-center border-b-2 border-pink-500 py-2">
+                                    <input class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                                           type="email"
+                                           placeholder="Ingresa tu correo electrónico"
+                                           aria-label="Correo para newsletter" />
+                                    <button class="flex-shrink-0 bg-pink-500 hover:bg-pink-700 border-pink-500 hover:border-pink-700 text-sm border-4 text-white py-1 px-2 rounded"
+                                            type="submit">Suscribirse</button>
+                                </div>
+                            </form>
+                            <div class="text-xs text-gray-400 mb-4 text-center md:text-left">
+                                <p>Al suscribirte, aceptas nuestra Política de Privacidad.</p>
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2 general-font mt-4">Síguenos</h3>
+                            <div class="flex space-x-2">
+                                <!-- Íconos de redes sociales -->
+                                <a href="https://wa.me/573007221200"
                                    target="_blank"
-                                   class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
-                                    <i class="fab fa-whatsapp"></i>
-                                    <span>Pedir por WhatsApp</span>
-                                </a>
-                                <button id="seguir-comprando"
-                                        type="button"
-                                        class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition duration-300">
-                                    Seguir Comprando
-                                </button>
+                                   class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
+                                   aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr"
+                                   target="_blank"
+                                   class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
+                                   aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                <a href="https://www.instagram.com/lumiere_glamour_"
+                                   target="_blank"
+                                   class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
+                                   aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                                <a href="https://www.tiktok.com/@lumiere.glamour3"
+                                   target="_blank"
+                                   class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
+                                   aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
                             </div>
                         </div>
                     </div>
+                    <!-- Sección de Copyright y Crédito del Desarrollador -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500 general-font">
+                        <p>LumiereGlamour.com &copy; Todos los Derechos Reservados.</p>
+                        <p class="mt-1">
+                            Desarrollado por: <a href="https://tu_portfolio.com"
+    target="_blank"
+    class="text-pink-600 font-semibold hover:underline">Mario Alexander Chitán</a>
+                        </p>
+                    </div>
                 </div>
-                <!-- Custom Message Modal -->
-                <div id="message-modal"
-                     class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
-                    <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md mx-auto">
-                        <div class="flex justify-between items-center pb-3 border-b border-gray-200">
-                            <h3 id="message-modal-title" class="text-xl font-semibold text-gray-900">Mensaje</h3>
-                            <button type="button"
-                                    class="text-gray-400 hover:text-gray-600"
-                                    onclick="closeMessageModal()">
-                                <i class="fas fa-times text-xl"></i>
+            </footer>
+            <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
+            <a
+                href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
+                class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
+                target="_blank"
+                title="Escríbenos por WhatsApp (Consulta General)"
+                >
+                <i class="fab fa-whatsapp text-2xl"></i>
+            </a>
+            <!-- NUEVO BOTÓN FLOTANTE "Comprar por WhatsApp" (para el carrito) -->
+            <button id="buy-whatsapp-button"
+                    class="fixed bottom-20 right-6 bg-purple-600 text-white py-3 px-4 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 z-40 flex items-center space-x-2 hidden">
+                <i class="fab fa-whatsapp text-xl"></i>
+                <span>Comprar Carrito</span>
+                <span id="buy-whatsapp-cart-count"
+                      class="bg-white text-purple-600 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </button>
+            <!-- MODAL DEL CARRITO - NUEVA ESTRUCTURA -->
+            <div id="carrito-modal"
+                 class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div class="bg-white w-full max-w-lg mx-4 p-6 rounded-lg shadow-lg relative">
+                    <button id="cerrar-carrito"
+                            class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold">
+                        &times;
+                    </button>
+                    <h2 class="text-xl font-bold mb-4">🛒 Tu carrito</h2>
+                    <div id="contenido-carrito" class="py-4 max-h-80 overflow-y-auto">
+                        <!-- Los productos del carrito se renderizarán aquí dinámicamente por JS -->
+                    </div>
+                    <div class="pt-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xl font-semibold text-gray-900">Total:</span>
+                            <span id="cart-total" class="text-2xl font-bold text-pink-600">$0.00</span> {# Mantener ID para el total #}
+                        </div>
+                        <div class="flex flex-col space-y-3">
+                            <a id="whatsapp-pedido"
+                               target="_blank"
+                               class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>Pedir por WhatsApp</span>
+                            </a>
+                            <button id="seguir-comprando"
+                                    type="button"
+                                    class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition duration-300">
+                                Seguir Comprando
                             </button>
                         </div>
-                        <div class="py-4">
-                            <p id="message-modal-content" class="text-gray-700"></p>
-                        </div>
-                        <div class="pt-4 border-t border-gray-200 text-right">
-                            <button type="button"
-                                    class="bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition"
-                                    onclick="closeMessageModal()">Aceptar</button>
-                        </div>
                     </div>
                 </div>
-                <!-- Modal personalizado -->
-                <div id="custom-modal"
-                     class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-50">
-                    <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 text-center">
-                        <h2 id="modal-title" class="text-xl font-bold mb-2 text-gray-800">Título</h2>
-                        <p id="modal-message" class="text-gray-600 mb-4">Mensaje del modal...</p>
-                        <button id="modal-close-btn"
-                                class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
-                            Cerrar
+            </div>
+            <!-- Custom Message Modal -->
+            <div id="message-modal"
+                 class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-md mx-auto">
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <h3 id="message-modal-title" class="text-xl font-semibold text-gray-900">Mensaje</h3>
+                        <button type="button"
+                                class="text-gray-400 hover:text-gray-600"
+                                onclick="closeMessageModal()">
+                            <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
+                    <div class="py-4">
+                        <p id="message-modal-content" class="text-gray-700"></p>
+                    </div>
+                    <div class="pt-4 border-t border-gray-200 text-right">
+                        <button type="button"
+                                class="bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition"
+                                onclick="closeMessageModal()">Aceptar</button>
+                    </div>
                 </div>
-                <!-- Enlace a tu archivo JavaScript principal externo -->
-                <script>
+            </div>
+            <!-- Modal personalizado -->
+            <div id="custom-modal"
+                 class="fixed inset-0 flex items-center justify-center z-50 hidden bg-black bg-opacity-50">
+                <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-md p-6 text-center">
+                    <h2 id="modal-title" class="text-xl font-bold mb-2 text-gray-800">Título</h2>
+                    <p id="modal-message" class="text-gray-600 mb-4">Mensaje del modal...</p>
+                    <button id="modal-close-btn"
+                            class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+            <!-- Enlace a tu archivo JavaScript principal externo -->
+            <script>
         // Define el número de WhatsApp globalmente para que main.js pueda acceder a él
         window.whatsappNumber = "{{ whatsapp_number|default:'573007221200' }}";
         // Define la URL de la imagen de placeholder globalmente
@@ -530,14 +563,14 @@
         function showFavoriteMessage(message) {
             showSuccessNotification(message, 'Favoritos');
         }
-                </script>
-                <script src="{% static 'js/notifications.js' %}"></script>
-                <script src="{% static 'js/main.js' %}"></script>
-                <script src="{% static 'js/modals.js' %}"></script>
-                <script src="{% static 'js/pagination.js' %}"></script>
-                <script src="{% static 'js/animations.js' %}"></script>
-                {% block extra_js %}
-                {% endblock %}
-                {# Este es el bloque para JS específico de cada página #}
-            </body>
-        </html>
+            </script>
+            <script src="{% static 'js/notifications.js' %}"></script>
+            <script src="{% static 'js/main.js' %}"></script>
+            <script src="{% static 'js/modals.js' %}"></script>
+            <script src="{% static 'js/pagination.js' %}"></script>
+            <script src="{% static 'js/animations.js' %}"></script>
+            {% block extra_js %}
+            {% endblock %}
+            {# Este es el bloque para JS específico de cada página #}
+        </body>
+    </html>

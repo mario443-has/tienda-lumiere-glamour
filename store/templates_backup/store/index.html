@@ -2,8 +2,8 @@
 {% load static %}
 {% block title %}Inicio - Lumiere Glamour{% endblock %}
 {% block content %}
-    {# Carrusel de Anuncios #}
-    {% if anuncios %}
+    {# Carrusel de Anuncios: Solo se muestra en la página principal si hay anuncios #}
+    {% if anuncios and not ofertas_activas and not query and not categoria_actual %}
         <section class="relative w-full max-w-5xl mx-auto mt-0 rounded-lg shadow-lg overflow-hidden">
             <div id="announcement-carousel-wrapper">
                 <div id="announcement-carousel">
@@ -41,11 +41,59 @@
     {% endif %}
     <main class="container mx-auto px-4 py-8">
         {# Categorías Circulares #}
-        {% if categorias_principales %}
-            <section class="py-8">
+        {% if categorias_principales and not ofertas_activas and not query and not categoria_actual %}
+            <section class="py-8 max-w-7xl mx-auto">
                 <p class="text-pink-600 text-sm font-semibold text-center uppercase mb-2 tracking-wide">DESCUBRE NUESTROS PRODUCTOS</p>
                 <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-10">ELIGE UNA CATEGORÍA</h2>
-                <div class="flex flex-wrap justify-center gap-6 sm:gap-8">
+                {# Carrusel de Categorías (solo para móvil) #}
+                <div id="category-carousel-wrapper" class="relative block md:hidden">
+                    <div id="category-carousel"
+                         class="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth pb-4"
+                         style="-webkit-overflow-scrolling: touch">
+                        {% for categoria in categorias_principales %}
+                            {# Cada 9 categorías se inicia un nuevo "slide" de carrusel con 3x3 círculos #}
+                            {% if forloop.counter0|divisibleby:9 %}
+                                <div class="carousel-item flex-shrink-0 snap-center w-full grid grid-cols-3 gap-6 p-4">
+                                {% endif %}
+                                <a href="{% url 'categoria' categoria.slug %}"
+                                   class="category-circle-link flex flex-col items-center text-center group">
+                                    <div class="category-circle-image-container w-24 h-24 rounded-full overflow-hidden border-4 border-transparent group-hover:border-pink-500 transition-all duration-300 shadow-md group-hover:shadow-lg">
+                                        <img loading="lazy"
+                                             src="{% if categoria.imagen_circular %}{{ categoria.imagen_circular.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
+                                             alt="Categoría: {{ categoria.nombre }}"
+                                             class="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
+                                             onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';" />
+                                    </div>
+                                    <p class="text-gray-800 font-semibold mt-3 text-sm group-hover:text-pink-600 transition-colors duration-300">
+                                        {{ categoria.nombre }}
+                                    </p>
+                                </a>
+                                {% if forloop.counter|divisibleby:9 or forloop.last %}</div>{% endif %}
+                        {% endfor %}
+                    </div>
+                    <!-- Navegación del Carrusel de Categorías -->
+                    <button id="prev-category"
+                            aria-label="Categoría anterior"
+                            class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
+                        <i class="fas fa-chevron-left text-sm"></i>
+                    </button>
+                    <button id="next-category"
+                            aria-label="Categoría siguiente"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
+                        <i class="fas fa-chevron-right text-sm"></i>
+                    </button>
+                    <div id="category-carousel-indicators"
+                         class="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+                        {% for categoria in categorias_principales %}
+                            {% if forloop.counter0|divisibleby:9 %}
+                                <div class="indicator w-2 h-2 bg-white rounded-full cursor-pointer opacity-50 hover:opacity-100 transition"
+                                     data-slide-to="{{ forloop.counter0|divisibleby:9 }}"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {# Cuadrícula de Categorías (solo para tablet y escritorio) #}
+                <div class="hidden md:flex flex-wrap justify-center gap-6 sm:gap-8">
                     {% for categoria in categorias_principales %}
                         <a href="{% url 'categoria' categoria.slug %}"
                            class="category-circle-link flex flex-col items-center text-center group">
@@ -78,7 +126,9 @@
                 Nuestros Productos
             {% endif %}
         </h2>
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Contenedor principal de la cuadrícula de productos. ¡IMPORTANTE! El ID 'product-grid' es necesario para el script de paginación. -->
+        <section id="productos-grid"
+                 class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {# Corregido: grid-cols-2 para móvil #}
             {% for producto in pagina_productos %}
                 {# Incluye la tarjeta de producto desde un template parcial #}
@@ -98,84 +148,44 @@
                         {% if query %}
                             Intenta buscar con otras palabras clave o revisa nuestras categorías.
                         {% elif ofertas_activas %}
-                            ¡Vuelve pronto para ver nuestras promociones!
+                            ¡Vuelve pronto para ver nuestras nuevas ofertas!
                         {% else %}
-                            ¡Pronto tendremos más novedades para ti!
+                            Pronto tendremos nuevos productos para ti.
                         {% endif %}
                     </p>
                 </div>
             {% endfor %}
-        </div>
-        {% if pagina_productos.paginator.num_pages > 1 %}
-            <div class="flex justify-center mt-8">
-                <nav class="inline-flex rounded-md shadow-sm -space-x-px">
-                    {% if pagina_productos.has_previous %}
-                        <a href="?page=1{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Primera</span>
-                            <i class="fas fa-angle-double-left"></i>
-                        </a>
-                        <a href="?page={{ pagina_productos.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Anterior</span>
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                    {% endif %}
-                    {% for num in pagina_productos.paginator.page_range %}
-                        {% if num == pagina_productos.number %}
-                            <span class="relative inline-flex items-center px-4 py-2 border border-pink-500 bg-pink-50 text-sm font-medium text-pink-700">
-                                {{ num }}
-                            </span>
-                        {% elif num > pagina_productos.number|add:'-3' and num < pagina_productos.number|add:'3' %}
-                            <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                               class="relative inline-flex items-center px-4 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                                {{ num }}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                    {% if pagina_productos.has_next %}
-                        <a href="?page={{ pagina_productos.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-3 py-2 border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Siguiente</span>
-                            <i class="fas fa-angle-right"></i>
-                        </a>
-                        <a href="?page={{ pagina_productos.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if categoria_actual %}&categoria={{ categoria_actual }}{% endif %}{% if ofertas_activas %}&ofertas=true{% endif %}"
-                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-pink-300 bg-white text-sm font-medium text-pink-600 hover:bg-pink-50">
-                            <span class="sr-only">Última</span>
-                            <i class="fas fa-angle-double-right"></i>
-                        </a>
-                    {% endif %}
-                </nav>
-                <p class="text-sm text-gray-700 mt-4 text-center">
-                    Mostrando <span class="font-medium">{{ pagina_productos.start_index }}</span> a
-                    <span class="font-medium">{{ pagina_productos.end_index }}</span> de
-                    <span class="font-medium">{{ pagina_productos.paginator.count }}</span> productos
-                </p>
+        </section>
+        <!-- Sección de Paginación. -->
+        <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
+            {% if pagina_productos.has_other_pages %}
+                {% include 'store/paginador.html' with page_obj=pagina_productos %}
+            {% endif %}
+        </section>
+        <!-- Sección de Beneficios (la moví fuera del main, si tu layout lo requiere) -->
+        <section class="container mx-auto px-4 py-8">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-6">Nuestros Beneficios</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+                    <i class="fas fa-shield-alt text-4xl text-pink-600 mb-3"></i>
+                    <p class="font-semibold text-lg">Compra Segura</p>
+                </div>
+                <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+                    <i class="fas fa-paper-plane text-4xl text-pink-600 mb-3"></i>
+                    <p class="font-semibold text-lg">Envíos a Toda Colombia</p>
+                </div>
+                <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+                    <i class="fas fa-box text-4xl text-pink-600 mb-3"></i>
+                    <p class="font-semibold text-lg">Distribuidores de Maquillaje</p>
+                </div>
+                <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
+                    <i class="fas fa-magic text-4xl text-pink-600 mb-3"></i>
+                    <p class="font-semibold text-lg">Maquillaje Profesional</p>
+                </div>
             </div>
-        {% endif %}
-    </div>
-</div>
-</main>
-<section class="container mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-center">
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-shield-alt text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Compra Segura</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-paper-plane text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Envíos a Toda Colombia</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-box text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Distribuidores de Maquillaje</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-magic text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Maquillaje Profesional</p>
-    </div>
-    <div class="beneficio bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center transform transition duration-300 hover:scale-105">
-        <i class="fas fa-award text-4xl text-pink-600 mb-3"></i>
-        <p class="font-semibold text-lg">Calidad Garantizada</p>
-    </div>
-</section>
+        </section>
+    </main>
+    {% block extra_js %}
+        <script src="{% static 'js/carousel.js' %}"></script>
+    {% endblock %}
 {% endblock %}

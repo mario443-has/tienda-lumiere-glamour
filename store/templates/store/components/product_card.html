@@ -7,7 +7,8 @@
             {{ producto.get_badge_display }}
         </div>
     {% endif %}
-    {# Botón de favoritos - fuera del enlace para evitar conflicto con clics #}
+    
+    {# Botón de favoritos #}
     <button class="btn-favorito absolute top-3 right-3 z-20 {% if producto.id in favoritos_ids %}active{% endif %}"
             data-product-id="{{ producto.id }}"
             aria-label="{% if producto.id in favoritos_ids %}Eliminar de favoritos{% else %}Añadir a favoritos{% endif %}">
@@ -17,50 +18,49 @@
             <i class="far fa-heart text-gray-500 text-xl group-hover:text-pink-500 transition-transform duration-300 hover:scale-125"></i>
         {% endif %}
     </button>
-    {# Enlace que envuelve imagen y contenido para la navegación #}
+
+    {# Enlace de navegación al detalle del producto #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">
-        {# Contenedor para el efecto 3D #}
         <div class="product-tilt-container transition-transform duration-300 group-hover:scale-105">
-            {# Imagen del producto con lazy loading y fallback #}
             {% if producto.get_primary_image_url %}
                 <img src="{{ producto.get_primary_image_url }}"
-                    alt="{{ producto.nombre }}"
-                    class="w-full h-48 object-cover rounded-t-xl"
-                    loading="lazy" {# Añadido para la carga perezosa #}
-                    onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
+                     alt="{{ producto.nombre }}"
+                     class="w-full h-48 object-cover rounded-t-xl"
+                     loading="lazy"
+                     onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
+            {% else %}
+                <img src="{% static 'img/sin_imagen.jpg' %}"
+                     alt="Sin imagen"
+                     class="w-full h-48 object-cover rounded-t-xl"
+                     loading="lazy">
+            {% endif %}
+        </div>
+
+        <div class="p-4">
+            <h3 class="text-base font-semibold text-gray-800 group-hover:text-pink-600 transition duration-300">
+                {{ producto.nombre|truncatechars:40 }}
+            </h3>
+            <div class="mt-1 flex items-baseline space-x-2">
+                {% if producto.descuento %}
+                    <p class="text-pink-600 font-bold text-lg">${{ producto.get_precio_final|floatformat:0|intcomma }}</p>
+                    <p class="text-gray-500 text-sm line-through">${{ producto.precio|floatformat:0|intcomma }}</p>
                 {% else %}
-                    <img src="{% static 'img/sin_imagen.jpg' %}"
-                         alt="Sin imagen"
-                         class="w-full h-48 object-cover rounded-t-xl"
-                         loading="lazy">
-                    {# Añadido para la carga perezosa #}
+                    <p class="text-gray-900 font-bold text-lg">${{ producto.precio|floatformat:0|intcomma }}</p>
                 {% endif %}
             </div>
-            {# Contenido de la tarjeta con padding y espaciado #}
-            <div class="p-4">
-                <h3 class="text-base font-semibold text-gray-800 group-hover:text-pink-600 transition duration-300">
-                    {{ producto.nombre|truncatechars:40 }}
-                </h3>
-                <div class="mt-1 flex items-baseline space-x-2">
-                    {% if producto.descuento %}
-                        <p class="text-pink-600 font-bold text-lg">${{ producto.get_precio_final|floatformat:0|intcomma }}</p>
-                        <p class="text-gray-500 text-sm line-through">${{ producto.precio|floatformat:0|intcomma }}</p>
-                    {% else %}
-                        <p class="text-gray-900 font-bold text-lg">${{ producto.precio|floatformat:0|intcomma }}</p>
-                    {% endif %}
-                </div>
-            </div>
-        </a>
-        {# Botón Añadir al carrito - permanece fuera del enlace #}
-        <div class="p-4 pt-0">
-            <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-md"
-                    data-product-id="{{ producto.id }}"
-                    data-product-name="{{ producto.nombre }}"
-                    data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
-                    data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}">
-                    data-product-image-url="{{ producto.get_primary_image_url|default:'/static/img/sin_imagen.jpg' }}"
-                <i class="fas fa-shopping-cart text-base"></i>
-                <span>Añadir al Carrito</span>
-            </button>
         </div>
+    </a>
+
+    {# Botón de añadir al carrito #}
+    <div class="p-4 pt-0">
+        <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-md"
+                data-product-id="{{ producto.id }}"
+                data-product-name="{{ producto.nombre }}"
+                data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
+                data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
+                data-product-image-url="{{ producto.get_primary_image_url|default:'/static/img/sin_imagen.jpg' }}">
+            <i class="fas fa-shopping-cart text-base"></i>
+            <span>Añadir al Carrito</span>
+        </button>
     </div>
+</div>

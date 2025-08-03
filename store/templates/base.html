@@ -372,6 +372,7 @@
             <div class="flex flex-col items-center md:items-start relative">
                 <h3 class="font-bold text-gray-800 mb-4 general-font">Suscríbete y obtén descuentos exclusivos</h3>
                 <form action="#" method="post" class="w-full max-w-sm mb-4">
+                    {% csrf_token %}
                     <div class="flex items-center border-b-2 border-pink-500 py-2">
                         <input class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
                                type="email"
@@ -522,6 +523,7 @@
                 <script src="{% static 'js/favoritos.js' %}"></script>
                 <script src="{% static 'js/modals.js' %}"></script>
                 <script src="{% static 'js/pagination.js' %}"></script>
+                <script src="{% static 'js/animatios.js' %}"></script>
                 {% block extra_js %}
                 {% endblock %}
                 {# Este es el bloque para JS específico de cada página #}

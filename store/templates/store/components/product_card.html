@@ -1,6 +1,6 @@
 {% load static %}
 {% load humanize %}
-<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden relative group">
+<div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden relative group product-card">
     {# 🏷️ Etiqueta visual del producto #}
     {% if producto.badge %}
         <div class="absolute top-2 left-2 z-10 product-badge {{ producto.get_badge_class }}">
@@ -18,17 +18,20 @@
     </button>
     {# Enlace que envuelve imagen y contenido #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">
-        {# Imagen del producto #}
-        {% if producto.get_primary_image_url %}
-            <img src="{{ producto.get_primary_image_url }}"
-                 alt="{{ producto.nombre }}"
-                 class="w-full h-48 object-cover"
-                 onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
-        {% else %}
-            <img src="{% static 'img/sin_imagen.jpg' %}"
-                 alt="{{ producto.nombre }}"
-                 class="w-full h-48 object-cover">
-        {% endif %}
+        {# Contenedor para el efecto 3D #}
+        <div class="product-tilt-container">
+            {# Imagen del producto #}
+            {% if producto.get_primary_image_url %}
+                <img src="{{ producto.get_primary_image_url }}"
+                     alt="{{ producto.nombre }}"
+                     class="w-full h-48 object-cover"
+                     onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
+            {% else %}
+                <img src="{% static 'img/sin_imagen.jpg' %}"
+                     alt="{{ producto.nombre }}"
+                     class="w-full h-48 object-cover">
+            {% endif %}
+        </div>
         {# Contenido: nombre y precios #}
         <div class="p-4">
             <h3 class="text-sm font-medium text-gray-700 group-hover:text-pink-600">{{ producto.nombre|truncatechars:40 }}</h3>

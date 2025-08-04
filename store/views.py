@@ -668,3 +668,31 @@ def ver_favoritos(request):
     context["favoritos_productos"] = favoritos_productos  # ✅ Pasar directamente instancias
     context["active_page"] = "favoritos"
     return render(request, "store/favoritos.html", context)
+
+#mostrar productos por etiqueta
+from django.shortcuts import render
+from .models import Producto
+from .utils import get_common_context
+
+def productos_por_etiqueta(request, badge):
+    """
+    Vista para mostrar productos filtrados por etiqueta (badge).
+    Ej: /etiquetas/oferta/
+    """
+    badge_display = {
+        "nuevo": "Productos Nuevos",
+        "tendencia": "Tendencias",
+        "oferta": "Ofertas Especiales",
+    }
+
+    productos = Producto.objects.filter(badge=badge, is_active=True)
+
+    context = get_common_context(request)
+    context.update({
+        "pagina_productos": productos,
+        "nombre_categoria_actual": badge_display.get(badge, "Productos"),
+        "categoria_actual": badge,
+        "active_page": badge,  # Para activar la pestaña del menú
+    })
+
+    return render(request, "store/index.html", context)

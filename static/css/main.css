@@ -1,102 +1,121 @@
 /* Estilo personalizado para la fuente del logo */
 .font-great-vibes {
-  font-family: "Great Vibes", cursive;
+    font-family: "Great Vibes", cursive;
 }
+
 /* Estilos para el contenedor de resultados de búsqueda */
 .search-results {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  max-height: 24rem;
-  overflow-y: auto;
-  transition: all 0.2s ease-in-out;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-height: 24rem;
+    overflow-y: auto;
+    transition: all 0.2s ease-in-out;
 }
 
 .search-results:empty {
-  display: none;
+    display: none;
 }
 
 .search-results > div {
-  padding: 0.75rem;
-  /* CORRECCIÓN: Estilos movidos aquí desde una línea suelta */
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s ease;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
 }
 
 .search-results > div:hover {
-  background-color: #fdf2f8;
+    background-color: #fdf2f8;
 }
 
 .search-results img {
-  width: 3rem;
-  height: 3rem;
-  object-fit: cover;
-  border-radius: 0.375rem;
+    width: 3rem;
+    height: 3rem;
+    object-fit: cover;
+    border-radius: 0.375rem;
 }
 
 /* ------------------------------------------- */
 /* Estilos para el carrusel de anuncios */
 /* ------------------------------------------- */
 #announcement-carousel-wrapper {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
 }
 #announcement-carousel {
-  display: flex;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+    display: flex;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 .carousel-item {
-  flex: 0 0 auto;
-  width: 100%;
-  scroll-snap-align: start;
+    flex: 0 0 auto;
+    width: 100%;
+    scroll-snap-align: start;
 }
 .carousel-item img {
-  width: 100%;
-  height: auto;
-  display: block;
+    width: 100%;
+    /* 🛠️ Cambio clave: Se establece una altura fija para un tamaño uniforme */
+    height: 300px;
+    /* 🛠️ Cambio clave: Recorta la imagen para que llene el espacio sin distorsionarse */
+    object-fit: cover;
+    display: block;
 }
 /* Botones de navegación */
 #prev-announcement,
 #next-announcement {
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 9999px; /* rounded-full */
-  z-index: 10;
-  transition: background-color 0.3s ease;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 9999px; /* rounded-full */
+    z-index: 10;
+    transition: background-color 0.3s ease;
 }
 #prev-announcement:hover,
 #next-announcement:hover {
-  background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.9);
 }
+#prev-announcement { left: 1rem; }
+#next-announcement { right: 1rem; }
 /* Indicadores */
 #carousel-indicators {
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 0.5rem;
-  z-index: 10;
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
 }
 .indicator {
-  width: 0.75rem;
-  height: 0.75rem;
-  background-color: #fff;
-  border-radius: 9999px;
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: #fff;
+    border-radius: 9999px;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
 }
 .indicator.opacity-100 {
-  opacity: 1;
+    opacity: 1;
 }
+
+/* Media query para pantallas más grandes */
+@media (min-width: 768px) {
+    .carousel-item img {
+        height: 400px;
+    }
+}
+@media (min-width: 1024px) {
+    .carousel-item img {
+        height: 450px;
+    }
+}
+
 
 /* ------------------------------------------- */
 /* Estilos para el Carrusel de Categorías (se asume que también existe en este archivo) */
@@ -135,56 +154,53 @@
 /* Estilos para el menú de categorías */
 /* ------------------------------------------- */
 .categorias-nav {
-  position: relative;
-  z-index: 50;
+    position: relative;
+    z-index: 50;
 }
 
 .categorias-lista {
-  display: none;
-  /* Por defecto oculto en móvil */
-  width: 100%;
-  background-color: #fff;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+    display: none;
+    width: 100%;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .categorias-lista.show {
-  display: block;
+    display: block;
 }
 
 .subcategorias {
-  /* 📐 Mejora 1: Limitar altura y añadir scroll para evitar desbordamiento */
-  max-height: 300px;
-  overflow-y: auto;
-  /* 💡 Mejora 2: Animación de subcategorías */
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-  transition: all 0.3s ease;
+    max-height: 300px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: all 0.3s ease;
 }
 
 .categoria-item:hover .subcategorias,
 .categoria-item.active .subcategorias {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 @media (min-width: 1024px) {
-  .categorias-lista {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: stretch;
-    box-shadow: none;
-  }
+    .categorias-lista {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: stretch;
+        box-shadow: none;
+    }
 }
 
 .search-input:focus {
-  border-color: #ec4899;
-  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.5);
+    border-color: #ec4899;
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.5);
 }
 
 
@@ -192,12 +208,12 @@
 /* Estilos para el efecto 3D de tarjetas de producto */
 /* ------------------------------------------- */
 .product-card {
-  perspective: 1000px; /* Define la perspectiva para el efecto 3D */
+    perspective: 1000px; /* Define la perspectiva para el efecto 3D */
 }
 
 .product-tilt-container {
-  transform-style: preserve-3d;
-  transition: transform 0.1s ease; /* Transición más rápida para el efecto de movimiento del mouse */
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease; /* Transición más rápida para el efecto de movimiento del mouse */
 }
 
 
@@ -208,16 +224,15 @@
 /* Contenedor principal del marquee */
 .marquee {
     width: 100%;
-    /* Altura basada en el contenido */
-    white-space: nowrap; /* Mantiene el contenido en una sola línea */
-    overflow: hidden; /* Oculta el contenido que se sale del contenedor */
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 /* El div interno que contiene todos los mensajes y se anima */
 .marquee-content {
     display: flex;
-    white-space: nowrap; /* Evita que los mensajes se rompan en varias líneas */
-    animation: marquee 25s linear infinite; /* Aplica la animación */
+    white-space: nowrap;
+    animation: marquee 25s linear infinite;
 }
 
 /* Pausa la animación al pasar el ratón */
@@ -227,33 +242,31 @@
 
 /* Estilo para cada mensaje individual */
 .marquee-item {
-    padding: 0 1rem; /* Espacio entre los mensajes */
+    padding: 0 1rem;
 }
 
 /* ===================== */
-/* 🎞️ Animaciones        */
+/* 🎞️ Animaciones      */
 /* ===================== */
-/* Define la animación de desplazamiento */
-/* Usar 'transform: translateX' es más eficiente que animar 'margin-left' o 'left' */
 @keyframes marquee {
     0% {
-        transform: translateX(0); /* Posición inicial */
+        transform: translateX(0);
     }
     100% {
-        transform: translateX(-50%); /* Se desplaza la mitad del ancho total */
+        transform: translateX(-50%);
     }
 }
 .animate-bounce {
-  animation: bounce 1s infinite;
+    animation: bounce 1s infinite;
 }
 
 @keyframes bounce {
-  0%, 100% {
-    transform: translateY(-25%);
-    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
-  }
-  50% {
-    transform: translateY(0);
-    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
-  }
+    0%, 100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
 }

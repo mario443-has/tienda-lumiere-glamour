@@ -273,12 +273,15 @@ function applyFavoriteState(productId, isFavorite) {
         if (isFavorite) {
             icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
             icon.classList.add("fas", "text-red-500", "animate-bounce");
+            button.classList.add("active");  // ✅ esta línea faltaba
         } else {
             icon.classList.remove("fas", "text-red-500", "animate-bounce");
             icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
+            button.classList.remove("active"); // ✅ esta línea faltaba
         }
     });
 }
+
 
 // Toggle de submenús en móvil
 window.toggleSubmenu = function(button) {
@@ -477,16 +480,23 @@ function toggleFavorito(button, productoId) {
         }
     }
 }
-
 function updateFavoritesView() {
-    const favoritosActivos = document.querySelectorAll(".product-card .btn-favorito.active");
+    document.querySelectorAll(".btn-favorito").forEach((btn) => {
+        const productId = btn.dataset.productId;
+        const isFav = localStorage.getItem(`favorito-${productId}`) === "true";
+        applyFavoriteState(productId, isFav);
+    });
+
+    // Si estás en la página de favoritos, muestra mensaje si no hay ninguno
     const container = document.getElementById("favoritos-container");
     if (container) {
+        const favoritosActivos = document.querySelectorAll(".product-card .btn-favorito.active");
         if (favoritosActivos.length === 0) {
             container.innerHTML = "<p class='text-center text-gray-500 py-8'>No tienes productos en favoritos.</p>";
         }
     }
 }
+
 
 
 // --- Lógica de Búsqueda en Vivo ---

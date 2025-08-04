@@ -275,18 +275,25 @@ function applyFavoriteState(productId, isFavorite) {
             return;
         }
 
-        console.log("🛠 Cambiando clases del ícono", icon.className);
+        // 🧹 Limpiar clases fa-* previas (evita conflicto de fa-regular y fa-solid en orden incorrecto)
+        icon.classList.forEach(cls => {
+            if (cls.startsWith("fa-")) {
+                icon.classList.remove(cls);
+            }
+        });
 
-        // 🔄 Reiniciar todas las clases relacionadas con el ícono visual
-        icon.classList.remove("fa-regular", "fa-solid", "text-gray-500", "text-red-500", "animate-bounce");
+        // 🧱 Volver a poner las clases base
+        icon.classList.add("fa-heart", "text-xl", "transition-transform", "duration-300", "hover:scale-125");
 
         if (isFavorite) {
-            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "animate-bounce");
+            icon.classList.add("fa-solid", "text-red-500", "animate-bounce");
             button.classList.add("active");
         } else {
-            icon.classList.add("fa-regular", "fa-heart", "text-gray-500");
+            icon.classList.add("fa-regular", "text-gray-500");
             button.classList.remove("active");
         }
+
+        console.log("🛠 Clases finales del ícono:", icon.className);
     });
 }
 

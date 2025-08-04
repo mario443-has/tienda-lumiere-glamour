@@ -266,14 +266,16 @@ window.toggleMobileSearch = function() {
 
 // Helper function to apply favorite state visually
 function applyFavoriteState(productId, isFavorite) {
-    document.querySelectorAll(`.btn-favorito[data-producto-id="${productId}"]`).forEach(button => {
-        const icon = button.querySelector('i');
-        if (icon) {
-            if (isFavorite) {
-                icon.classList.add('active');
-            } else {
-                icon.classList.remove('active');
-            }
+    document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`).forEach(button => {
+        const icon = button.querySelector("i");
+        if (!icon) return;
+
+        if (isFavorite) {
+            icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
+            icon.classList.add("fas", "text-red-500", "animate-bounce");
+        } else {
+            icon.classList.remove("fas", "text-red-500", "animate-bounce");
+            icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
         }
     });
 }

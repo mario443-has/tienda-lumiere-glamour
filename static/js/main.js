@@ -265,24 +265,19 @@ window.toggleMobileSearch = function() {
 };
 function applyFavoriteState(productId, isFavorite) {
     const buttons = document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`);
-    console.log("🎯 Aplicando visual:", { productId, isFavorite, buttons });
 
     buttons.forEach(button => {
         const icon = button.querySelector("i");
-        if (!icon) {
-            console.warn("⚠️ No se encontró el ícono", button);
-            return;
-        }
+        if (!icon) return;
 
-        // 🔥 Eliminar todas las clases fa-* para evitar conflictos
-        icon.className = "";  // 🔄 resetea por completo
+        // 🔄 Limpiar clases previas
+        icon.classList.remove("fa-regular", "fa-solid", "text-gray-500", "text-red-500", "animate-bounce");
 
-        // 🧱 Agrega clases en orden correcto
         if (isFavorite) {
-            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "text-xl", "transition-transform", "duration-300", "hover:scale-125", "animate-bounce");
+            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "animate-bounce");
             button.classList.add("active");
         } else {
-            icon.classList.add("fa-regular", "fa-heart", "text-gray-500", "text-xl", "transition-transform", "duration-300", "hover:scale-125");
+            icon.classList.add("fa-regular", "fa-heart", "text-gray-500");
             button.classList.remove("active");
         }
 

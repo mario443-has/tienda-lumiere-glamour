@@ -12,8 +12,9 @@
 <button class="btn-favorito absolute top-3 right-3 z-20"
         data-product-id="{{ producto.id }}"
         aria-label="Alternar favorito">
-    <i class="fa-regular fa-heart text-xl transition-transform duration-300 hover:scale-125"></i>
+    <i class="fa-regular fa-heart text-xl transition-transform duration-300 hover:scale-125 favorite-icon"></i>
 </button>
+
 
     {# Enlace de navegación al detalle del producto #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">

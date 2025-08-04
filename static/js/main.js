@@ -263,7 +263,6 @@ window.toggleMobileSearch = function() {
         }
     }
 };
-
 function applyFavoriteState(productId, isFavorite) {
     const buttons = document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`);
     console.log("🎯 Aplicando visual:", { productId, isFavorite, buttons });
@@ -275,21 +274,15 @@ function applyFavoriteState(productId, isFavorite) {
             return;
         }
 
-        // 🧹 Limpiar clases fa-* previas (evita conflicto de fa-regular y fa-solid en orden incorrecto)
-        icon.classList.forEach(cls => {
-            if (cls.startsWith("fa-")) {
-                icon.classList.remove(cls);
-            }
-        });
+        // 🔥 Eliminar todas las clases fa-* para evitar conflictos
+        icon.className = "";  // 🔄 resetea por completo
 
-        // 🧱 Volver a poner las clases base
-        icon.classList.add("fa-heart", "text-xl", "transition-transform", "duration-300", "hover:scale-125");
-
+        // 🧱 Agrega clases en orden correcto
         if (isFavorite) {
-            icon.classList.add("fa-solid", "text-red-500", "animate-bounce");
+            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "text-xl", "transition-transform", "duration-300", "hover:scale-125", "animate-bounce");
             button.classList.add("active");
         } else {
-            icon.classList.add("fa-regular", "text-gray-500");
+            icon.classList.add("fa-regular", "fa-heart", "text-gray-500", "text-xl", "transition-transform", "duration-300", "hover:scale-125");
             button.classList.remove("active");
         }
 

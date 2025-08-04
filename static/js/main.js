@@ -690,3 +690,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest(".btn-favorito");
+  if (btn) {
+    const productoId = btn.dataset.productId;
+    console.log("🧪 Clic en favorito", productoId); // <--- Agregado
+    toggleFavorito(btn, productoId);
+  }
+});

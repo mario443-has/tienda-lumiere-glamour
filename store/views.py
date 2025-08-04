@@ -642,10 +642,9 @@ class CategoriaListView(ListView):
 
         # ✅ Se establece el slug de la categoría como la página activa.
         context["active_page"] = self.categoria.slug
-
+        
+#vista de favoritos
         return context
-
-
 def ver_favoritos(request):
     """
     Vista para mostrar todos los productos favoritos
@@ -666,45 +665,6 @@ def ver_favoritos(request):
     # Obtener productos activos cuyos IDs estén en la lista de favoritos
     favoritos_productos = Producto.objects.filter(id__in=favoritos_ids, is_active=True)
 
-    productos_procesados = []
-    for producto in favoritos_productos:
-        productos_procesados.append(
-            {
-                "id": producto.id,
-                "nombre": producto.nombre,
-                "descripcion": producto.descripcion,
-                "precio": format_precio(producto.precio),
-                "descuento": (
-                    format_precio(producto.descuento) if producto.descuento else "0"
-                ),
-                "get_precio_final": format_precio(producto.get_precio_final()),
-                "imagen": producto.get_primary_image_url(),
-                "is_favorito": True,  # Ya está en favoritos
-            }
-        )
-
-    context["favoritos_productos"] = productos_procesados
-    # ✅ Se establece 'favoritos' como la página activa para el menú.
+    context["favoritos_productos"] = favoritos_productos  # ✅ Pasar directamente instancias
     context["active_page"] = "favoritos"
     return render(request, "store/favoritos.html", context)
-
-
-def productos_por_etiqueta(request, badge):
-    badge_display = {
-        "nuevo": "Productos Nuevos",
-        "tendencia": "Tendencias",
-        "oferta": "Ofertas Especiales",
-    }
-
-    productos = Producto.objects.filter(badge=badge, is_active=True)
-    context = get_common_context(request)
-    context.update(
-        {
-            "pagina_productos": productos,
-            "nombre_categoria_actual": badge_display.get(badge, "Productos"),
-            "categoria_actual": badge,
-        }
-    )
-    # ✅ Se establece el 'badge' (oferta, nuevo, tendencia) como la página activa.
-    context["active_page"] = badge
-    return render(request, "store/index.html", context)

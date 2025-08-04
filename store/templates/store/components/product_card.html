@@ -9,15 +9,11 @@
     {% endif %}
     
     {# Botón de favoritos #}
-    <button class="btn-favorito absolute top-3 right-3 z-20 {% if producto.id in favoritos_ids %}active{% endif %}"
-            data-product-id="{{ producto.id }}"
-            aria-label="{% if producto.id in favoritos_ids %}Eliminar de favoritos{% else %}Añadir a favoritos{% endif %}">
-        {% if producto.id in favoritos_ids %}
-            <i class="fas fa-heart text-red-500 text-xl transition-transform duration-300 hover:scale-125"></i>
-        {% else %}
-            <i class="far fa-heart text-gray-500 text-xl group-hover:text-pink-500 transition-transform duration-300 hover:scale-125"></i>
-        {% endif %}
-    </button>
+    <button class="btn-favorito absolute top-3 right-3 z-20"
+        data-product-id="{{ producto.id }}"
+        aria-label="Alternar favorito">
+    <i class="far fa-heart text-gray-500 text-xl group-hover:text-pink-500 transition-transform duration-300 hover:scale-125"></i>
+</button>
 
     {# Enlace de navegación al detalle del producto #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">

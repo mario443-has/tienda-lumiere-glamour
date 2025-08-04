@@ -264,24 +264,23 @@ window.toggleMobileSearch = function() {
     }
 };
 
-// Helper function to apply favorite state visually
 function applyFavoriteState(productId, isFavorite) {
     document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`).forEach(button => {
         const icon = button.querySelector("i");
         if (!icon) return;
 
+        // Limpiar todas las clases posibles previas
+        icon.classList.remove("fa-solid", "fa-regular", "fa-heart", "text-red-500", "text-gray-500", "group-hover:text-pink-500", "animate-bounce");
+
         if (isFavorite) {
-            icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
-            icon.classList.add("fas", "text-red-500", "animate-bounce");
-            button.classList.add("active");  // ✅ esta línea faltaba
+            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "animate-bounce");
+            button.classList.add("active");
         } else {
-            icon.classList.remove("fas", "text-red-500", "animate-bounce");
-            icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
-            button.classList.remove("active"); // ✅ esta línea faltaba
+            icon.classList.add("fa-regular", "fa-heart", "text-gray-500", "group-hover:text-pink-500");
+            button.classList.remove("active");
         }
     });
 }
-
 
 // Toggle de submenús en móvil
 window.toggleSubmenu = function(button) {

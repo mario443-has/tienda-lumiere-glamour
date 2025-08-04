@@ -265,22 +265,30 @@ window.toggleMobileSearch = function() {
 };
 
 function applyFavoriteState(productId, isFavorite) {
-    document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`).forEach(button => {
-        const icon = button.querySelector("i");
-        if (!icon) return;
+    const buttons = document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`);
+    console.log("🎯 Aplicando visual:", { productId, isFavorite, buttons });
 
-        // Limpiar todas las clases posibles previas
-        icon.classList.remove("fa-solid", "fa-regular", "fa-heart", "text-red-500", "text-gray-500", "group-hover:text-pink-500", "animate-bounce");
+    buttons.forEach(button => {
+        const icon = button.querySelector("i");
+        if (!icon) {
+            console.warn("⚠️ No se encontró el ícono", button);
+            return;
+        }
+
+        console.log("🛠 Cambiando clases del ícono", icon.className);
 
         if (isFavorite) {
-            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "animate-bounce");
+            icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
+            icon.classList.add("fas", "text-red-500", "animate-bounce");
             button.classList.add("active");
         } else {
-            icon.classList.add("fa-regular", "fa-heart", "text-gray-500", "group-hover:text-pink-500");
+            icon.classList.remove("fas", "text-red-500", "animate-bounce");
+            icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
             button.classList.remove("active");
         }
     });
 }
+
 
 // Toggle de submenús en móvil
 window.toggleSubmenu = function(button) {
@@ -459,26 +467,16 @@ function repararFavoritosLocales() {
 }
 
 function toggleFavorito(button, productoId) {
-    const isNowFavorite = !button.classList.contains("active");
-    if (isNowFavorite) {
-        button.classList.add("active");
-        localStorage.setItem(`favorito-${productoId}`, "true");
-    } else {
-        button.classList.remove("active");
-        localStorage.setItem(`favorito-${productoId}`, "false");
-    }
+    console.log("🟡 toggleFavorito()", { productoId, button });
 
-    if (document.body.classList.contains("favoritos-page")) {
-        const card = button.closest(".product-card");
-        if (!isNowFavorite && card) {
-            card.classList.add("fade-out");
-            setTimeout(() => {
-                card.remove();
-                updateFavoritesView();
-            }, 300);
-        }
-    }
+    const isNowFavorite = !button.classList.contains("active");
+    localStorage.setItem(`favorito-${productoId}`, isNowFavorite ? "true" : "false");
+
+    applyFavoriteState(productoId, isNowFavorite);  // <- forzamos la actualización visual
+
+    console.log("🔁 Estado actualizado:", isNowFavorite);
 }
+
 function updateFavoritesView() {
     document.querySelectorAll(".btn-favorito").forEach((btn) => {
         const productId = btn.dataset.productId;

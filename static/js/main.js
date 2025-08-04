@@ -277,17 +277,19 @@ function applyFavoriteState(productId, isFavorite) {
 
         console.log("🛠 Cambiando clases del ícono", icon.className);
 
+        // 🔄 Reiniciar todas las clases relacionadas con el ícono visual
+        icon.classList.remove("fa-regular", "fa-solid", "text-gray-500", "text-red-500", "animate-bounce");
+
         if (isFavorite) {
-            icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
-            icon.classList.add("fas", "text-red-500", "animate-bounce");
+            icon.classList.add("fa-solid", "fa-heart", "text-red-500", "animate-bounce");
             button.classList.add("active");
         } else {
-            icon.classList.remove("fas", "text-red-500", "animate-bounce");
-            icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
+            icon.classList.add("fa-regular", "fa-heart", "text-gray-500");
             button.classList.remove("active");
         }
     });
 }
+
 
 
 // Toggle de submenús en móvil

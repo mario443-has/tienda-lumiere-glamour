@@ -163,7 +163,6 @@ def get_common_context(request):
         "categorias_principales": categorias_principales,
     }
 
-
 def inicio(request):
     """
     Vista principal de la tienda virtual Lumière Glamour.
@@ -672,7 +671,6 @@ def ver_favoritos(request):
 #mostrar productos por etiqueta
 from django.shortcuts import render
 from .models import Producto
-from .utils import get_common_context
 
 def productos_por_etiqueta(request, badge):
     """

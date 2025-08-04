@@ -4,41 +4,46 @@
 {% block content %}
     {# Carrusel de Anuncios: Solo se muestra en la página principal si hay anuncios #}
     {% if anuncios and not ofertas_activas and not query and not categoria_actual %}
-        <section class="relative w-full max-w-5xl mx-auto mt-0 rounded-lg shadow-lg overflow-hidden">
-            <div id="announcement-carousel-wrapper">
-                <div id="announcement-carousel">
-                    {% for anuncio in anuncios %}
-                        <div class="carousel-item">
-                            {% if anuncio.url %}<a href="{{ anuncio.url }}" target="_blank" class="block w-full h-full">{% endif %}
-                                <img src="{{ anuncio.imagen.url|default:'https://placehold.co/1000x400/cccccc/333333?text=Anuncio' }}"
-                                     alt="Anuncio: {{ anuncio.titulo }}"
-                                     loading="lazy"
-                                     onerror="this.onerror=null;this.src='https://placehold.co/1000x400/cccccc/333333?text=Anuncio';'" />
-                                {% if anuncio.url %}</a>{% endif %}
-                        </div>
-                    {% endfor %}
+<section class="relative w-full max-w-5xl mx-auto mt-0 rounded-lg shadow-lg overflow-hidden">
+    <div id="announcement-carousel-wrapper">
+        <div id="announcement-carousel" class="flex transition-all duration-300 ease-in-out">
+            {% for anuncio in anuncios %}
+                <div class="carousel-item w-full flex-shrink-0">
+                    {% if anuncio.url %}
+                        <a href="{{ anuncio.url }}" target="_blank" class="block w-full h-full">
+                    {% endif %}
+                    <img src="{{ anuncio.imagen.url|default:'https://placehold.co/1000x400/cccccc/333333?text=Anuncio' }}"
+                         alt="Anuncio: {{ anuncio.titulo }}"
+                         loading="lazy"
+                         class="w-full h-auto"
+                         onerror="this.onerror=null;this.src='https://placehold.co/1000x400/cccccc/333333?text=Anuncio';" />
+                    {% if anuncio.url %}</a>{% endif %}
                 </div>
-            </div>
-            <!-- Navegación -->
-            <button id="prev-announcement"
-                    aria-label="Anterior"
-                    class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 sm:p-3 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
-                <i class="fas fa-chevron-left text-base sm:text-xl"></i>
-            </button>
-            <button id="next-announcement"
-                    aria-label="Siguiente"
-                    class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 sm:p-3 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
-                <i class="fas fa-chevron-right text-base sm:text-xl"></i>
-            </button>
-            <div id="carousel-indicators"
-                 class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-                {% for anuncio in anuncios %}
-                    <div class="indicator w-3 h-3 bg-white rounded-full cursor-pointer opacity-50 hover:opacity-100 transition"
-                         data-slide-to="{{ forloop.counter0 }}"></div>
-                {% endfor %}
-            </div>
-        </section>
-    {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <button id="prev-announcement" aria-label="Anterior"
+        class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 sm:p-3 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
+        <i class="fas fa-chevron-left text-base sm:text-xl"></i>
+    </button>
+    <button id="next-announcement" aria-label="Siguiente"
+        class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 sm:p-3 rounded-full shadow-md hover:bg-opacity-80 transition z-20">
+        <i class="fas fa-chevron-right text-base sm:text-xl"></i>
+    </button>
+
+    <!-- Indicadores -->
+    <div id="carousel-indicators"
+        class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+        {% for anuncio in anuncios %}
+            <div class="indicator w-3 h-3 bg-white rounded-full cursor-pointer opacity-50 hover:opacity-100 transition"
+                data-slide-to="{{ forloop.counter0 }}"></div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
     <main class="container mx-auto px-4 py-8">
         {# Categorías Circulares #}
         {% if categorias_principales and not ofertas_activas and not query and not categoria_actual %}

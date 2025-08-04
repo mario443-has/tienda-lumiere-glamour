@@ -20,34 +20,29 @@ function getCookie(name) {
 
 // --- Funciones del Carrito ---
 // Referencias a elementos del DOM para las funciones globales del carrito
-// Estas se inicializarán en DOMContentLoaded
-let cartModalElement; // Referencia al nuevo modal flotante del carrito (id="carrito-modal")
-let cartContentContainer; // Referencia al contenedor de ítems del carrito (id="contenido-carrito")
-let emptyCartMessage; // Mensaje de carrito vacío (puede ser un elemento dentro del modal)
-let cartTotalSpan;    // Span para mostrar el total del carrito (id="cart-total")
-let buyWhatsappButton; // Botón flotante de WhatsApp (fuera del modal)
-let buyWhatsappCartCountSpan; // Contador del botón flotante de WhatsApp
-let whatsappOrderButton; // Botón "Pedir por WhatsApp" dentro del modal (id="whatsapp-pedido")
-let cartCountElement; // Contador superior del carrito (en el header)
-let bottomNavCartCount; // Contador del carrito en la barra de navegación inferior
+let cartModalElement;
+let cartContentContainer;
+let emptyCartMessage;
+let cartTotalSpan;
+let buyWhatsappButton;
+let buyWhatsappCartCountSpan;
+let whatsappOrderButton;
+let cartCountElement;
+let bottomNavCartCount;
 
 // Función para inicializar elementos del DOM relacionados con el carrito
 function initializeCartDomElements() {
-    cartModalElement = document.getElementById("carrito-modal"); // Nuevo ID del modal principal
-    cartContentContainer = document.getElementById("contenido-carrito"); // Nuevo ID del contenedor de contenido
-    // emptyCartMessage = document.getElementById("empty-cart-message"); // Este ID puede no existir si el mensaje se renderiza dinámicamente
-    cartTotalSpan = document.getElementById("cart-total");          // Asumiendo que este ID se mantiene dentro del modal
+    cartModalElement = document.getElementById("carrito-modal");
+    cartContentContainer = document.getElementById("contenido-carrito");
+    cartTotalSpan = document.getElementById("cart-total");
     buyWhatsappButton = document.getElementById("buy-whatsapp-button");
     buyWhatsappCartCountSpan = document.getElementById("buy-whatsapp-cart-count");
-    whatsappOrderButton = document.getElementById("whatsapp-pedido"); // Nuevo ID del botón de WhatsApp en el modal
+    whatsappOrderButton = document.getElementById("whatsapp-pedido");
     cartCountElement = document.getElementById("cart-count");
     bottomNavCartCount = document.getElementById("bottom-nav-cart-count");
 
-    // Nuevos botones del HTML del usuario para abrir/cerrar el modal
     const closeCartButton = document.getElementById("cerrar-carrito");
     const continueShoppingButton = document.getElementById("seguir-comprando");
-    
-    // Obtener ambos botones de abrir carrito por sus IDs únicos
     const openCartButtonDesktop = document.getElementById("abrir-carrito-desktop");
     const openCartButtonMobile = document.getElementById("abrir-carrito-mobile");
 
@@ -57,7 +52,6 @@ function initializeCartDomElements() {
     if (continueShoppingButton) {
         continueShoppingButton.addEventListener("click", closeCartModal);
     }
-    // Adjuntar listeners a ambos botones de abrir carrito
     if (openCartButtonDesktop) {
         openCartButtonDesktop.addEventListener("click", openCartModal);
     }
@@ -70,7 +64,7 @@ function initializeCartDomElements() {
 function openCartModal() {
     if (cartModalElement) {
         cartModalElement.classList.remove("hidden");
-        updateCartDisplay(); // Asegura que el contenido del carrito esté actualizado al abrir el modal
+        updateCartDisplay();
     }
 }
 
@@ -83,47 +77,43 @@ function closeCartModal() {
 
 // Cargar el carrito desde localStorage cuando se inicia
 function cargarCarritoLocal() {
-  const carritoGuardado = localStorage.getItem('carritoLumiere');
-  if (carritoGuardado) {
-    window.cart = JSON.parse(carritoGuardado);
-    // Asegurarse de que la cantidad sea un número válido para cada ítem
-    window.cart.forEach(item => {
-        item.quantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
-        item.price = parseFloat(item.price) || 0; // Asegurar que el precio sea un número
-        // Asegurar que imageUrl siempre sea una cadena válida, usando el placeholder si es necesario
-        item.imageUrl = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
-    });
-  } else {
-    window.cart = [];
-  }
+    const carritoGuardado = localStorage.getItem('carritoLumiere');
+    if (carritoGuardado) {
+        window.cart = JSON.parse(carritoGuardado);
+        window.cart.forEach(item => {
+            item.quantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
+            item.price = parseFloat(item.price) || 0;
+            item.imageUrl = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
+        });
+    } else {
+        window.cart = [];
+    }
 }
 
 // Guardar el carrito en localStorage después de modificarlo
 function guardarCarritoLocal() {
-  localStorage.setItem('carritoLumiere', JSON.stringify(window.cart));
+    localStorage.setItem('carritoLumiere', JSON.stringify(window.cart));
 }
 
-// Formatear precio con separador de miles y símbolo de dólar (sin COP)
+// Formatear precio
 function formatPriceForDisplay(price) {
     return new Intl.NumberFormat('es-CO', {
         style: 'currency',
-        currency: 'COP', // Usamos COP para el formato interno, pero solo mostraremos el símbolo
-        minimumFractionDigits: 0, // No mostrar decimales
-        maximumFractionDigits: 0, // No mostrar decimales
-    }).format(price).replace('COP', '').trim(); // Eliminar "COP" y espacios extra
+        currency: 'COP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(price).replace('COP', '').trim();
 }
-
 
 // Actualizar contadores del carrito en la UI
 function actualizarContadorCarrito() {
-    if (!cartCountElement) initializeCartDomElements(); // Asegurar inicialización
+    if (!cartCountElement) initializeCartDomElements();
 
     let totalItemsInCart = 0;
     window.cart.forEach(item => {
         totalItemsInCart += (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
     });
 
-    // Actualizar todos los contadores del carrito
     [cartCountElement, bottomNavCartCount].forEach(counter => {
         if (counter) {
             counter.textContent = totalItemsInCart;
@@ -131,7 +121,6 @@ function actualizarContadorCarrito() {
         }
     });
 
-    // Actualizar el contador del botón de WhatsApp
     if (buyWhatsappButton && buyWhatsappCartCountSpan) {
         buyWhatsappCartCountSpan.textContent = totalItemsInCart;
         buyWhatsappButton.classList.toggle('hidden', totalItemsInCart === 0);
@@ -140,14 +129,14 @@ function actualizarContadorCarrito() {
 
 // Renderizar los ítems del carrito en el modal
 function renderCartItems() {
-    if (!cartContentContainer) initializeCartDomElements(); // Asegurar inicialización
+    if (!cartContentContainer) initializeCartDomElements();
 
     if (!cartContentContainer) {
         console.error("El contenedor de contenido del carrito no se encontró.");
         return;
     }
 
-    cartContentContainer.innerHTML = ""; // Limpiar el contenedor actual
+    cartContentContainer.innerHTML = "";
     let total = 0;
 
     if (window.cart.length === 0) {
@@ -185,11 +174,9 @@ function renderCartItems() {
         });
         cartContentContainer.innerHTML = html;
     }
-    
-    // Actualizar el total en el modal
+
     if (cartTotalSpan) cartTotalSpan.textContent = formatPriceForDisplay(total);
 
-    // Actualizar el enlace de WhatsApp con el mensaje detallado
     if (whatsappOrderButton) {
         const mensajeWhatsApp = generarMensajeWhatsApp(window.cart, total);
         whatsappOrderButton.href = mensajeWhatsApp;
@@ -197,7 +184,7 @@ function renderCartItems() {
 }
 
 // Actualizar la cantidad de un ítem en el carrito
-window.updateItemQuantity = function(variantIdToUpdate, change) { // Global para onclick
+window.updateItemQuantity = function(variantIdToUpdate, change) {
     const itemIndex = window.cart.findIndex(item => item.variantId === variantIdToUpdate);
 
     if (itemIndex > -1) {
@@ -205,14 +192,10 @@ window.updateItemQuantity = function(variantIdToUpdate, change) { // Global para
 
         if (change === 0) {
             window.cart.splice(itemIndex, 1);
-            // No mostrar modal de confirmación aquí
         } else {
             window.cart[itemIndex].quantity += change;
             if (window.cart[itemIndex].quantity <= 0) {
                 window.cart.splice(itemIndex, 1);
-                // No mostrar modal de confirmación aquí
-            } else {
-                // No mostrar modal de confirmación aquí
             }
         }
         guardarCarritoLocal();
@@ -243,8 +226,7 @@ function generarMensajeWhatsApp(carrito, total) {
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`;
 }
 
-
-// Enviar el contenido del carrito a WhatsApp (ahora usa generarMensajeWhatsApp)
+// Enviar el contenido del carrito a WhatsApp
 function sendCartToWhatsApp() {
     if (window.cart.length === 0) {
         showMessageModal('Carrito Vacío', 'Tu carrito está vacío. Agrega productos antes de comprar.');
@@ -253,10 +235,10 @@ function sendCartToWhatsApp() {
 
     const totalCalculado = window.cart.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * ((typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1), 0);
     const whatsappUrl = generarMensajeWhatsApp(window.cart, totalCalculado);
-    
+
     window.open(whatsappUrl, "_blank");
 
-    window.cart = []; // Limpiar el carrito después de enviar el pedido
+    window.cart = [];
     guardarCarritoLocal();
     updateCartDisplay();
     showMessageModal('Pedido Enviado', 'Tu pedido ha sido enviado a WhatsApp. Revisa tu chat para continuar la compra.');
@@ -273,10 +255,9 @@ function updateCartDisplay() {
 // Función para mostrar/ocultar la barra de búsqueda móvil
 window.toggleMobileSearch = function() {
     const mobileSearchBar = document.getElementById('mobile-search-bar');
-    const mobileMenu = document.getElementById('mobile-menu'); // Referencia al menú móvil
+    const mobileMenu = document.getElementById('mobile-menu');
     if (mobileSearchBar) {
         mobileSearchBar.classList.toggle('hidden');
-        // Si la barra de búsqueda se abre, asegúrate de que el menú móvil esté oculto
         if (!mobileSearchBar.classList.contains('hidden') && mobileMenu && !mobileMenu.classList.contains('hidden')) {
             mobileMenu.classList.add('hidden');
         }
@@ -284,7 +265,6 @@ window.toggleMobileSearch = function() {
 };
 
 // Helper function to apply favorite state visually
-// Busca todos los botones de favorito para un producto dado y aplica/remueve la clase 'active'
 function applyFavoriteState(productId, isFavorite) {
     document.querySelectorAll(`.btn-favorito[data-producto-id="${productId}"]`).forEach(button => {
         const icon = button.querySelector('i');
@@ -298,16 +278,13 @@ function applyFavoriteState(productId, isFavorite) {
     });
 }
 
-// Toggle de submenús en móvil (para subcategorías)
-window.toggleSubmenu = function(button) { // Global para onclick en HTML
-    const submenu = button.nextElementSibling; // El div que contiene las subcategorías
+// Toggle de submenús en móvil
+window.toggleSubmenu = function(button) {
+    const submenu = button.nextElementSibling;
     if (submenu) {
         submenu.classList.toggle("hidden");
         const icon = button.querySelector("svg");
         if (icon) {
-            // Alternar entre rotación de 0 (flecha hacia abajo) y 90 (flecha hacia la derecha)
-            // Asumiendo que el estado inicial es 0 (cerrado) y 90 (abierto).
-            // Si el ícono ya tiene rotate-90, significa que está abierto, entonces lo cerramos a 0.
             if (icon.classList.contains('rotate-90')) {
                 icon.classList.remove('rotate-90');
                 icon.classList.add('rotate-0');
@@ -318,167 +295,6 @@ window.toggleSubmenu = function(button) { // Global para onclick en HTML
         }
     }
 };
-
-// Función para manejar la búsqueda en vivo (AJAX)
-function handleLiveSearch(searchInput, resultsContainer) {
-    let debounceTimer;
-    const minLength = 2; // Mínimo de caracteres para comenzar la búsqueda
-
-    return async function() {
-        const query = searchInput.value.trim();
-        
-        clearTimeout(debounceTimer);
-
-        if (query.length < minLength) {
-            resultsContainer.innerHTML = ''; // Limpiar resultados
-            resultsContainer.classList.add('hidden');
-            return;
-        }
-
-        debounceTimer = setTimeout(async () => {
-            try {
-                // CAMBIO CLAVE: La URL de la API de búsqueda en vivo ahora es '/api/buscar-productos/'
-                const response = await fetch(`/api/buscar-productos/?q=${encodeURIComponent(query)}`);
-                const data = await response.json();
-
-                resultsContainer.innerHTML = '';
-
-                if (data.productos && data.productos.length > 0) { // Asegúrate de que la clave sea 'productos'
-                    data.productos.forEach(producto => {
-                        const resultItem = document.createElement('a'); // Usar 'a' para que sea un enlace
-                        resultItem.href = producto.url; // URL del producto
-                        resultItem.classList.add('flex', 'items-center', 'p-2', 'hover:bg-gray-100', 'border-b', 'border-gray-200', 'transition-colors', 'duration-200');
-                        resultItem.innerHTML = `
-                            <img src="${producto.imagen || window.placeholderImageUrl}" 
-                                 alt="${producto.nombre}" 
-                                 class="w-12 h-12 object-cover rounded-md mr-3"
-                                 onerror="this.onerror=null;this.src='${window.placeholderImageUrl}';">
-                            <div class="flex-1">
-                                <div class="font-medium text-gray-800">${producto.nombre}</div>
-                                <div class="text-sm text-pink-600">${producto.precio}</div>
-                            </div>
-                        `;
-                        resultsContainer.appendChild(resultItem);
-                    });
-                    resultsContainer.classList.remove('hidden');
-                } else {
-                    resultsContainer.innerHTML = `
-                        <div class="p-4 text-center text-gray-500">
-                            No se encontraron productos que coincidan con "${query}"
-                        </div>
-                    `;
-                    resultsContainer.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Error en la búsqueda:', error);
-                // Opcional: Mostrar un mensaje de error en el contenedor de resultados
-                resultsContainer.innerHTML = `
-                    <div class="p-4 text-center text-red-500">
-                        Error al cargar resultados. Intenta de nuevo.
-                    </div>
-                `;
-                resultsContainer.classList.remove('hidden');
-            }
-        }, 300); // 300ms de retraso (debounce)
-    };
-}
-
-// Función para posicionar el contenedor de resultados de búsqueda
-function positionSearchResults(searchInput, resultsContainer) {
-    const inputRect = searchInput.getBoundingClientRect();
-    
-    resultsContainer.style.position = 'absolute';
-    resultsContainer.style.top = `${inputRect.bottom + window.scrollY}px`;
-    resultsContainer.style.left = `${inputRect.left}px`;
-    resultsContainer.style.width = `${inputRect.width}px`;
-    resultsContainer.style.zIndex = '50';
-}
-
-// --- Lógica del Carrusel de Anuncios ---
-let currentIndex = 0; // Índice actual del carrusel (0-based para items reales)
-let totalSlides = 0; // Número total de slides reales
-let autoSlideInterval;
-let isTransitioning = false;
-let carousel; // Elemento del carrusel
-let items = []; // Elementos de los slides (incluyendo clones)
-let prevBtn; // Botón anterior
-let nextBtn; // Botón siguiente
-let indicators = []; // Indicadores de slide
-
-function cloneSlides() {
-    if (!carousel || items.length === 0) return;
-    
-    // Clonar el primer y último slide real
-    const firstClone = items[0].cloneNode(true);
-    const lastClone = items[items.length - 1].cloneNode(true);
-    
-    // Añadir clases para identificarlos
-    firstClone.classList.add('clone');
-    lastClone.classList.add('clone');
-    
-    // Añadir los clones al carrusel
-    carousel.appendChild(firstClone);
-    carousel.insertBefore(lastClone, items[0]);
-    
-    // Re-obtener items para incluir los clones
-    items = carousel.querySelectorAll(".carousel-item");
-    totalSlides = items.length - 2; // El número real de slides sin clones
-    currentIndex = 1; // Comenzar en el primer slide real (índice 1 debido al clon inicial)
-}
-
-function updateCarousel(animate = true) {
-    if (!carousel || items.length === 0) return;
-    
-    carousel.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none';
-    const offset = -currentIndex * 100;
-    carousel.style.transform = `translateX(${offset}%)`;
-
-    // Actualizar indicadores (mostrar el índice real, no el de los clones)
-    const realIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-    indicators.forEach((dot, i) => {
-        dot.classList.toggle("opacity-100", i === realIndex);
-        dot.classList.toggle("opacity-50", i !== realIndex);
-    });
-
-    if (!animate) return;
-
-    // Manejar el efecto infinito después de la transición
-    carousel.addEventListener('transitionend', function handler() {
-        if (currentIndex === 0) { // Si llegamos al clon del último slide
-            carousel.style.transition = 'none';
-            currentIndex = totalSlides;
-            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
-        } else if (currentIndex === totalSlides + 1) { // Si llegamos al clon del primer slide
-            carousel.style.transition = 'none';
-            currentIndex = 1;
-            carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
-        }
-        isTransitioning = false;
-        carousel.removeEventListener('transitionend', handler); // Remover el listener para evitar múltiples llamadas
-    });
-}
-
-function goToSlide(index, animate = true) {
-    if (isTransitioning) return;
-    isTransitioning = true;
-    currentIndex = index;
-    updateCarousel(animate);
-}
-
-function startAutoSlide() {
-    stopAutoSlide();
-    if (totalSlides > 1) {
-        autoSlideInterval = setInterval(() => {
-            if (!isTransitioning) {
-                goToSlide(currentIndex + 1);
-            }
-        }, 5000); // Cambia el slide cada 5 segundos
-    }
-}
-
-function stopAutoSlide() {
-    clearInterval(autoSlideInterval);
-}
 
 // --- Lógica de selección de color para variantes de producto ---
 function setupColorOptions() {
@@ -615,273 +431,121 @@ function setupWhatsappButtons() {
     if (buyWhatsappButton) {
         buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
     }
-    if (whatsappOrderButton) { // Cambiado de modalBuyWhatsappButton
+    if (whatsappOrderButton) {
         whatsappOrderButton.addEventListener("click", sendCartToWhatsApp);
     }
 }
-// =============================
+
 // 🔄 Reparar favoritos antiguos o corruptos
-// =============================
 function repararFavoritosLocales() {
-  const keys = Object.keys(localStorage).filter(k => k.startsWith("favorito-"));
-  let seCorrigio = false;
+    const keys = Object.keys(localStorage).filter(k => k.startsWith("favorito-"));
+    let seCorrigio = false;
 
-  keys.forEach(key => {
-    const valor = localStorage.getItem(key);
+    keys.forEach(key => {
+        const valor = localStorage.getItem(key);
+        if (valor !== "true" && valor !== "false") {
+            localStorage.removeItem(key);
+            seCorrigio = true;
+        }
+    });
 
-    // Si el valor no es "true" ni "false", lo consideramos corrupto
-    if (valor !== "true" && valor !== "false") {
-      localStorage.removeItem(key);
-      seCorrigio = true;
+    if (seCorrigio) {
+        console.log("🧹 Favoritos locales reparados.");
     }
-  });
-
-  if (seCorrigio) {
-    console.log("🧹 Favoritos locales reparados.");
-  }
 }
+
 function toggleFavorito(button, productoId) {
-  const isNowFavorite = !button.classList.contains("active");
-  if (isNowFavorite) {
-    button.classList.add("active");
-    localStorage.setItem(`favorito-${productoId}`, "true");
-  } else {
-    button.classList.remove("active");
-    localStorage.setItem(`favorito-${productoId}`, "false");
-  }
-
-  // Si estamos en la página de favoritos, actualizar la vista dinámicamente
-  if (document.body.classList.contains("favoritos-page")) {
-    const card = button.closest(".product-card");
-    if (!isNowFavorite && card) {
-      card.classList.add("fade-out");
-      setTimeout(() => {
-        card.remove();
-        updateFavoritesView();
-      }, 300); // coincide con la animación CSS
+    const isNowFavorite = !button.classList.contains("active");
+    if (isNowFavorite) {
+        button.classList.add("active");
+        localStorage.setItem(`favorito-${productoId}`, "true");
+    } else {
+        button.classList.remove("active");
+        localStorage.setItem(`favorito-${productoId}`, "false");
     }
-  }
+
+    if (document.body.classList.contains("favoritos-page")) {
+        const card = button.closest(".product-card");
+        if (!isNowFavorite && card) {
+            card.classList.add("fade-out");
+            setTimeout(() => {
+                card.remove();
+                updateFavoritesView();
+            }, 300);
+        }
+    }
 }
 
 function updateFavoritesView() {
-  const favoritosActivos = document.querySelectorAll(".product-card .btn-favorito.active");
-  const container = document.getElementById("favoritos-container");
-  if (container) {
-    if (favoritosActivos.length === 0) {
-      container.innerHTML = "<p class='text-center text-gray-500 py-8'>No tienes productos en favoritos.</p>";
+    const favoritosActivos = document.querySelectorAll(".product-card .btn-favorito.active");
+    const container = document.getElementById("favoritos-container");
+    if (container) {
+        if (favoritosActivos.length === 0) {
+            container.innerHTML = "<p class='text-center text-gray-500 py-8'>No tienes productos en favoritos.</p>";
+        }
     }
-  }
-}
-
-// =====================================================================
-// Funciones y variables globales (accesibles desde cualquier parte)
-// =====================================================================
-
-// Función para obtener el token CSRF desde las cookies
-function getCSRFToken() {
-  const name = "csrftoken";
-  const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
-    const [key, value] = cookie.trim().split("=");
-    if (key === name) return value;
-  }
-  return "";
-}
-
-// --- Variables y funciones del Carrusel de Anuncios ---
-let carousel;
-let prevBtn;
-let nextBtn;
-let items;
-let indicators;
-let currentIndex = 1;
-let isTransitioning = false;
-let autoSlideInterval;
-const slideDuration = 4000; // Duración del auto-slide en ms
-
-function cloneSlides() {
-  if (!carousel || items.length === 0) return;
-  const firstClone = items[0].cloneNode(true);
-  const lastClone = items[items.length - 1].cloneNode(true);
-  firstClone.id = "first-clone";
-  lastClone.id = "last-clone";
-  carousel.appendChild(firstClone);
-  carousel.prepend(lastClone);
-  items = carousel.querySelectorAll(".carousel-item");
-}
-
-function updateCarousel(animate = true) {
-  if (!carousel) return;
-  if (animate) {
-    carousel.style.transition = "transform 0.5s ease-in-out";
-  } else {
-    carousel.style.transition = "none";
-  }
-  const slideWidth = items[currentIndex].offsetWidth;
-  carousel.style.transform = `translateX(${-slideWidth * currentIndex}px)`;
-  updateIndicators();
-}
-
-function goToSlide(index) {
-  isTransitioning = true;
-  currentIndex = index;
-  updateCarousel();
-}
-
-function updateIndicators() {
-  if (indicators.length === 0) return;
-  const realIndex = (currentIndex - 1 + items.length - 2) % (items.length - 2);
-  indicators.forEach((indicator, i) => {
-    indicator.classList.remove("opacity-100");
-    if (i === realIndex) {
-      indicator.classList.add("opacity-100");
-    }
-  });
-}
-
-function startAutoSlide() {
-  if (autoSlideInterval) clearInterval(autoSlideInterval);
-  autoSlideInterval = setInterval(() => {
-    goToSlide(currentIndex + 1);
-  }, slideDuration);
-}
-
-function stopAutoSlide() {
-  clearInterval(autoSlideInterval);
-}
-
-// --- Funciones del Carrito ---
-// Referencias a elementos del DOM para las funciones globales del carrito
-let cartModalElement; // Referencia al nuevo modal flotante del carrito (id="carrito-modal")
-let cartContentContainer; // Referencia al contenedor de ítems del carrito (id="contenido-carrito")
-let emptyCartMessage; // Mensaje de carrito vacío (puede ser un elemento dentro del modal)
-let cartTotalSpan;    // Span para mostrar el total del carrito (id="cart-total")
-let buyWhatsappButton; // Botón flotante de WhatsApp (fuera del modal)
-let buyWhatsappCartCountSpan; // Contador del botón flotante de WhatsApp
-let whatsappOrderButton; // Botón "Pedir por WhatsApp" dentro del modal
-
-function initializeCartDomElements() {
-  cartModalElement = document.getElementById("carrito-modal");
-  cartContentContainer = document.getElementById("contenido-carrito");
-  emptyCartMessage = document.getElementById("empty-cart-message");
-  cartTotalSpan = document.getElementById("cart-total");
-  buyWhatsappButton = document.getElementById("buy-whatsapp-button");
-  buyWhatsappCartCountSpan = document.getElementById("buy-whatsapp-cart-count");
-  whatsappOrderButton = document.getElementById("whatsapp-order-button");
-}
-
-function cargarCarritoLocal() {
-  // Lógica para cargar el carrito desde localStorage
-  // ... (código existente) ...
-}
-
-function updateCartDisplay() {
-  // Lógica para actualizar la visualización del carrito
-  // ... (código existente) ...
-}
-
-function setupWhatsappButtons() {
-  // Lógica para configurar los botones de WhatsApp
-  // ... (código existente) ...
-}
-
-function setupColorOptions() {
-  // Lógica para configurar las opciones de color
-  // ... (código existente) ...
-}
-
-function setupMoreColorsButton() {
-  // Lógica para configurar el botón "más colores"
-  // ... (código existente) ...
-}
-
-function setupAddToCartButtons() {
-  // Lógica para configurar los botones de "Agregar al Carrito"
-  // ... (código existente) ...
-}
-
-
-// --- Funciones del Sistema de Favoritos ---
-// 🎨 Visual y animación para favoritos
-function applyFavoriteState(productoId, isFavorito) {
-  const botones = document.querySelectorAll(`.btn-favorito[data-product-id="${productoId}"]`);
-  botones.forEach(btn => {
-    const icon = btn.querySelector("i");
-    if (!icon) return;
-    if (isFavorito) {
-      icon.classList.remove("far", "text-gray-500", "group-hover:text-pink-500");
-      icon.classList.add("fas", "text-red-500");
-    } else {
-      icon.classList.remove("fas", "text-red-500");
-      icon.classList.add("far", "text-gray-500", "group-hover:text-pink-500");
-    }
-  });
-}
-
-function addBounceAnimation(icon) {
-  if (icon) {
-    icon.classList.add("animate-bounce");
-    setTimeout(() => {
-      icon.classList.remove("animate-bounce");
-    }, 500);
-  }
-}
-
-// 🔁 Sincronizar todos los botones favoritos con localStorage
-function updateFavoritesView() {
-  document.querySelectorAll(".btn-favorito").forEach((btn) => {
-    const id = btn.dataset.productId;
-    const isFav = localStorage.getItem(`favorito-${id}`) === "true";
-    btn.classList.toggle("active", isFav);
-
-    const icon = btn.querySelector("i");
-    if (icon) {
-      if (isFav) {
-        icon.classList.remove("far", "text-gray-500");
-        icon.classList.add("fas", "text-red-500");
-      } else {
-        icon.classList.remove("fas", "text-red-500");
-        icon.classList.add("far", "text-gray-500");
-      }
-    }
-  });
-}
-
-// 📌 Reparar favoritos locales (por si quedaron corruptos)
-function repararFavoritosLocales() {
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith("favorito-")) {
-      const value = localStorage.getItem(key);
-      if (value !== "true" && value !== "false") {
-        localStorage.removeItem(key); // Elimina valores corruptos
-      }
-    }
-  });
-}
-
-// 🚀 Lógica para marcar/desmarcar favoritos
-function toggleFavorito(btn, productoId) {
-    const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
-    const nuevoEstado = !isFavorito;
-    if (nuevoEstado) {
-      localStorage.setItem(`favorito-${productoId}`, "true");
-    } else {
-      localStorage.removeItem(`favorito-${productoId}`);
-    }
-    applyFavoriteState(productoId, nuevoEstado);
-    const icon = btn.querySelector("i");
-    addBounceAnimation(icon);
-    console.log(`Producto ${productoId} ${nuevoEstado ? 'añadido' : 'eliminado'} de favoritos.`);
 }
 
 
 // --- Lógica de Búsqueda en Vivo ---
 const handleLiveSearch = (searchInput, resultsContainer) => {
-    // Lógica para manejar la búsqueda en vivo
-    // ... (código existente) ...
-    // Se mantiene la función como estaba, se asume que existe la implementación
-    return () => {
-        // Placeholder de la función de manejo de input
+    let debounceTimer;
+    const minLength = 2;
+
+    return async function() {
+        const query = searchInput.value.trim();
+
+        clearTimeout(debounceTimer);
+
+        if (query.length < minLength) {
+            resultsContainer.innerHTML = '';
+            resultsContainer.classList.add('hidden');
+            return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/buscar-productos/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                resultsContainer.innerHTML = '';
+
+                if (data.productos && data.productos.length > 0) {
+                    data.productos.forEach(producto => {
+                        const resultItem = document.createElement('a');
+                        resultItem.href = producto.url;
+                        resultItem.classList.add('flex', 'items-center', 'p-2', 'hover:bg-gray-100', 'border-b', 'border-gray-200', 'transition-colors', 'duration-200');
+                        resultItem.innerHTML = `
+                            <img src="${producto.imagen || window.placeholderImageUrl}"
+                                 alt="${producto.nombre}"
+                                 class="w-12 h-12 object-cover rounded-md mr-3"
+                                 onerror="this.onerror=null;this.src='${window.placeholderImageUrl}';">
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-800">${producto.nombre}</div>
+                                <div class="text-sm text-pink-600">${producto.precio}</div>
+                            </div>
+                        `;
+                        resultsContainer.appendChild(resultItem);
+                    });
+                    resultsContainer.classList.remove('hidden');
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="p-4 text-center text-gray-500">
+                            No se encontraron productos que coincidan con "${query}"
+                        </div>
+                    `;
+                    resultsContainer.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error en la búsqueda:', error);
+                resultsContainer.innerHTML = `
+                    <div class="p-4 text-center text-red-500">
+                        Error al cargar resultados. Intenta de nuevo.
+                    </div>
+                `;
+                resultsContainer.classList.remove('hidden');
+            }
+        }, 300);
     };
 };
 
@@ -889,136 +553,22 @@ const handleLiveSearch = (searchInput, resultsContainer) => {
 // 🚀 Lógica que se ejecuta cuando el DOM está completamente cargado
 // =====================================================================
 document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar elementos del DOM relacionados con el carrito y modales
     initializeCartDomElements();
-    cargarCarritoLocal(); // Cargar el carrito al inicio
-    updateCartDisplay(); // Actualizar la visualización del carrito
+    cargarCarritoLocal();
+    updateCartDisplay();
 
-    // --- Carrusel de Anuncios ---
-    carousel = document.getElementById("announcement-carousel");
-    prevBtn = document.getElementById("prev-announcement");
-    nextBtn = document.getElementById("next-announcement");
-    const indicatorsContainer = document.getElementById("carousel-indicators");
-    items = carousel ? carousel.querySelectorAll(".carousel-item") : [];
-    indicators = indicatorsContainer ? indicatorsContainer.querySelectorAll(".indicator") : [];
-
-    if (carousel && items.length > 0) {
-        cloneSlides(); // Clonar slides para el efecto infinito
-        updateCarousel(false); // Posicionar sin animación inicialmente
-        startAutoSlide(); // Iniciar auto-deslizamiento
-
-        // Event listener para el final de la transición
-        carousel.addEventListener("transitionend", () => {
-            if (!carousel) return;
-            const slideWidth = items[0].offsetWidth;
-            if (currentIndex >= items.length - 1) {
-                carousel.style.transition = "none";
-                currentIndex = 1;
-                carousel.style.transform = `translateX(${-slideWidth * currentIndex}px)`;
-            }
-            if (currentIndex <= 0) {
-                carousel.style.transition = "none";
-                currentIndex = items.length - 2;
-                carousel.style.transform = `translateX(${-slideWidth * currentIndex}px)`;
-            }
-            isTransitioning = false;
-        });
-
-        // Event listeners para los botones de navegación del carrusel
-        if (prevBtn) {
-            prevBtn.addEventListener("click", () => {
-                if (!isTransitioning) {
-                    stopAutoSlide();
-                    goToSlide(currentIndex - 1);
-                    startAutoSlide();
-                }
-            });
-        }
-        if (nextBtn) {
-            nextBtn.addEventListener("click", () => {
-                if (!isTransitioning) {
-                    stopAutoSlide();
-                    goToSlide(currentIndex + 1);
-                    startAutoSlide();
-                }
-            });
-        }
-
-        // Event listeners para los indicadores del carrusel
-        if (indicatorsContainer) {
-            indicators.forEach((dot, i) => {
-                dot.addEventListener("click", () => {
-                    stopAutoSlide();
-                    goToSlide(i + 1); // +1 porque los slides reales empiezan en índice 1 (por el clon)
-                    startAutoSlide();
-                });
-            });
-        }
-
-        // Lógica de arrastre (swipe) para el carrusel
-        const carouselWrapper = document.getElementById("announcement-carousel-wrapper");
-        let startX = 0;
-        let isDragging = false;
-        let dragThreshold = 50;
-
-        if (carouselWrapper) {
-            carouselWrapper.addEventListener("touchstart", (e) => {
-                startX = e.touches[0].clientX;
-                isDragging = true;
-                stopAutoSlide();
-            }, { passive: true });
-
-            carouselWrapper.addEventListener("touchmove", (e) => {
-                if (!isDragging) return;
-                const currentX = e.touches[0].clientX;
-                const diffX = currentX - startX;
-
-                if (Math.abs(diffX) > dragThreshold) {
-                    if (diffX < 0) { // Deslizar a la izquierda (siguiente slide)
-                        goToSlide(currentIndex + 1);
-                    } else { // Deslizar a la derecha (slide anterior)
-                        goToSlide(currentIndex - 1);
-                    }
-                    isDragging = false; // Resetear el arrastre después de un movimiento
-                    startX = currentX; // Actualizar startX para el siguiente arrastre
-                }
-            }, { passive: true });
-
-            carouselWrapper.addEventListener("touchend", () => {
-                isDragging = false;
-                startAutoSlide();
-            });
-
-            carouselWrapper.addEventListener("touchcancel", () => {
-                isDragging = false;
-                startAutoSlide();
-            });
-        }
-
-        // Observador de redimensionamiento para el carrusel
-        const resizeObserver = new ResizeObserver(() => {
-            if (carouselWrapper && carousel) {
-                updateCarousel(false); // Actualizar posición sin animación al redimensionar
-            }
-        });
-        if (carouselWrapper) {
-            resizeObserver.observe(carouselWrapper);
-        }
-    }
+    // --- Se elimina toda la lógica duplicada del carrusel de anuncios ---
+    // La implementación de carousel.js es ahora la única responsable
+    // de esta funcionalidad.
 
     // --- Inicializar búsqueda en vivo ---
     const searchInputs = document.querySelectorAll('.search-input');
     searchInputs.forEach(searchInput => {
-        let debounceTimer;
-        const minLength = 2;
-
         const resultsContainer = searchInput.closest('form').nextElementSibling;
-
         if (!resultsContainer || !resultsContainer.classList.contains('search-results')) {
             console.error('No se encontró el contenedor de resultados de búsqueda para este input.');
             return;
         }
-
         const searchHandler = handleLiveSearch(searchInput, resultsContainer);
         searchInput.addEventListener('input', searchHandler);
 
@@ -1044,13 +594,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const thumbnails = document.querySelectorAll(".thumbnail-image");
 
     thumbnails.forEach((thumbnail) => {
-      thumbnail.addEventListener("click", function () {
-        if (mainImage) {
-          mainImage.src = this.src;
-        }
-        thumbnails.forEach(t => t.classList.remove("ring-2", "ring-pink-500"));
-        this.classList.add("ring-2", "ring-pink-500");
-      });
+        thumbnail.addEventListener("click", function () {
+            if (mainImage) {
+                mainImage.src = this.src;
+            }
+            thumbnails.forEach(t => t.classList.remove("ring-2", "ring-pink-500"));
+            this.classList.add("ring-2", "ring-pink-500");
+        });
     });
 
     // --- Lógica del menú móvil (Hamburger) ---
@@ -1061,41 +611,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const bottomNavCategoriesButton = document.getElementById("bottom-nav-categories-button");
 
     if (mobileMenuButton) {
-      mobileMenuButton.addEventListener("click", function() {
-        mobileMenu.classList.toggle("hidden");
-        const mobileSearchBar = document.getElementById('mobile-search-bar');
-        if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
-            mobileSearchBar.classList.add('hidden');
-        }
-      });
+        mobileMenuButton.addEventListener("click", function() {
+            mobileMenu.classList.toggle("hidden");
+            const mobileSearchBar = document.getElementById('mobile-search-bar');
+            if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
+                mobileSearchBar.classList.add('hidden');
+            }
+        });
     }
 
     if (mobileCategoriesButton) {
-      mobileCategoriesButton.addEventListener("click", () => {
-        if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
-        const icon = mobileCategoriesButton.querySelector("svg");
-        if (icon) {
-          icon.classList.toggle("rotate-0");
-          icon.classList.toggle("rotate-180");
-        }
-      });
+        mobileCategoriesButton.addEventListener("click", () => {
+            if (mobileCategoriesDropdown) mobileCategoriesDropdown.classList.toggle("hidden");
+            const icon = mobileCategoriesButton.querySelector("svg");
+            if (icon) {
+                icon.classList.toggle("rotate-0");
+                icon.classList.toggle("rotate-180");
+            }
+        });
     }
 
     if (bottomNavCategoriesButton) {
-      bottomNavCategoriesButton.addEventListener('click', function() {
-        mobileMenu.classList.remove('hidden');
-        if (mobileCategoriesDropdown && mobileCategoriesDropdown.classList.contains('hidden')) {
-            mobileCategoriesDropdown.classList.remove('hidden');
-            if (mobileCategoriesButton) {
-                mobileCategoriesButton.querySelector('svg').classList.remove('rotate-0');
-                mobileCategoriesButton.querySelector('svg').classList.add('rotate-180');
+        bottomNavCategoriesButton.addEventListener('click', function() {
+            mobileMenu.classList.remove('hidden');
+            if (mobileCategoriesDropdown && mobileCategoriesDropdown.classList.contains('hidden')) {
+                mobileCategoriesDropdown.classList.remove('hidden');
+                if (mobileCategoriesButton) {
+                    mobileCategoriesButton.querySelector('svg').classList.remove('rotate-0');
+                    mobileCategoriesButton.querySelector('svg').classList.add('rotate-180');
+                }
             }
-        }
-        const mobileSearchBar = document.getElementById('mobile-search-bar');
-        if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
-            mobileSearchBar.classList.add('hidden');
-        }
-      });
+            const mobileSearchBar = document.getElementById('mobile-search-bar');
+            if (mobileSearchBar && !mobileSearchBar.classList.contains('hidden')) {
+                mobileSearchBar.classList.add('hidden');
+            }
+        });
     }
 
     // --- Lógica para el slider horizontal de productos ---
@@ -1103,29 +653,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const slideLeft = document.getElementById("slideLeft");
     const slideRight = document.getElementById("slideRight");
     if (slider) {
-      if (slideLeft) {
-        slideLeft.addEventListener("click", () => {
-          slider.scrollLeft -= 300;
-        });
-      }
-      if (slideRight) {
-        slideRight.addEventListener("click", () => {
-          slider.scrollLeft += 300;
-        });
-      }
+        if (slideLeft) {
+            slideLeft.addEventListener("click", () => {
+                slider.scrollLeft -= 300;
+            });
+        }
+        if (slideRight) {
+            slideRight.addEventListener("click", () => {
+                slider.scrollLeft += 300;
+            });
+        }
     }
 
     // --- Lógica para Favoritos ---
     repararFavoritosLocales();
-    updateFavoritesView(); // Sincronizar botones al cargar la página
+    updateFavoritesView();
 
-    // 👂 Delegación para marcar/desmarcar favoritos
     document.addEventListener("click", (event) => {
-      const btn = event.target.closest(".btn-favorito");
-      if (btn) {
-        const productoId = btn.dataset.productId;
-        toggleFavorito(btn, productoId);
-      }
+        const btn = event.target.closest(".btn-favorito");
+        if (btn) {
+            const productoId = btn.dataset.productId;
+            toggleFavorito(btn, productoId);
+        }
     });
 
 });

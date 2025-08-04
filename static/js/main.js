@@ -640,6 +640,38 @@ function repararFavoritosLocales() {
     console.log("🧹 Favoritos locales reparados.");
   }
 }
+function toggleFavorito(button, productoId) {
+  const isNowFavorite = !button.classList.contains("active");
+  if (isNowFavorite) {
+    button.classList.add("active");
+    localStorage.setItem(`favorito-${productoId}`, "true");
+  } else {
+    button.classList.remove("active");
+    localStorage.setItem(`favorito-${productoId}`, "false");
+  }
+
+  // Si estamos en la página de favoritos, actualizar la vista dinámicamente
+  if (document.body.classList.contains("favoritos-page")) {
+    const card = button.closest(".product-card");
+    if (!isNowFavorite && card) {
+      card.classList.add("fade-out");
+      setTimeout(() => {
+        card.remove();
+        updateFavoritesView();
+      }, 300); // coincide con la animación CSS
+    }
+  }
+}
+
+function updateFavoritesView() {
+  const favoritosActivos = document.querySelectorAll(".product-card .btn-favorito.active");
+  const container = document.getElementById("favoritos-container");
+  if (container) {
+    if (favoritosActivos.length === 0) {
+      container.innerHTML = "<p class='text-center text-gray-500 py-8'>No tienes productos en favoritos.</p>";
+    }
+  }
+}
 
 // =====================================================================
 // Lógica que se ejecuta cuando el DOM está completamente cargado
@@ -911,75 +943,15 @@ function addBounceAnimation(icon) {
     }, 500);
   }
 }
-// =========================================================================
-// ⚙️ Lógica de favoritos
-window.toggleFavorito = function (button, productoId) {
-  if (button.classList.contains("animate")) return;
-  button.classList.add("animate");
-
-  const csrftoken = getCSRFToken();
-  const isCurrentlyFavorite = localStorage.getItem(`favorito-${productoId}`) === "true";
-  const newFavoriteState = !isCurrentlyFavorite;
-
-  fetch("/toggle-favorito/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrftoken,
-    },
-    body: JSON.stringify({ producto_id: productoId }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        applyFavoriteState(productoId, newFavoriteState);
-        localStorage.setItem(`favorito-${productoId}`, newFavoriteState);
-        if (typeof showFavoriteMessage === "function") {
-          showFavoriteMessage(data.message);
-        }
-        const icon = button.querySelector("i");
-        addBounceAnimation(icon);
-      } else {
-        if (typeof showErrorNotification === "function") {
-          showErrorNotification(data.message || "No se pudo actualizar el estado de favoritos.");
-        }
-      }
-    })
-    .catch((error) => {
-      console.error("Error al actualizar favoritos:", error);
-      if (typeof showErrorNotification === "function") {
-        showErrorNotification("Hubo un problema al actualizar los favoritos.");
-      }
-    })
-    .finally(() => {
-      setTimeout(() => {
-        button.classList.remove("animate");
-      }, 300);
-    });
-};
-
-// =========================================================================
-// 🚀 Inicialización favoritos
-function initFavoritos() {
-  document.querySelectorAll(".btn-favorito").forEach(button => {
-    const productoId = button.dataset.productId;
-    const isFavorito = localStorage.getItem(`favorito-${productoId}`) === "true";
-    applyFavoriteState(productoId, isFavorito);
-  });
-}
-
-  // Delegación de clics en botones de favorito
-  document.addEventListener("click", event => {
-    let button = event.target.closest(".btn-favorito");
-    if (button) {
-      const productoId = button.dataset.productId;
-      window.toggleFavorito(button, productoId);
-    }
-  });
-
-  // Reparar favoritos antiguos antes de inicializar
-    repararFavoritosLocales();
-
-  // Inicializar favoritos
-  initFavoritos();
+// Delegación para marcar/desmarcar favoritos
+document.addEventListener("click", (event) => {
+  const btn = event.target.closest(".btn-favorito");
+  if (btn) {
+    const productoId = btn.dataset.productId;
+    toggleFavorito(btn, productoId);
+  }
 });
+
+repararFavoritosLocales(); // Corregir datos corruptos del pasado
+
+updateFavoritesView(); // Si estás en la página de favoritos

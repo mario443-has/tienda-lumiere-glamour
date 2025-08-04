@@ -1,53 +1,27 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
-{% block title %}Mis Favoritos - Lumière Glamour{% endblock %}
+{% block title %}Mis Favoritos - Lumiere Glamour{% endblock %}
+
 {% block content %}
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">❤️ Mis Productos Favoritos</h1>
-        {% if favoritos_productos %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {% for producto in favoritos_productos %}
-                    <div class="bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden">
-                        <div class="relative">
-                            {# Imagen del producto con fallback #}
-                            {% if producto.imagen %}
-                                <img src="{{ producto.imagen }}"
-                                     alt="{{ producto.nombre }}"
-                                     class="w-full h-48 object-cover"
-                                     onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
-                            {% else %}
-                                <img src="{% static 'img/sin_imagen.jpg' %}"
-                                     alt="Sin imagen"
-                                     class="w-full h-48 object-cover">
-                            {% endif %}
-                            {# Botón de favoritos activo #}
-                            <button class="btn-favorito active absolute top-2 right-2 z-20"
-                                    data-product-id="{{ producto.id }}">
-                                <i class="fas fa-heart text-red-500"></i>
-                            </button>
-                        </div>
-                        <div class="p-4">
-                            <h5 class="text-lg font-semibold text-gray-800 mb-1">{{ producto.nombre|truncatechars:40 }}</h5>
-                            <p class="text-pink-600 font-bold text-base mt-1">${{ producto.get_precio_final|floatformat:0|intcomma }}</p>
-                            <a href="{% url 'producto_detalle' producto.id %}"
-                               class="mt-4 w-full bg-pink-600 text-white py-2 px-3 rounded-md text-xs font-semibold hover:bg-pink-700 transition flex items-center justify-center space-x-2">
-                                <i class="fas fa-eye"></i>
-                                <span>Ver Detalles</span>
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="bg-white rounded-lg shadow-md p-8 text-center">
-                <p class="text-xl text-gray-600 mb-4">No tienes productos favoritos aún. ¡Explora y añade algunos!</p>
-                <a href="{% url 'home' %}"
-                   class="text-pink-600 hover:underline font-medium">Volver a la tienda</a>
-            </div>
-        {% endif %}
-    </div>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">❤️ Mis Productos Favoritos</h1>
+
+    {% if favoritos_productos %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for producto in favoritos_productos %}
+          {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <p class="text-xl text-gray-600 mb-4">No tienes productos favoritos aún. ¡Explora y añade algunos!</p>
+        <a href="{% url 'home' %}" class="text-pink-600 hover:underline font-medium">Volver a la tienda</a>
+      </div>
+    {% endif %}
+  </div>
 {% endblock %}
+
 {% block extra_js %}
-    {# Ya no es necesario agregar JS aquí, se usa la función global del main.js para favoritos #}
+  {# JS global ya está cargado desde base.html, no se necesita nada aquí #}
 {% endblock %}

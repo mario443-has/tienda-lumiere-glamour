@@ -76,7 +76,7 @@
                         <form method="get" action="{% url 'home' %}" class="relative flex w-full">
                             <input type="text"
                                    name="q"
-                                   placeholder="Buscar productos..."
+                                   placeholder="¿Qué estas buscando hoy?"
                                    class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                                    value="{{ request.GET.q|default:'' }}"
                                    autocomplete="off" />
@@ -127,7 +127,7 @@
                     <form method="get" action="{% url 'home' %}" class="relative flex">
                         <input type="text"
                                name="q"
-                               placeholder="Buscar productos..."
+                               placeholder="¿Qué estas buscando hoy?"
                                class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                                value="{{ request.GET.q|default:'' }}"
                                autocomplete="off" />

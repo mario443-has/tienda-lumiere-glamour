@@ -619,6 +619,27 @@ function setupWhatsappButtons() {
         whatsappOrderButton.addEventListener("click", sendCartToWhatsApp);
     }
 }
+// =============================
+// 🔄 Reparar favoritos antiguos o corruptos
+// =============================
+function repararFavoritosLocales() {
+  const keys = Object.keys(localStorage).filter(k => k.startsWith("favorito-"));
+  let seCorrigio = false;
+
+  keys.forEach(key => {
+    const valor = localStorage.getItem(key);
+
+    // Si el valor no es "true" ni "false", lo consideramos corrupto
+    if (valor !== "true" && valor !== "false") {
+      localStorage.removeItem(key);
+      seCorrigio = true;
+    }
+  });
+
+  if (seCorrigio) {
+    console.log("🧹 Favoritos locales reparados.");
+  }
+}
 
 // =====================================================================
 // Lógica que se ejecuta cuando el DOM está completamente cargado
@@ -955,6 +976,9 @@ function initFavoritos() {
       window.toggleFavorito(button, productoId);
     }
   });
+
+  // Reparar favoritos antiguos antes de inicializar
+    repararFavoritosLocales();
 
   // Inicializar favoritos
   initFavoritos();

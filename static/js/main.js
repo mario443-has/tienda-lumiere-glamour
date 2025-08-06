@@ -715,6 +715,9 @@ updateFavoritesView();
 document.addEventListener("click", (event) => {
     const btn = event.target.closest(".btn-favorito");
     if (btn) {
+        event.preventDefault();   // Evita que siga el link
+        event.stopPropagation();  // Evita que burbujee al <a>
+        
         const productoId = btn.dataset.productId;
         toggleFavorito(btn, productoId);
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos

@@ -12,10 +12,12 @@
     {% endif %}
 
     {# ❤️ Botón de favoritos flotante #}
-    <button class="btn-favorito absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
-            data-product-id="{{ producto.id }}">
-        <i class="fa-regular fa-heart text-gray-500"></i>
-    </button>
+    <button type="button"
+        class="btn-favorito absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+        data-product-id="{{ producto.id }}">
+    <i class="fa-regular fa-heart text-gray-500"></i>
+</button>
+
 
     {# 📦 Imagen y enlace al detalle del producto #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">

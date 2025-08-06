@@ -660,7 +660,7 @@ function renderFavoritesFromLocalStorage() {
         })
         .catch(err => {
             console.error("Error cargando favoritos:", err);
-            container.innerHTML = "<p class='text-center text-red-500 py-8'>Error al cargar favoritos.</p>";
+            container.innerHTML = "<p class='text-center text-gray-500 py-8'>No tienes productos en favoritos.</p>";
         });
 }
 

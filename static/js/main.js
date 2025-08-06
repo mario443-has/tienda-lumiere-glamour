@@ -17,7 +17,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// --- Carrito ---
+// --- Variables del carrito ---
 let cartModalElement;
 let cartContentContainer;
 let cartTotalSpan;
@@ -48,6 +48,7 @@ function initializeCartDomElements() {
     if (openCartButtonMobile) openCartButtonMobile.addEventListener("click", openCartModal);
 }
 
+// --- Apertura y cierre del carrito ---
 function openCartModal() {
     if (cartModalElement) {
         cartModalElement.classList.remove("hidden");
@@ -59,6 +60,7 @@ function closeCartModal() {
     if (cartModalElement) cartModalElement.classList.add("hidden");
 }
 
+// --- LocalStorage del carrito ---
 function cargarCarritoLocal() {
     const carritoGuardado = localStorage.getItem('carritoLumiere');
     if (carritoGuardado) {
@@ -77,6 +79,7 @@ function guardarCarritoLocal() {
     localStorage.setItem('carritoLumiere', JSON.stringify(window.cart));
 }
 
+// --- Formato de precio ---
 function formatPriceForDisplay(price) {
     return new Intl.NumberFormat('es-CO', {
         style: 'currency',
@@ -86,6 +89,7 @@ function formatPriceForDisplay(price) {
     }).format(price).replace('COP', '').trim();
 }
 
+// --- Contador de carrito ---
 function actualizarContadorCarrito() {
     if (!cartCountElement) initializeCartDomElements();
 
@@ -107,6 +111,7 @@ function actualizarContadorCarrito() {
     }
 }
 
+// --- Render del carrito ---
 function renderCartItems() {
     if (!cartContentContainer) initializeCartDomElements();
     if (!cartContentContainer) return;
@@ -158,6 +163,7 @@ function renderCartItems() {
     }
 }
 
+// --- Actualizar cantidad ---
 window.updateItemQuantity = function(variantIdToUpdate, change) {
     const itemIndex = window.cart.findIndex(item => item.variantId === variantIdToUpdate);
     if (itemIndex > -1) {
@@ -173,6 +179,7 @@ window.updateItemQuantity = function(variantIdToUpdate, change) {
     }
 }
 
+// --- Generar mensaje WhatsApp ---
 function generarMensajeWhatsApp(carrito, total) {
     const whatsappNumber = window.whatsappNumber || '573007221200';
     let texto = "¡Hola! Me gustaría comprar los siguientes productos:\n\n";
@@ -192,6 +199,7 @@ function generarMensajeWhatsApp(carrito, total) {
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(texto)}`;
 }
 
+// --- Enviar carrito a WhatsApp ---
 function sendCartToWhatsApp() {
     if (window.cart.length === 0) {
         showMessageModal('Carrito Vacío', 'Tu carrito está vacío. Agrega productos antes de comprar.');
@@ -209,14 +217,7 @@ function sendCartToWhatsApp() {
     closeCartModal();
 }
 
-function updateCartDisplay() {
-    renderCartItems();
-    actualizarContadorCarrito();
-}
-
-// ======================================================
-// 🔹 Favoritos Corregido
-// ======================================================
+// --- Favoritos corregido ---
 function applyFavoriteState(productId, isFavorite) {
     const buttons = document.querySelectorAll(`.btn-favorito[data-product-id="${productId}"]`);
     buttons.forEach(button => {
@@ -264,31 +265,79 @@ function updateFavoritesView() {
     }
 }
 
+// --- WhatsApp ---
 function setupWhatsappButtons() {
-    if (buyWhatsappButton) {
-        buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
-    }
-    if (whatsappOrderButton) {
-        whatsappOrderButton.addEventListener("click", sendCartToWhatsApp);
-    }
+    if (buyWhatsappButton) buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
+    if (whatsappOrderButton) whatsappOrderButton.addEventListener("click", sendCartToWhatsApp);
 }
 
+// --- Variantes de color ---
+function setupColorOptions() {
+    document.querySelectorAll('.color-option').forEach(colorOption => {
+        colorOption.addEventListener('click', function() {
+            const parentProductDiv = this.closest('[data-product-id]');
+            const productId = parentProductDiv ? parentProductDiv.dataset.productId : null;
 
-// ======================================================
-// 🔹 Inicialización DOMContentLoaded
-// ======================================================
+            const selectedVariantId = this.dataset.variantId;
+            const selectedColorName = this.dataset.colorName;
+            const selectedVariantImage = this.dataset.variantImage;
+            const selectedVariantPrice = this.dataset.variantPrice;
+
+            const productImage = productId ? parentProductDiv.querySelector(`#product-image-${productId}`) : null;
+            if (productImage) productImage.src = selectedVariantImage;
+
+            const productPriceSpan = productId ? parentProductDiv.querySelector(`#product-price-${productId}`) : null;
+            if (productPriceSpan) productPriceSpan.textContent = formatPriceForDisplay(selectedVariantPrice);
+
+            if (parentProductDiv) {
+                parentProductDiv.querySelectorAll('.color-option').forEach(option => option.classList.remove('selected'));
+            }
+            this.classList.add('selected');
+
+            const addToCartButton = parentProductDiv ? parentProductDiv.querySelector('.btn-agregar-carrito') : null;
+            if (addToCartButton) {
+                addToCartButton.dataset.selectedVariantId = selectedVariantId;
+                addToCartButton.dataset.productPrice = selectedVariantPrice;
+                addToCartButton.dataset.selectedColor = selectedColorName;
+                addToCartButton.dataset.productImageUrl = selectedVariantImage;
+            }
+        });
+    });
+}
+
+function setupMoreColorsButton() {
+    document.querySelectorAll('.more-colors-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const additionalColorsContainer = document.getElementById(`additional-colors-${productId}`);
+            if (additionalColorsContainer) {
+                additionalColorsContainer.classList.toggle('hidden');
+                additionalColorsContainer.classList.toggle('visible');
+            }
+        });
+    });
+}
+
+// --- Inicialización ---
 document.addEventListener("DOMContentLoaded", function () {
     initializeCartDomElements();
     cargarCarritoLocal();
     updateCartDisplay();
 
     setupWhatsappButtons();
+    repararFavoritosLocales();
+    updateFavoritesView();
     setupColorOptions();
     setupMoreColorsButton();
 
-    // Botones de añadir al carrito con feedback visual
-    const botonesAgregar = document.querySelectorAll(".btn-agregar-carrito");
-    botonesAgregar.forEach((boton) => {
+    // --- Favoritos ---
+    document.addEventListener("click", (event) => {
+        const btn = event.target.closest(".btn-favorito");
+        if (btn) toggleFavorito(btn, btn.dataset.productId);
+    });
+
+    // --- Botones de carrito con feedback visual ---
+    document.querySelectorAll(".btn-agregar-carrito").forEach((boton) => {
         boton.addEventListener("click", function () {
             const productId = boton.dataset.productId;
             const productName = boton.dataset.productName;
@@ -326,7 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (data.mensaje) {
                         showMessageModal("✅ Producto añadido", "Producto: " + productName + " ha sido añadido al carrito.");
 
-                        // 🔹 Feedback visual
+                        // --- Feedback visual ---
                         const originalText = boton.querySelector("span").textContent;
                         boton.disabled = true;
                         boton.querySelector("span").textContent = "Añadido ✅";
@@ -340,21 +389,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             boton.classList.add("bg-pink-600", "hover:bg-pink-700");
                         }, 1000);
 
-                        // 🔹 Lógica de carrito
+                        // --- Lógica del carrito ---
                         const existingItemIndex = window.cart.findIndex(item => item.variantId === variantId);
                         if (existingItemIndex > -1) {
                             window.cart[existingItemIndex].quantity = (typeof window.cart[existingItemIndex].quantity === 'number' && !isNaN(window.cart[existingItemIndex].quantity)) ? window.cart[existingItemIndex].quantity : 0;
                             window.cart[existingItemIndex].quantity += quantity;
                         } else {
-                            window.cart.push({
-                                id: productId,
-                                name: productName,
-                                price: productPrice,
-                                color: color,
-                                variantId: variantId,
-                                quantity: quantity,
-                                imageUrl: imageUrl
-                            });
+                            window.cart.push({ id: productId, name: productName, price: productPrice, color: color, variantId: variantId, quantity: quantity, imageUrl: imageUrl });
                         }
                         guardarCarritoLocal();
                         updateCartDisplay();
@@ -370,15 +411,5 @@ document.addEventListener("DOMContentLoaded", function () {
                 showMessageModal('Cantidad Inválida', 'Por favor, ingresa una cantidad válida.');
             }
         });
-    });
-
-    repararFavoritosLocales();
-    updateFavoritesView();
-    document.addEventListener("click", (event) => {
-        const btn = event.target.closest(".btn-favorito");
-        if (btn) {
-            const productoId = btn.dataset.productId;
-            toggleFavorito(btn, productoId);
-        }
     });
 });

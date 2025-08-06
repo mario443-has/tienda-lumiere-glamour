@@ -653,13 +653,8 @@ function renderFavoritesFromLocalStorage() {
         .then(res => res.json())
         .then(data => {
             container.innerHTML = "";
-
-            const productosMap = new Map();
             data.productos.forEach(prod => {
-data.productos.forEach(prod => {
-    container.insertAdjacentHTML('beforeend', prod.html);
-});
-
+                container.insertAdjacentHTML('beforeend', prod.html);
             });
             updateFavoritesView();
         })
@@ -802,7 +797,19 @@ document.addEventListener("click", (event) => {
 
         const favContainer = document.getElementById("favoritos-container");
         if (favContainer) {
-            renderFavoritesFromLocalStorage();
+            const card = btn.closest(".product-card");
+            if (card) {
+                card.classList.add("opacity-0", "scale-95", "transition");
+                card.addEventListener(
+                    "transitionend",
+                    () => {
+                        renderFavoritesFromLocalStorage();
+                    },
+                    { once: true }
+                );
+            } else {
+                renderFavoritesFromLocalStorage();
+            }
         }
     }
 });

@@ -800,21 +800,9 @@ document.addEventListener("click", (event) => {
         toggleFavorito(btn, productoId);
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos
 
-const favPage = document.getElementById("favoritos-container");
-if (favPage && !btn.classList.contains("active")) {
-    const card = btn.closest(".product-card");
-    if (card) {
-        card.classList.add("opacity-0", "scale-95", "transition");
-        card.addEventListener(
-            "transitionend",
-            () => {
-                card.remove();
-                renderFavoritesFromLocalStorage();
-            },
-            { once: true }
-        );
-    }
-}
+        const favContainer = document.getElementById("favoritos-container");
+        if (favContainer) {
+            renderFavoritesFromLocalStorage();
         }
     }
 });

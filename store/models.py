@@ -181,7 +181,7 @@ class Producto(models.Model):
         precio_decimal = Decimal(self.precio)
         descuento_decimal = Decimal(self.descuento)
         if descuento_decimal > 0:
-            final_price = precio_decimal * (1 - (descuento_decimal / 100))
+            final_price = precio_decimal * (1 - descuento_decimal)
             # Redondea a 0 decimales usando ROUND_HALF_UP (redondeo tradicional)
             return final_price.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
         return precio_decimal
@@ -291,7 +291,7 @@ class Variacion(models.Model):
         )
         base_price_decimal = Decimal(base_price)  # Asegurarse de que sea Decimal
         if self.producto.descuento and self.producto.descuento > 0:
-            final_price = base_price_decimal * (1 - (self.producto.descuento / 100))
+            final_price = base_price_decimal * (1 - Decimal(self.producto.descuento))
             # Redondea a 0 decimales usando ROUND_HALF_UP (redondeo tradicional)
             return final_price.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
         return base_price_decimal

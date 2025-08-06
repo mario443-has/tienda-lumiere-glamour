@@ -4,7 +4,7 @@ from decimal import Decimal  # Import Decimal para cálculos precisos
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView  # Importa ListView
 from django.core.cache import cache
 
@@ -15,9 +15,12 @@ from .models import (
     Favorito,
     MenuItem,
     Producto,
+    Review,
     SiteSetting,
     Variacion,
 )
+from .forms import ReviewForm
+from django.contrib.auth.decorators import login_required
 
 
 def google_verification(request):
@@ -355,9 +358,33 @@ def producto_detalle(request, pk):
         for var in variaciones
     ]
 
+    # Reseñas del producto
+    context["reviews"] = producto.reviews.select_related("user")
+    context["review_form"] = ReviewForm()
+
+    # Productos relacionados por categoría
+    related_products = (
+        Producto.objects.filter(categoria=producto.categoria)
+        .exclude(id=producto.id)[:8]
+    )
+    context["related_products"] = related_products
+
     # Renderiza la plantilla de detalle del producto.
     # Asegúrate de que 'store/producto.html' sea la ruta correcta a tu plantilla de detalle.
     return render(request, "store/producto.html", context)
+
+
+@login_required
+def agregar_review(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.producto = producto
+            review.save()
+    return redirect("producto_detalle", pk=pk)
 
 
 @csrf_exempt

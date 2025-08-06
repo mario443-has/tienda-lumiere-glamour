@@ -6,6 +6,7 @@ from cloudinary.models import \
     CloudinaryField  # AÑADIDO: Import para CloudinaryField
 from django.db import models
 from django.db.models import Count
+from django.conf import settings
 from django.templatetags.static import \
     static  # Importar static para el fallback de imagen
 from django.utils.text import slugify
@@ -355,3 +356,25 @@ class Anuncio(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class Review(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+    rating = models.PositiveSmallIntegerField()
+    comentario = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"{self.user} - {self.producto} ({self.rating})"

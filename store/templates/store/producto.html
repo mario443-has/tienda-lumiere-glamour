@@ -168,6 +168,35 @@
                 {% endif %}
             </div>
         </div>
+        <!-- Reviews Section -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mt-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Reseñas</h2>
+            {% for review in reviews %}
+                <div class="border-b border-gray-200 py-4">
+                    <p class="font-semibold">{{ review.user.username }} - {{ review.rating }}/5</p>
+                    <p class="text-gray-700">{{ review.comentario }}</p>
+                    <p class="text-sm text-gray-500">{{ review.fecha|date:"d/m/Y" }}</p>
+                </div>
+            {% empty %}
+                <p class="text-gray-500">Aún no hay reseñas.</p>
+            {% endfor %}
+            {% if user.is_authenticated %}
+                <form action="{% url 'agregar_review' producto.id %}" method="post" class="mt-6 space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        {{ review_form.rating.label_tag }} {{ review_form.rating }}
+                    </div>
+                    <div>
+                        {{ review_form.comentario.label_tag }} {{ review_form.comentario }}
+                    </div>
+                    <button type="submit" class="bg-pink-600 text-white py-2 px-4 rounded-lg">Enviar</button>
+                </form>
+            {% else %}
+                <p class="mt-4 text-sm text-gray-600">
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="text-pink-600 underline">Inicia sesión</a> para dejar una reseña.
+                </p>
+            {% endif %}
+        </div>
         <!-- Social Sharing Section -->
         <div class="bg-white rounded-lg shadow-xl p-6 mt-8 text-center">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">Compártelo en:</h2>
@@ -188,6 +217,18 @@
                 </a>
             </div>
         </div>
+        {% if related_products %}
+        <div class="bg-white rounded-lg shadow-xl p-6 mt-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Productos relacionados</h2>
+            <div class="flex overflow-x-auto space-x-4 pb-4">
+                {% for prod in related_products %}
+                <div class="w-64 flex-shrink-0">
+                    {% include 'store/components/product_card.html' with producto=prod %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </main>
     <!-- Botón fijo de añadir al carrito para dispositivos móviles -->
     <div class="md:hidden fixed bottom-0 left-0 w-full p-4 bg-white border-t shadow-lg z-50">

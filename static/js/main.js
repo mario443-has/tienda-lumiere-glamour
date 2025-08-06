@@ -517,38 +517,12 @@ function repararFavoritosLocales() {
     }
 }
 
-// Obtener la lista de favoritos ordenada desde localStorage
-function getFavoritosOrder() {
-    try {
-        const stored = JSON.parse(localStorage.getItem('favoritos-order'));
-        return Array.isArray(stored) ? stored : [];
-    } catch (e) {
-        return [];
-    }
-}
-
-// Guardar la lista de favoritos ordenada en localStorage
-function saveFavoritosOrder(order) {
-    localStorage.setItem('favoritos-order', JSON.stringify(order));
-}
-
 function toggleFavorito(button, productoId) {
     // Si existe el botón activo, le invertimos el estado
     const isNowFavorite = !button.classList.contains("active");
 
     // Guardamos en localStorage
     localStorage.setItem(`favorito-${productoId}`, isNowFavorite ? "true" : "false");
-
-    // Actualizamos la lista ordenada de favoritos
-    let order = getFavoritosOrder();
-    const index = order.indexOf(productoId);
-    if (isNowFavorite) {
-        if (index !== -1) order.splice(index, 1);
-        order.unshift(productoId);
-    } else {
-        if (index !== -1) order.splice(index, 1);
-    }
-    saveFavoritosOrder(order);
 
     // Actualizamos la UI
     applyFavoriteState(productoId, isNowFavorite);
@@ -639,8 +613,10 @@ function renderFavoritesFromLocalStorage() {
     const container = document.getElementById("favoritos-container");
     if (!container) return; // Si no estamos en la página de favoritos, no hacer nada
 
-    // Obtener IDs desde la lista ordenada y validar que sigan marcados como favoritos
-    const favoriteIds = getFavoritosOrder().filter(id => localStorage.getItem(`favorito-${id}`) === "true");
+    // Obtener IDs desde localStorage
+    const favoriteKeys = Object.keys(localStorage)
+        .filter(k => k.startsWith("favorito-") && localStorage.getItem(k) === "true");
+    const favoriteIds = favoriteKeys.map(k => k.replace("favorito-", ""));
 
     // Si no hay favoritos
     if (favoriteIds.length === 0) {
@@ -653,13 +629,8 @@ function renderFavoritesFromLocalStorage() {
         .then(res => res.json())
         .then(data => {
             container.innerHTML = "";
-
-            const productosMap = new Map();
             data.productos.forEach(prod => {
-data.productos.forEach(prod => {
-    container.insertAdjacentHTML('beforeend', prod.html);
-});
-
+                container.insertAdjacentHTML('beforeend', prod.html);
             });
             updateFavoritesView();
         })

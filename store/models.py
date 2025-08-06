@@ -2,16 +2,25 @@ from decimal import (ROUND_HALF_UP,  # Importa ROUND_HALF_UP para el redondeo
                      Decimal)
 
 from ckeditor.fields import RichTextField
-from cloudinary.models import \
-    CloudinaryField  # AÑADIDO: Import para CloudinaryField
+from django.core.files.storage import FileSystemStorage
 from django.db import models
 from django.db.models import Count
 from django.conf import settings
-from django.templatetags.static import \
-    static  # Importar static para el fallback de imagen
+from django.templatetags.static import (
+    static,
+)  # Importar static para el fallback de imagen
 from django.utils.text import slugify
-from django.utils.translation import \
-    gettext_lazy as _  # Import para internacionalización de verbose_name
+from django.utils.translation import (
+    gettext_lazy as _,
+)  # Import para internacionalización de verbose_name
+from cloudinary_storage.storage import MediaCloudinaryStorage
+
+
+media_storage = (
+    MediaCloudinaryStorage()
+    if settings.CLOUDINARY_CLOUD_NAME
+    else FileSystemStorage()
+)
 
 
 # Custom QuerySet para el modelo Categoria
@@ -52,8 +61,8 @@ class Categoria(models.Model):
         related_name="subcategorias",
         help_text="Categoría padre (opcional, para subcategorías)",
     )
-    imagen_circular = CloudinaryField(
-        "imagen_circular",
+    imagen_circular = models.ImageField(
+        storage=media_storage,
         blank=True,
         null=True,
         help_text="Imagen circular para la categoría (ej. para la página de inicio)",
@@ -141,7 +150,9 @@ class Producto(models.Model):
         default=Decimal("0.00"),
         help_text="Porcentaje de descuento (ej. 0.10 para 10%)",
     )
-    imagen = CloudinaryField("imagen", blank=True, null=True)
+    imagen = models.ImageField(
+        storage=media_storage, blank=True, null=True
+    )
     # Ahora Producto se relaciona directamente con Categoria (jerárquica)
     categoria = models.ForeignKey(
         Categoria,
@@ -220,7 +231,7 @@ class ProductImage(models.Model):
     producto = models.ForeignKey(
         Producto, related_name="images", on_delete=models.CASCADE
     )
-    image = CloudinaryField("imagen", blank=True, null=True)
+    image = models.ImageField(storage=media_storage, blank=True, null=True)
     alt_text = models.CharField(
         max_length=255, blank=True, help_text="Texto alternativo para la imagen"
     )
@@ -252,8 +263,8 @@ class Variacion(models.Model):
     )
     tono = models.CharField(max_length=50, blank=True, null=True)
     presentacion = models.CharField(max_length=50, blank=True, null=True)
-    imagen = CloudinaryField(
-        "imagen_variacion",
+    imagen = models.ImageField(
+        storage=media_storage,
         blank=True,
         null=True,
         help_text="Imagen específica para esta variación",
@@ -333,7 +344,9 @@ class SiteSetting(models.Model):
 class Anuncio(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True, null=True)
-    imagen = CloudinaryField("imagen", blank=True, null=True)
+    imagen = models.ImageField(
+        storage=media_storage, blank=True, null=True
+    )
     url = models.URLField(
         max_length=200,
         blank=True,

@@ -313,8 +313,9 @@ function setupColorOptions() {
             const selectedVariantId = this.dataset.variantId;
             const selectedColorName = this.dataset.colorName;
             const selectedVariantImage = this.dataset.variantImage;
-            const selectedVariantPrice = this.dataset.variantPrice;
+            const selectedVariantPrice = parseFloat(this.dataset.variantPrice);
 
+            // Imagen y precio para listados de productos
             const productImage = productId ? parentProductDiv.querySelector(`#product-image-${productId}`) : null;
             if (productImage) {
                 productImage.src = selectedVariantImage;
@@ -325,14 +326,34 @@ function setupColorOptions() {
                 productPriceSpan.textContent = formatPriceForDisplay(selectedVariantPrice);
             }
 
-            if (parentProductDiv) {
+            // Imagen y precio principales en la vista de producto
+            if (!parentProductDiv) {
+                const mainImage = document.getElementById('main-product-image');
+                if (mainImage) {
+                    mainImage.src = selectedVariantImage;
+                }
+
+                const mainPrice = document.getElementById('main-product-price');
+                if (mainPrice) {
+                    mainPrice.textContent = formatPriceForDisplay(selectedVariantPrice);
+                }
+
+                const colorNameDisplay = document.getElementById('selected-color-name');
+                if (colorNameDisplay) {
+                    colorNameDisplay.textContent = selectedColorName;
+                }
+
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected', 'ring-2', 'ring-pink-500', 'border-pink-500');
+                });
+            } else {
                 parentProductDiv.querySelectorAll('.color-option').forEach(option => {
-                    option.classList.remove('selected');
+                    option.classList.remove('selected', 'ring-2', 'ring-pink-500', 'border-pink-500');
                 });
             }
-            this.classList.add('selected');
+            this.classList.add('selected', 'ring-2', 'ring-pink-500', 'border-pink-500');
 
-            const addToCartButton = parentProductDiv ? parentProductDiv.querySelector('.btn-agregar-carrito') : null;
+            const addToCartButton = parentProductDiv ? parentProductDiv.querySelector('.btn-agregar-carrito') : document.querySelector('.btn-agregar-carrito');
             if (addToCartButton) {
                 addToCartButton.dataset.selectedVariantId = selectedVariantId;
                 addToCartButton.dataset.productPrice = selectedVariantPrice;
@@ -357,6 +378,40 @@ function setupMoreColorsButton() {
     });
 }
 
+// Controlar incrementos y decrementos de cantidad
+function setupQuantityControls() {
+    const quantityInput = document.getElementById('quantity');
+    const decreaseBtn = document.getElementById('quantity-decrease');
+    const increaseBtn = document.getElementById('quantity-increase');
+
+    if (!quantityInput) return;
+
+    const sanitize = () => {
+        let value = parseInt(quantityInput.value, 10);
+        if (isNaN(value) || value < 1) {
+            value = 1;
+        }
+        quantityInput.value = value;
+        return value;
+    };
+
+    if (decreaseBtn) {
+        decreaseBtn.addEventListener('click', () => {
+            const value = sanitize() - 1;
+            quantityInput.value = value < 1 ? 1 : value;
+        });
+    }
+
+    if (increaseBtn) {
+        increaseBtn.addEventListener('click', () => {
+            const value = sanitize() + 1;
+            quantityInput.value = value;
+        });
+    }
+
+    quantityInput.addEventListener('change', sanitize);
+}
+
 // Lógica para añadir al carrito (unificada para todos los botones .btn-agregar-carrito)
 function setupAddToCartButtons() {
     const botonesAgregar = document.querySelectorAll(".btn-agregar-carrito");
@@ -375,14 +430,15 @@ function setupAddToCartButtons() {
             if (parentContainer) {
                 const quantityInput = parentContainer.querySelector("input[type='number']");
                 if (quantityInput) {
-                    quantity = parseInt(quantityInput.value);
-                    if (isNaN(quantity) || quantity <= 0) {
+                    quantity = parseInt(quantityInput.value, 10);
+                    if (isNaN(quantity) || quantity < 1) {
                         quantity = 1;
                     }
+                    quantityInput.value = quantity;
                 }
             }
 
-            if (quantity > 0) {
+            if (quantity >= 1) {
                 fetch("/agregar-al-carrito/", {
                     method: "POST",
                     headers: {
@@ -592,31 +648,20 @@ function renderFavoritesFromLocalStorage() {
         return;
     }
 
-    // Llamar a la API para obtener datos de productos
-    fetch(`/api/favoritos/?ids=${favoriteIds.join(",")}`)
+    // Llamar a la API para obtener datos de productos con su HTML
+    fetch(`/api/favoritos/?ids=${favoriteIds.join(",")}&html=true`)
         .then(res => res.json())
         .then(data => {
             container.innerHTML = "";
 
             const productosMap = new Map();
             data.productos.forEach(prod => {
-                productosMap.set(String(prod.id), prod);
-            });
+data.productos.forEach(prod => {
+    container.insertAdjacentHTML('beforeend', prod.html);
+});
 
-            favoriteIds.forEach(id => {
-                const prod = productosMap.get(String(id));
-                if (!prod) return;
-                const card = `
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition p-4 text-center">
-                        <a href="${prod.url}">
-                            <img src="${prod.imagen}" class="w-full h-32 object-cover rounded mb-2">
-                            <h3 class="text-gray-800 font-semibold">${prod.nombre}</h3>
-                            <p class="text-pink-600 font-bold mt-1">${prod.precio}</p>
-                        </a>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', card);
             });
+            updateFavoritesView();
         })
         .catch(err => {
             console.error("Error cargando favoritos:", err);
@@ -662,6 +707,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupWhatsappButtons();
     setupColorOptions();
     setupMoreColorsButton();
+    setupQuantityControls();
     setupAddToCartButtons();
 
     // --- Miniaturas que cambian la imagen principal (detalle de producto) ---
@@ -749,10 +795,27 @@ document.addEventListener("click", (event) => {
     if (btn) {
         event.preventDefault();   // Evita que siga el link
         event.stopPropagation();  // Evita que burbujee al <a>
-        
+
         const productoId = btn.dataset.productId;
         toggleFavorito(btn, productoId);
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos
+
+const favPage = document.getElementById("favoritos-container");
+if (favPage && !btn.classList.contains("active")) {
+    const card = btn.closest(".product-card");
+    if (card) {
+        card.classList.add("opacity-0", "scale-95", "transition");
+        card.addEventListener(
+            "transitionend",
+            () => {
+                card.remove();
+                renderFavoritesFromLocalStorage();
+            },
+            { once: true }
+        );
+    }
+}
+        }
     }
 });
 

@@ -682,5 +682,47 @@ document.addEventListener("DOMContentLoaded", function () {
         toggleFavorito(btn, productoId);
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos
     }
+
+    });
 });
-});
+function renderFavoritesFromLocalStorage() {
+    const container = document.getElementById("favoritos-container");
+    if (!container) return; // Si no estamos en la página de favoritos, no hacer nada
+
+    // Obtener IDs desde localStorage
+    const favoriteKeys = Object.keys(localStorage)
+        .filter(k => k.startsWith("favorito-") && localStorage.getItem(k) === "true");
+    const favoriteIds = favoriteKeys.map(k => k.replace("favorito-", ""));
+
+    // Si no hay favoritos
+    if (favoriteIds.length === 0) {
+        container.innerHTML = "<p class='text-center text-gray-500 py-8'>No tienes productos en favoritos.</p>";
+        return;
+    }
+
+    // Llamar a la API para obtener datos de productos
+    fetch(`/api/favoritos/?ids=${favoriteIds.join(",")}`)
+        .then(res => res.json())
+        .then(data => {
+            container.innerHTML = "";
+            data.productos.forEach(prod => {
+                const card = `
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition p-4 text-center">
+                        <a href="${prod.url}">
+                            <img src="${prod.imagen}" class="w-full h-32 object-cover rounded mb-2">
+                            <h3 class="text-gray-800 font-semibold">${prod.nombre}</h3>
+                            <p class="text-pink-600 font-bold mt-1">${prod.precio}</p>
+                        </a>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        })
+        .catch(err => {
+            console.error("Error cargando favoritos:", err);
+            container.innerHTML = "<p class='text-center text-red-500 py-8'>Error al cargar favoritos.</p>";
+        });
+}
+
+document.addEventListener("DOMContentLoaded", renderFavoritesFromLocalStorage);
+

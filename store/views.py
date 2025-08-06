@@ -694,3 +694,22 @@ def productos_por_etiqueta(request, badge):
     })
 
     return render(request, "store/index.html", context)
+
+def api_favoritos(request):
+    ids = request.GET.get("ids", "")
+    id_list = [int(i) for i in ids.split(",") if i.isdigit()]
+    productos = Producto.objects.filter(id__in=id_list)
+
+    data = {
+        "productos": [
+            {
+                "id": p.id,
+                "nombre": p.nombre,
+                "precio": f"${p.get_precio_final():,.0f}",
+                "imagen": p.get_primary_image_url() or "/static/img/sin_imagen.jpg",
+                "url": p.get_absolute_url() if hasattr(p, "get_absolute_url") else f"/producto/{p.id}/"
+            }
+            for p in productos
+        ]
+    }
+    return JsonResponse(data)

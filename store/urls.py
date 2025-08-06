@@ -31,4 +31,5 @@ urlpatterns = [
         views.productos_por_etiqueta,
         name="productos_por_etiqueta",
     ),
+    path('api/favoritos/', views.api_favoritos, name='api_favoritos'),
 ]

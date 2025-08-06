@@ -4,24 +4,22 @@
 {% block title %}Mis Favoritos - Lumiere Glamour{% endblock %}
 
 {% block content %}
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">❤️ Mis Productos Favoritos</h1>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">❤️ Mis Productos Favoritos</h1>
 
-    {% if favoritos_productos %}
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for producto in favoritos_productos %}
-          {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="bg-white rounded-lg shadow-md p-8 text-center">
-        <p class="text-xl text-gray-600 mb-4">No tienes productos favoritos aún. ¡Explora y añade algunos!</p>
-        <a href="{% url 'home' %}" class="text-pink-600 hover:underline font-medium">Volver a la tienda</a>
-      </div>
-    {% endif %}
+  <!-- 🔹 Contenedor vacío donde JS renderizará los productos favoritos -->
+  <div id="favoritos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <!-- Aquí JS insertará las tarjetas dinámicamente -->
   </div>
-{% endblock %}
 
-{% block extra_js %}
-  {# JS global ya está cargado desde base.html, no se necesita nada aquí #}
+  <!-- 🔹 Contenedor de mensaje cuando no hay favoritos -->
+  <div id="favoritos-empty" class="bg-white rounded-lg shadow-md p-8 text-center hidden">
+    <p class="text-xl text-gray-600 mb-4">
+      No tienes productos favoritos aún. ¡Explora y añade algunos!
+    </p>
+    <a href="{% url 'home' %}" class="text-pink-600 hover:underline font-medium">
+      Volver a la tienda
+    </a>
+  </div>
+</div>
 {% endblock %}

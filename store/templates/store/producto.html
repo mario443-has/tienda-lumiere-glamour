@@ -81,11 +81,15 @@
                 </p>
                 <div class="flex items-center space-x-4 mb-8">
                     <label for="quantity" class="text-lg font-medium text-gray-700">Cantidad:</label>
-                    <input type="number"
-                           id="quantity"
-                           value="1"
-                           min="1"
-                           class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-center">
+                    <div class="flex items-center border border-gray-300 rounded-md">
+                        <button type="button" id="quantity-decrease" class="px-3 py-2 text-gray-700">-</button>
+                        <input type="number"
+                               id="quantity"
+                               value="1"
+                               min="1"
+                               class="w-20 px-3 py-2 text-center border-l border-r border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500">
+                        <button type="button" id="quantity-increase" class="px-3 py-2 text-gray-700">+</button>
+                    </div>
                 </div>
                 <!-- Lógica de Variaciones (Colores/Tonos) -->
                 {% if variaciones %}

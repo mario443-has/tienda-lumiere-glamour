@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView  # Importa ListView
 from django.core.cache import cache
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
 from .models import (
@@ -767,7 +768,7 @@ def api_favoritos(request):
             "id": p.id,
             "nombre": p.nombre,
             "precio": f"${p.get_precio_final():,.0f}",
-            "imagen": p.get_primary_image_url() or "/static/img/sin_imagen.jpg",
+            "imagen": p.get_primary_image_url() or static("img/sin_imagen.jpg"),
             "url": p.get_absolute_url() if hasattr(p, "get_absolute_url") else f"/producto/{p.id}/",
         }
         if include_html:

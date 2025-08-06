@@ -1,33 +1,35 @@
 /* badges.css */
 
-/* Estilo base para todas las etiquetas de producto */
-.product-badge {
-  display: inline-flex; /* Permite que el padding y el tamaño se ajusten al contenido */
-  align-items: center;
-  justify-content: center;
-  padding: 0.25rem 0.75rem; /* Ajusta el padding para un buen tamaño */
-  border-radius: 9999px; /* Hace el badge completamente redondeado (píldora) */
-  font-size: 0.75rem; /* Tamaño de fuente pequeño */
-  font-weight: 700; /* Negrita */
-  text-transform: uppercase; /* Texto en mayúsculas */
-  color: white; /* Color de texto blanco por defecto */
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Sombra sutil */
-  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
-}
+@layer components {
+  /* Estilo base para todas las etiquetas de producto */
+  .product-badge {
+    display: inline-flex; /* Permite que el padding y el tamaño se ajusten al contenido */
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.75rem; /* Ajusta el padding para un buen tamaño */
+    border-radius: 9999px; /* Hace el badge completamente redondeado (píldora) */
+    font-size: 0.75rem; /* Tamaño de fuente pequeño */
+    font-weight: 700; /* Negrita */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    color: white; /* Color de texto blanco por defecto */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Sombra sutil */
+    white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+  }
 
-/* Estilos específicos para el badge de oferta */
-.badge-oferta {
-  background-color: #ef4444; /* Rojo vibrante para ofertas */
-}
+  /* Estilos específicos para el badge de oferta */
+  .badge-oferta {
+    background-color: #ef4444; /* Rojo vibrante para ofertas */
+  }
 
-/* Estilos específicos para el badge de nuevo */
-.badge-nuevo {
-  background-color: #22c55e; /* Verde para productos nuevos */
-}
+  /* Estilos específicos para el badge de nuevo */
+  .badge-nuevo {
+    background-color: #22c55e; /* Verde para productos nuevos */
+  }
 
-/* Estilos específicos para el badge de tendencia */
-.badge-tendencia {
-  background-color: #3b82f6; /* Azul para productos en tendencia */
+  /* Estilos específicos para el badge de tendencia */
+  .badge-tendencia {
+    background-color: #3b82f6; /* Azul para productos en tendencia */
+  }
 }
 
 /* Asegúrate de que estas clases se apliquen dinámicamente

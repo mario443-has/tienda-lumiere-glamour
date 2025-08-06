@@ -4,21 +4,20 @@
 <div class="bg-white rounded-xl shadow-lg hover:shadow-xl hover:bg-pink-50 transition-all duration-300 ease-in-out overflow-hidden relative group product-card"
      itemscope itemtype="https://schema.org/Product">
 
-    {# 🏷️ Badge del producto #}
+    {# 🏷️ Badge del producto (si existe) #}
     {% if producto.badge %}
         <div class="absolute top-3 left-3 z-10 product-badge {{ producto.get_badge_class }}">
             {{ producto.get_badge_display }}
         </div>
     {% endif %}
 
-    {# ❤️ Botón de favoritos #}
-    <button class="btn-favorito {% if is_favorito %}active{% endif %}"
-        data-product-id="{{ producto.id }}">
-    <i class="fa-regular fa-heart"></i>
-</button>
+    {# ❤️ Botón de favoritos flotante #}
+    <button class="btn-favorito absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+            data-product-id="{{ producto.id }}">
+        <i class="fa-regular fa-heart text-gray-500"></i>
+    </button>
 
-
-    {# 📦 Enlace al detalle del producto #}
+    {# 📦 Imagen y enlace al detalle del producto #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">
         <div class="product-tilt-container transition-transform duration-300 group-hover:scale-105">
             {% if producto.get_primary_image_url %}

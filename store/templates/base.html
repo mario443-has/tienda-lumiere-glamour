@@ -70,7 +70,9 @@
                                    value="{{ request.GET.q|default:'' }}"
                                    autocomplete="off" />
                             <button type="submit"
-                                    class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300">
+                                    class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
+                                    aria-label="Buscar"
+                                    title="Buscar">
                                 <i class="fas fa-search"></i>
                             </button>
                         </form>
@@ -84,7 +86,7 @@
                             id="abrir-carrito-desktop" {# ID ÚNICO para el botón de abrir el carrito de escritorio #}
                             class="relative text-gray-700 hover:text-pink-600 transition duration-300 px-4 focus:outline-none"
                             title="Mi Carrito"
-                            >
+                            aria-label="Mi Carrito">
                             <i class="fas fa-shopping-bag text-xl"></i>
                             <span id="cart-count"
                                   class="absolute -top-2 -right-2 bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
@@ -96,11 +98,15 @@
                         <!-- Botón de búsqueda móvil -->
                         <button id="mobile-search-button"
                                 class="text-gray-700 hover:text-pink-600 focus:outline-none"
-                                onclick="toggleMobileSearch()">
+                                onclick="toggleMobileSearch()"
+                                aria-label="Abrir búsqueda"
+                                title="Abrir búsqueda">
                             <i class="fas fa-search text-xl"></i>
                         </button>
                         <button id="mobile-menu-button"
-                                class="text-gray-700 hover:text-pink-600 focus:outline-none">
+                                class="text-gray-700 hover:text-pink-600 focus:outline-none"
+                                aria-label="Abrir menú"
+                                title="Abrir menú">
                             <svg class="w-6 h-6"
                                  fill="none"
                                  stroke="currentColor"
@@ -120,10 +126,12 @@
                                class="search-input w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                                value="{{ request.GET.q|default:'' }}"
                                autocomplete="off" />
-                        <button type="submit"
-                                class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300">
+                         <button type="submit"
+                                class="bg-pink-600 text-white px-4 py-2 rounded-r-md hover:bg-pink-700 transition duration-300"
+                                aria-label="Buscar"
+                                title="Buscar">
                             <i class="fas fa-search"></i>
-                        </button>
+                         </button>
                     </form>
                     {# Contenedor para resultados de búsqueda en vivo (Móvil) #}
                     <div class="search-results absolute w-full bg-white mt-2 rounded-md shadow-lg z-50 max-h-96 overflow-y-auto"></div>
@@ -409,19 +417,23 @@
                                 <a href="https://wa.me/573007221200"
                                    target="_blank"
                                    class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
-                                   aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                   aria-label="WhatsApp"
+                                   title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                                 <a href="https://www.facebook.com/share/16uFunJpCr/?mibextid=wwXIfr"
                                    target="_blank"
                                    class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
-                                   aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                   aria-label="Facebook"
+                                   title="Facebook"><i class="fab fa-facebook-f"></i></a>
                                 <a href="https://www.instagram.com/lumiere_glamour_"
                                    target="_blank"
                                    class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
-                                   aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                                   aria-label="Instagram"
+                                   title="Instagram"><i class="fab fa-instagram"></i></a>
                                 <a href="https://www.tiktok.com/@lumiere.glamour3"
                                    target="_blank"
                                    class="w-10 h-10 flex items-center justify-center bg-pink-100 text-pink-500 rounded-full hover:bg-pink-200 transition-colors duration-200"
-                                   aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                                   aria-label="TikTok"
+                                   title="TikTok"><i class="fab fa-tiktok"></i></a>
                             </div>
                         </div>
                     </div>
@@ -437,14 +449,15 @@
                 </div>
             </footer>
             <!-- BOTÓN FLOTANTE WHATSAPP (General) -->
-            <a
-                href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
-                class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
-                target="_blank"
-                title="Escríbenos por WhatsApp (Consulta General)"
-                >
-                <i class="fab fa-whatsapp text-2xl"></i>
-            </a>
+                <a
+                    href="https://wa.me/{{ whatsapp_number|default:'573007221200' }}?text=Hola%2C%20tengo%20una%20consulta%20general."
+                    class="whatsapp-flotante fixed bottom-32 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition duration-300 z-40" {# Ajustado a bottom-32 #}
+                    target="_blank"
+                    title="Escríbenos por WhatsApp (Consulta General)"
+                    aria-label="Escríbenos por WhatsApp (Consulta General)"
+                    >
+                    <i class="fab fa-whatsapp text-2xl"></i>
+                </a>
             <!-- NUEVO BOTÓN FLOTANTE "Comprar por WhatsApp" (para el carrito) -->
             <button id="buy-whatsapp-button"
                     class="fixed bottom-20 right-6 bg-purple-600 text-white py-3 px-4 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 z-40 flex items-center space-x-2 hidden">
@@ -458,7 +471,9 @@
                  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
                 <div class="bg-white w-full max-w-lg mx-4 p-6 rounded-lg shadow-lg relative">
                     <button id="cerrar-carrito"
-                            class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold">
+                            class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold"
+                            aria-label="Cerrar carrito"
+                            title="Cerrar carrito">
                         &times;
                     </button>
                     <h2 class="text-xl font-bold mb-4">🛒 Tu carrito</h2>
@@ -494,7 +509,9 @@
                         <h3 id="message-modal-title" class="text-xl font-semibold text-gray-900">Mensaje</h3>
                         <button type="button"
                                 class="text-gray-400 hover:text-gray-600"
-                                onclick="closeMessageModal()">
+                                onclick="closeMessageModal()"
+                                aria-label="Cerrar"
+                                title="Cerrar">
                             <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>

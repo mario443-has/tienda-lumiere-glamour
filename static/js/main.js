@@ -264,6 +264,16 @@ function updateFavoritesView() {
     }
 }
 
+function setupWhatsappButtons() {
+    if (buyWhatsappButton) {
+        buyWhatsappButton.addEventListener("click", sendCartToWhatsApp);
+    }
+    if (whatsappOrderButton) {
+        whatsappOrderButton.addEventListener("click", sendCartToWhatsApp);
+    }
+}
+
+
 // ======================================================
 // 🔹 Inicialización DOMContentLoaded
 // ======================================================

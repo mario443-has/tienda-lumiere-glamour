@@ -717,10 +717,28 @@ document.addEventListener("click", (event) => {
     if (btn) {
         event.preventDefault();   // Evita que siga el link
         event.stopPropagation();  // Evita que burbujee al <a>
-        
+
         const productoId = btn.dataset.productId;
         toggleFavorito(btn, productoId);
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos
+
+        // Si estamos en la página de favoritos y se desmarca el favorito,
+        // animamos la salida de la tarjeta y la removemos del DOM.
+        const favPage = document.getElementById("favoritos-container");
+        if (favPage && !btn.classList.contains("active")) {
+            const card = btn.closest(".product-card");
+            if (card) {
+                card.classList.add("opacity-0", "scale-95", "transition");
+                card.addEventListener(
+                    "transitionend",
+                    () => {
+                        card.remove();
+                        renderFavoritesFromLocalStorage();
+                    },
+                    { once: true }
+                );
+            }
+        }
     }
 });
 

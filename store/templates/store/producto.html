@@ -70,7 +70,7 @@
                 </div>
                 <div class="flex items-baseline mb-4">
                     {# Mostrar el precio final del producto #}
-                    <span class="text-5xl font-extrabold text-pink-600 mr-4">${{ producto.get_precio_final|floatformat:0|intcomma }}</span>
+                    <span id="main-product-price" class="text-5xl font-extrabold text-pink-600 mr-4">${{ producto.get_precio_final|floatformat:0|intcomma }}</span>
                     {# Mostrar el precio original tachado si hay descuento #}
                     {% if producto.descuento > 0 %}
                         <span class="text-xl text-gray-500 line-through">${{ producto.precio|floatformat:0|intcomma }}</span>
@@ -98,7 +98,7 @@
                                 <p class="font-medium text-gray-700 mb-2">{{ tipo.grouper }}:</p>
                                 <div class="flex flex-wrap gap-2">
                                     {% for var in tipo.list %}
-                                        <button class="color-option relative w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center cursor-pointer hover:border-pink-500 transition-all duration-200 {% if forloop.first %}selected{% endif %}"
+                                        <button class="color-option relative w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center cursor-pointer hover:border-pink-500 transition-all duration-200 {% if forloop.first %}selected ring-2 ring-pink-500 border-pink-500{% endif %}"
                                                 style="{% if var.color_hex %}background-color: {{ var.color_hex }};
                                                        {% else %}background-color: #f0f0f0;
                                                        {% endif %}"
@@ -111,14 +111,12 @@
                                             {% if not var.color_hex %}
                                                 <span class="text-xs font-semibold text-gray-800">{{ var.valor|slice:":2" }}</span>
                                             {% endif %}
-                                            {% if forloop.first %}
-                                                <i class="fas fa-check-circle absolute -bottom-1 -right-1 text-pink-600 bg-white rounded-full"></i>
-                                            {% endif %}
                                         </button>
                                     {% endfor %}
                                 </div>
                             </div>
                         {% endfor %}
+                        <p id="selected-color-display" class="mt-2 text-gray-700">Color seleccionado: <span id="selected-color-name">{{ variaciones.first.color|default:variaciones.first.valor }}</span></p>
                     </div>
                 {% endif %}
                 <!-- Botón Añadir al Carrito - Ahora con clase 'btn-agregar-carrito' -->

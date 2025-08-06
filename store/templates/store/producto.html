@@ -220,12 +220,22 @@
         {% if related_products %}
         <div class="bg-white rounded-lg shadow-xl p-6 mt-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-4">Productos relacionados</h2>
-            <div class="flex overflow-x-auto space-x-4 pb-4">
-                {% for prod in related_products %}
-                <div class="w-64 flex-shrink-0">
-                    {% include 'store/components/product_card.html' with producto=prod %}
+            <div id="related-products-carousel-wrapper" class="relative">
+                <button id="prev-related" aria-label="Anterior" title="Anterior"
+                        class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 rounded-full shadow-md hover:bg-opacity-80 transition">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div id="related-products-carousel" class="flex overflow-x-hidden snap-x">
+                    {% for prod in related_products %}
+                    <div class="carousel-item w-64 flex-shrink-0">
+                        {% include 'store/components/product_card.html' with producto=prod %}
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <button id="next-related" aria-label="Siguiente" title="Siguiente"
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-50 text-gray-800 p-2 rounded-full shadow-md hover:bg-opacity-80 transition">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
         {% endif %}

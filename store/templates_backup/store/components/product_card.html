@@ -10,7 +10,8 @@
     {# Botón de favoritos - fuera del enlace para evitar conflicto con clics #}
     <button class="btn-favorito absolute top-3 right-3 z-20 {% if producto.id in favoritos_ids %}active{% endif %}"
             data-product-id="{{ producto.id }}"
-            aria-label="{% if producto.id in favoritos_ids %}Eliminar de favoritos{% else %}Añadir a favoritos{% endif %}">
+            aria-label="{% if producto.id in favoritos_ids %}Eliminar de favoritos{% else %}Añadir a favoritos{% endif %}"
+            title="{% if producto.id in favoritos_ids %}Eliminar de favoritos{% else %}Añadir a favoritos{% endif %}">
         {% if producto.id in favoritos_ids %}
             <i class="fas fa-heart text-red-500 text-xl transition-transform duration-300 hover:scale-125"></i>
         {% else %}
@@ -57,7 +58,9 @@
                     data-product-id="{{ producto.id }}"
                     data-product-name="{{ producto.nombre }}"
                     data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
-                    data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}">
+                    data-selected-variant-id="{% if producto.variaciones.all %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
+                    aria-label="Añadir {{ producto.nombre }} al carrito"
+                    title="Añadir al carrito">
                 <i class="fas fa-shopping-cart text-base"></i>
                 <span>Añadir al Carrito</span>
             </button>

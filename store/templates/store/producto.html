@@ -62,7 +62,9 @@
                     <h1 class="text-4xl font-bold text-gray-900">{{ producto.nombre }}</h1>
                     <button class="btn-favorito {% if is_favorito %}active{% endif %}"
                             data-producto-id="{{ producto.id }}"
-                            onclick="toggleFavorito(this, {{ producto.id }})">
+                            onclick="toggleFavorito(this, {{ producto.id }})"
+                            aria-label="Añadir a favoritos"
+                            title="Añadir a favoritos">
                         <i class="fas fa-heart"></i>
                     </button>
                 </div>
@@ -127,7 +129,8 @@
                     data-selected-variant-id="{% if variaciones %}{{ variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}" {# Usar ID de la primera variante o ID del producto #}
                     data-selected-color="{% if variaciones %}{{ variaciones.first.color|default:variaciones.first.valor }}{% else %}N/A{% endif %}" {# Color de la primera variante o N/A #}
                     data-product-image-url="{% if variaciones and variaciones.first.imagen %}{{ variaciones.first.imagen.url }}{% else %}{{ producto.get_primary_image_url }}{% endif %}" {# Imagen de la primera variante o del producto #}
-                    >
+                    aria-label="Añadir {{ producto.nombre }} al carrito"
+                    title="Añadir al carrito">
                     <i class="fas fa-cart-plus text-2xl"></i>
                     <span>Añadir al Carrito</span>
                 </button>
@@ -161,13 +164,15 @@
                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
                    target="_blank"
                    class="text-blue-600 hover:text-blue-800 transition transform hover:scale-110"
-                   title="Compartir en Facebook">
+                   title="Compartir en Facebook"
+                   aria-label="Compartir en Facebook">
                     <i class="fab fa-facebook-square text-4xl"></i>
                 </a>
                 <a href="https://wa.me/?text={{ producto.nombre|urlencode }}%20-%20Mira%20este%20producto%3A%20{{ request.build_absolute_uri|urlencode }}"
                    target="_blank"
                    class="text-green-500 hover:text-green-700 transition transform hover:scale-110"
-                   title="Compartir en WhatsApp">
+                   title="Compartir en WhatsApp"
+                   aria-label="Compartir en WhatsApp">
                     <i class="fab fa-whatsapp-square text-4xl"></i>
                 </a>
             </div>

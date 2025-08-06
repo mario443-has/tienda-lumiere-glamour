@@ -564,11 +564,13 @@
             showSuccessNotification(message, 'Favoritos');
         }
             </script>
-            <script src="{% static 'js/notifications.js' %}"></script>
-            <script src="{% static 'js/main.js' %}"></script>
-            <script src="{% static 'js/modals.js' %}"></script>
-            <script src="{% static 'js/pagination.js' %}"></script>
-            <script src="{% static 'js/animations.js' %}"></script>
+            <script src="{% static 'js/modals.js' %}?v=2"></script>
+            <script src="{% static 'js/notifications.js' %}?v=2"></script>
+            <script src="{% static 'js/main.js' %}?v=2"></script>
+            <script src="{% static 'js/animations.js' %}?v=2"></script>
+            <script src="{% static 'js/pagination.js' %}?v=2"></script>
+            <script src="{% static 'js/carousel.js' %}?v=2"></script>
+            <script src="{% static 'js/categorias.js' %}?v=2"></script>
             {% block extra_js %}
             {% endblock %}
             {# Este es el bloque para JS específico de cada página #}

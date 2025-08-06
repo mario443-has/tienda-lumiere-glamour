@@ -12,11 +12,11 @@
     {% endif %}
 
     {# ❤️ Botón de favoritos #}
-    <button class="btn-favorito absolute top-3 right-3 z-20"
-            data-product-id="{{ producto.id }}"
-            aria-label="Agregar o quitar {{ producto.nombre }} de favoritos">
-        <i class="fa-regular fa-heart text-xl transition-transform duration-300 hover:scale-125 active:scale-90 favorite-icon"></i>
-    </button>
+    <button class="btn-favorito {% if is_favorito %}active{% endif %}"
+        data-product-id="{{ producto.id }}">
+    <i class="fa-regular fa-heart"></i>
+</button>
+
 
     {# 📦 Enlace al detalle del producto #}
     <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">

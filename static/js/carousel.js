@@ -189,4 +189,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateCategoryCarousel(currentCategory);
     }
+
+    // ============================================================================
+    // 🔄 Carrusel de Productos Relacionados
+    // ============================================================================
+    const relatedCarousel = document.getElementById('related-products-carousel');
+    const prevRelated = document.getElementById('prev-related');
+    const nextRelated = document.getElementById('next-related');
+    let currentRelated = 0;
+
+    function updateRelatedCarousel(index) {
+        if (!relatedCarousel) return;
+        const itemWidth = relatedCarousel.querySelector('.carousel-item').clientWidth;
+        relatedCarousel.scrollLeft = itemWidth * index;
+    }
+
+    if (relatedCarousel) {
+        prevRelated?.addEventListener('click', () => {
+            currentRelated = Math.max(currentRelated - 1, 0);
+            updateRelatedCarousel(currentRelated);
+        });
+        nextRelated?.addEventListener('click', () => {
+            const maxIndex = relatedCarousel.children.length - 1;
+            currentRelated = Math.min(currentRelated + 1, maxIndex);
+            updateRelatedCarousel(currentRelated);
+        });
+        // Optional: touch-swipe handlers similar to other carousels
+    }
 });

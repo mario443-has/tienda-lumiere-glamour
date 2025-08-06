@@ -160,6 +160,41 @@
 }
 
 /* ------------------------------------------- */
+/* Estilos para el carrusel de productos relacionados */
+/* ------------------------------------------- */
+#related-products-carousel-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+#related-products-carousel {
+    display: flex;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+#related-products-carousel .carousel-item {
+    width: 16rem;
+    scroll-snap-align: start;
+}
+#prev-related,
+#next-related {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 9999px;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+#prev-related:hover,
+#next-related:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+#prev-related { left: 1rem; }
+#next-related { right: 1rem; }
+
+/* ------------------------------------------- */
 /* Estilos para el menú de categorías */
 /* ------------------------------------------- */
 .categorias-nav {

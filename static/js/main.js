@@ -357,6 +357,40 @@ function setupMoreColorsButton() {
     });
 }
 
+// Controlar incrementos y decrementos de cantidad
+function setupQuantityControls() {
+    const quantityInput = document.getElementById('quantity');
+    const decreaseBtn = document.getElementById('quantity-decrease');
+    const increaseBtn = document.getElementById('quantity-increase');
+
+    if (!quantityInput) return;
+
+    const sanitize = () => {
+        let value = parseInt(quantityInput.value, 10);
+        if (isNaN(value) || value < 1) {
+            value = 1;
+        }
+        quantityInput.value = value;
+        return value;
+    };
+
+    if (decreaseBtn) {
+        decreaseBtn.addEventListener('click', () => {
+            const value = sanitize() - 1;
+            quantityInput.value = value < 1 ? 1 : value;
+        });
+    }
+
+    if (increaseBtn) {
+        increaseBtn.addEventListener('click', () => {
+            const value = sanitize() + 1;
+            quantityInput.value = value;
+        });
+    }
+
+    quantityInput.addEventListener('change', sanitize);
+}
+
 // Lógica para añadir al carrito (unificada para todos los botones .btn-agregar-carrito)
 function setupAddToCartButtons() {
     const botonesAgregar = document.querySelectorAll(".btn-agregar-carrito");
@@ -375,14 +409,15 @@ function setupAddToCartButtons() {
             if (parentContainer) {
                 const quantityInput = parentContainer.querySelector("input[type='number']");
                 if (quantityInput) {
-                    quantity = parseInt(quantityInput.value);
-                    if (isNaN(quantity) || quantity <= 0) {
+                    quantity = parseInt(quantityInput.value, 10);
+                    if (isNaN(quantity) || quantity < 1) {
                         quantity = 1;
                     }
+                    quantityInput.value = quantity;
                 }
             }
 
-            if (quantity > 0) {
+            if (quantity >= 1) {
                 fetch("/agregar-al-carrito/", {
                     method: "POST",
                     headers: {
@@ -630,6 +665,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setupWhatsappButtons();
     setupColorOptions();
     setupMoreColorsButton();
+    setupQuantityControls();
     setupAddToCartButtons();
 
     // --- Miniaturas que cambian la imagen principal (detalle de producto) ---

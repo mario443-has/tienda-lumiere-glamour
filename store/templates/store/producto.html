@@ -5,7 +5,7 @@
 {% block title %}{{ producto.nombre }} - Lumiere Glamour{% endblock %}
 {% block content %}
     <!-- Main Content - Product Detail -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 pt-8 pb-24 md:pb-8">
         <!-- Breadcrumbs -->
         <nav class="text-sm text-gray-600 mb-6">
             <ol class="list-none p-0 inline-flex">
@@ -33,6 +33,9 @@
                          alt="{{ producto.nombre }}"
                          class="max-w-full max-h-full object-contain"
                          id="main-product-image"
+                         loading="lazy"
+                         srcset="{{ producto.get_primary_image_url|default:'https://placehold.co/400x400/cccccc/333333?text=Producto' }} 400w, {{ producto.get_primary_image_url|default:'https://placehold.co/800x800/cccccc/333333?text=Producto' }} 800w"
+                         sizes="(max-width: 768px) 100vw, 50vw"
                          onerror="this.onerror=null;this.src='https://placehold.co/400x400/cccccc/333333?text=Producto';">
                 </div>
                 <!-- Thumbnail Images -->
@@ -42,6 +45,9 @@
                         <img src="{{ producto.imagen.url|default:'https://placehold.co/64x64/cccccc/333333?text=Miniatura' }}"
                              alt="{{ producto.nombre }} principal"
                              class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if not producto.images.all %}ring-2 ring-pink-500{% endif %}"
+                             loading="lazy"
+                             srcset="{{ producto.imagen.url|default:'https://placehold.co/64x64/cccccc/333333?text=Miniatura' }} 64w, {{ producto.imagen.url|default:'https://placehold.co/128x128/cccccc/333333?text=Miniatura' }} 128w"
+                             sizes="64px"
                              onerror="this.onerror=null;this.src='https://placehold.co/64x64/cccccc/333333?text=Miniatura';">
                     {% endif %}
                     {# Itera sobre las imágenes adicionales del producto #}
@@ -51,6 +57,9 @@
                             <img src="{{ img.image.url }}"
                                  alt="{{ img.alt_text|default:producto.nombre }}"
                                  class="thumbnail-image w-16 h-16 object-cover rounded-md border border-gray-300 cursor-pointer hover:border-pink-500 transition {% if forloop.first and not producto.imagen %}ring-2 ring-pink-500{% endif %}"
+                                 loading="lazy"
+                                 srcset="{{ img.image.url }} 64w, {{ img.image.url }} 128w"
+                                 sizes="64px"
                                  onerror="this.onerror=null;this.src='https://placehold.co/64x64/cccccc/333333?text=Miniatura';">
                         {% endif %}
                     {% endfor %}
@@ -121,8 +130,8 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                <!-- Botón Añadir al Carrito - Ahora con clase 'btn-agregar-carrito' -->
-                <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
+                <!-- Botón Añadir al Carrito - Versión desktop -->
+                <button class="btn-agregar-carrito hidden md:flex w-full bg-pink-600 text-white py-4 px-6 rounded-lg font-semibold text-xl hover:bg-pink-700 transition duration-300 items-center justify-center space-x-3 shadow-lg hover:shadow-xl"
                     data-product-id="{{ producto.id }}"
                     data-product-name="{{ producto.nombre }}"
                     data-product-price="{{ producto.get_precio_final|floatformat:2 }}" {# Se mantiene el floatformat para el JS #}
@@ -178,4 +187,19 @@
             </div>
         </div>
     </main>
+    <!-- Botón fijo de añadir al carrito para dispositivos móviles -->
+    <div class="md:hidden fixed bottom-0 left-0 w-full p-4 bg-white border-t shadow-lg z-50">
+        <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-3 px-6 rounded-lg font-semibold text-lg flex items-center justify-center space-x-3"
+                data-product-id="{{ producto.id }}"
+                data-product-name="{{ producto.nombre }}"
+                data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
+                data-selected-variant-id="{% if variaciones %}{{ variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
+                data-selected-color="{% if variaciones %}{{ variaciones.first.color|default:variaciones.first.valor }}{% else %}N/A{% endif %}"
+                data-product-image-url="{% if variaciones and variaciones.first.imagen %}{{ variaciones.first.imagen.url }}{% else %}{{ producto.get_primary_image_url }}{% endif %}"
+                aria-label="Añadir {{ producto.nombre }} al carrito"
+                title="Añadir al carrito">
+            <i class="fas fa-cart-plus text-xl"></i>
+            <span>Añadir al Carrito</span>
+        </button>
+    </div>
 {% endblock %}

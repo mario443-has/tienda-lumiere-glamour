@@ -30,6 +30,8 @@
                      class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
                      loading="lazy"
                      decoding="async"
+                     srcset="{{ producto.get_primary_image_url }} 300w, {{ producto.get_primary_image_url }} 600w"
+                     sizes="(max-width: 768px) 50vw, 25vw"
                      itemprop="image"
                      onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
             {% else %}
@@ -38,6 +40,8 @@
                      class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
                      loading="lazy"
                      decoding="async"
+                     srcset="{% static 'img/sin_imagen.jpg' %} 300w, {% static 'img/sin_imagen.jpg' %} 600w"
+                     sizes="(max-width: 768px) 50vw, 25vw"
                      itemprop="image">
             {% endif %}
         </div>

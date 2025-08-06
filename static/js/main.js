@@ -313,8 +313,9 @@ function setupColorOptions() {
             const selectedVariantId = this.dataset.variantId;
             const selectedColorName = this.dataset.colorName;
             const selectedVariantImage = this.dataset.variantImage;
-            const selectedVariantPrice = this.dataset.variantPrice;
+            const selectedVariantPrice = parseFloat(this.dataset.variantPrice);
 
+            // Imagen y precio para listados de productos
             const productImage = productId ? parentProductDiv.querySelector(`#product-image-${productId}`) : null;
             if (productImage) {
                 productImage.src = selectedVariantImage;
@@ -325,14 +326,34 @@ function setupColorOptions() {
                 productPriceSpan.textContent = formatPriceForDisplay(selectedVariantPrice);
             }
 
-            if (parentProductDiv) {
+            // Imagen y precio principales en la vista de producto
+            if (!parentProductDiv) {
+                const mainImage = document.getElementById('main-product-image');
+                if (mainImage) {
+                    mainImage.src = selectedVariantImage;
+                }
+
+                const mainPrice = document.getElementById('main-product-price');
+                if (mainPrice) {
+                    mainPrice.textContent = formatPriceForDisplay(selectedVariantPrice);
+                }
+
+                const colorNameDisplay = document.getElementById('selected-color-name');
+                if (colorNameDisplay) {
+                    colorNameDisplay.textContent = selectedColorName;
+                }
+
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected', 'ring-2', 'ring-pink-500', 'border-pink-500');
+                });
+            } else {
                 parentProductDiv.querySelectorAll('.color-option').forEach(option => {
-                    option.classList.remove('selected');
+                    option.classList.remove('selected', 'ring-2', 'ring-pink-500', 'border-pink-500');
                 });
             }
-            this.classList.add('selected');
+            this.classList.add('selected', 'ring-2', 'ring-pink-500', 'border-pink-500');
 
-            const addToCartButton = parentProductDiv ? parentProductDiv.querySelector('.btn-agregar-carrito') : null;
+            const addToCartButton = parentProductDiv ? parentProductDiv.querySelector('.btn-agregar-carrito') : document.querySelector('.btn-agregar-carrito');
             if (addToCartButton) {
                 addToCartButton.dataset.selectedVariantId = selectedVariantId;
                 addToCartButton.dataset.productPrice = selectedVariantPrice;

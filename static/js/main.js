@@ -796,20 +796,18 @@ document.addEventListener("click", (event) => {
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos
 
         const favContainer = document.getElementById("favoritos-container");
-        if (favContainer) {
-            const card = btn.closest(".product-card");
-            if (card) {
-                card.classList.add("opacity-0", "scale-95", "transition");
-                card.addEventListener(
-                    "transitionend",
-                    () => {
-                        renderFavoritesFromLocalStorage();
-                    },
-                    { once: true }
-                );
-            } else {
-                renderFavoritesFromLocalStorage();
-            }
+        const card = btn.closest(".product-card");
+        if (favContainer && card) {
+            card.classList.add("opacity-0", "scale-95", "transition");
+            card.addEventListener(
+                "transitionend",
+                () => {
+                    renderFavoritesFromLocalStorage();
+                },
+                { once: true }
+            );
+        } else {
+            renderFavoritesFromLocalStorage();
         }
     }
 });

@@ -198,10 +198,10 @@ class Producto(models.Model):
         """
         if self.imagen:
             return self.imagen.url
-        elif self.images.exists():
-            return self.images.first().image.url
-        else:
-            return static("img/sin_imagen.jpg")
+        first_image = self.images.first()
+        if first_image and first_image.image:
+            return first_image.image.url
+        return static("img/sin_imagen.jpg")
 
     def get_badge_class(self):
         """

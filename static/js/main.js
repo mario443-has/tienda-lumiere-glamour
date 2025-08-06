@@ -83,7 +83,7 @@ function cargarCarritoLocal() {
         window.cart.forEach(item => {
             item.quantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
             item.price = parseFloat(item.price) || 0;
-            item.imageUrl = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
+            item.imageUrl = item.imageUrl || window.placeholderImageUrl;
         });
     } else {
         window.cart = [];
@@ -146,13 +146,13 @@ function renderCartItems() {
         window.cart.forEach((item, index) => {
             const itemPrice = parseFloat(item.price) || 0;
             const itemQuantity = (typeof item.quantity === 'number' && !isNaN(item.quantity)) ? item.quantity : 1;
-            const imageUrlToDisplay = item.imageUrl || window.placeholderImageUrl || '/static/img/sin_imagen.jpg';
+            const imageUrlToDisplay = item.imageUrl || window.placeholderImageUrl;
             const subtotalItem = itemPrice * itemQuantity;
             total += subtotalItem;
 
             html += `
                 <div class="flex items-center justify-between py-2 border-b border-gray-100">
-                    <img src="${imageUrlToDisplay}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md mr-3" onerror="this.onerror=null;this.src='${window.placeholderImageUrl || '/static/img/sin_imagen.jpg'}';">
+                    <img src="${imageUrlToDisplay}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md mr-3" onerror="this.onerror=null;this.src='${window.placeholderImageUrl}';">
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-gray-800">${item.name}</p>
                         ${item.color && item.color !== 'N/A' ? `<p class="text-sm text-gray-600">Color: ${item.color}</p>` : ''}

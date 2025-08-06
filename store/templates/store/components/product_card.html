@@ -76,7 +76,7 @@
                 data-product-name="{{ producto.nombre }}"
                 data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
                 data-selected-variant-id="{% if producto.variaciones.exists %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
-                data-product-image-url="{{ producto.get_primary_image_url|default:'/static/img/sin_imagen.jpg' }}"
+                data-product-image-url="{% if producto.get_primary_image_url %}{{ producto.get_primary_image_url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
                 aria-label="Añadir {{ producto.nombre }} al carrito"
                 title="Añadir al carrito">
             <i class="fas fa-shopping-cart text-base"></i>

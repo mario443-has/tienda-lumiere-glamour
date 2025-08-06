@@ -43,9 +43,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Soporte para pantallas redimensionadas: recargar la página
-    // Esto asegura que la lógica dependiente de window.innerWidth se reevalúe.
+    // Soporte para pantallas redimensionadas: recargar la página cuando sea necesario
+    // Se utiliza debounce para evitar recargas múltiples durante el redimensionado y
+    // solo se recarga si se cruza el umbral de 768px entre estados.
+    let resizeTimeout;
+    let lastWidth = window.innerWidth;
+
     window.addEventListener('resize', function() {
-        location.reload(); 
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            const newWidth = window.innerWidth;
+            const crossedBreakpoint = (lastWidth <= 768 && newWidth > 768) || (lastWidth > 768 && newWidth <= 768);
+            if (crossedBreakpoint) {
+                location.reload();
+            }
+            lastWidth = newWidth;
+        }, 200);
+    });
+
+    window.addEventListener('orientationchange', function() {
+        location.reload();
     });
 });

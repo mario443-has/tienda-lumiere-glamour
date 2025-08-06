@@ -568,23 +568,15 @@ function renderFavoritesFromLocalStorage() {
         return;
     }
 
-    // Llamar a la API para obtener datos de productos
-    fetch(`/api/favoritos/?ids=${favoriteIds.join(",")}`)
+    // Llamar a la API para obtener datos de productos con su HTML
+    fetch(`/api/favoritos/?ids=${favoriteIds.join(",")}&html=true`)
         .then(res => res.json())
         .then(data => {
             container.innerHTML = "";
             data.productos.forEach(prod => {
-                const card = `
-                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition p-4 text-center">
-                        <a href="${prod.url}">
-                            <img src="${prod.imagen}" class="w-full h-32 object-cover rounded mb-2">
-                            <h3 class="text-gray-800 font-semibold">${prod.nombre}</h3>
-                            <p class="text-pink-600 font-bold mt-1">${prod.precio}</p>
-                        </a>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', card);
+                container.insertAdjacentHTML('beforeend', prod.html);
             });
+            updateFavoritesView();
         })
         .catch(err => {
             console.error("Error cargando favoritos:", err);
@@ -717,10 +709,15 @@ document.addEventListener("click", (event) => {
     if (btn) {
         event.preventDefault();   // Evita que siga el link
         event.stopPropagation();  // Evita que burbujee al <a>
-        
+
         const productoId = btn.dataset.productId;
         toggleFavorito(btn, productoId);
         updateFavoritesView(); // 🔹 Para refrescar la página de favoritos
+
+        const favContainer = document.getElementById("favoritos-container");
+        if (favContainer) {
+            renderFavoritesFromLocalStorage();
+        }
     }
 });
 

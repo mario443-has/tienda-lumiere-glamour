@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView  # Importa ListView
 from django.core.cache import cache
+from django.template.loader import render_to_string
 
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
 from .models import (
@@ -725,6 +726,7 @@ def productos_por_etiqueta(request, badge):
 
 def api_favoritos(request):
     ids = request.GET.get("ids", "")
+    include_html = request.GET.get("html", "false").lower() == "true"
     id_list = [int(i) for i in ids.split(",") if i.isdigit()]
     productos = (
         Producto.objects.filter(id__in=id_list)
@@ -732,16 +734,20 @@ def api_favoritos(request):
         .prefetch_related("images")
     )
 
-    data = {
-        "productos": [
-            {
-                "id": p.id,
-                "nombre": p.nombre,
-                "precio": f"${p.get_precio_final():,.0f}",
-                "imagen": p.get_primary_image_url() or "/static/img/sin_imagen.jpg",
-                "url": p.get_absolute_url() if hasattr(p, "get_absolute_url") else f"/producto/{p.id}/"
-            }
-            for p in productos
-        ]
-    }
+    productos_data = []
+    for p in productos:
+        producto_info = {
+            "id": p.id,
+            "nombre": p.nombre,
+            "precio": f"${p.get_precio_final():,.0f}",
+            "imagen": p.get_primary_image_url() or "/static/img/sin_imagen.jpg",
+            "url": p.get_absolute_url() if hasattr(p, "get_absolute_url") else f"/producto/{p.id}/",
+        }
+        if include_html:
+            producto_info["html"] = render_to_string(
+                "store/components/product_card.html", {"producto": p}, request=request
+            )
+        productos_data.append(producto_info)
+
+    data = {"productos": productos_data}
     return JsonResponse(data)

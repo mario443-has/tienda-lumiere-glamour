@@ -1,5 +1,4 @@
 import json  # Importa el módulo json
-import locale
 from decimal import Decimal  # Import Decimal para cálculos precisos
 
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator

@@ -2,34 +2,32 @@
 <!DOCTYPE html>
 <html lang="es">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>
-            {% block title %}Lumiere Glamour{% endblock %}
-        </title>
-       <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Lumiere Glamour{% endblock %}</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind + tus estilos compilados -->
-    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPSFD64V89"></script>
-        <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+  <!-- Tailwind + tus estilos compilados -->
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
 
-      gtag("config", "G-RPSFD64V89");
-        </script> 
-    </head>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPSFD64V89"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RPSFD64V89');
+  </script>
+</head>
+
     <body class="bg-gray-100 font-inter text-gray-800">
         <!-- Header Section - Barra de Navegación Unificada -->
         <header class="bg-white shadow-md sticky top-0 z-50">
@@ -319,11 +317,6 @@
                     {# ELIMINADO: Badge de favoritos #}
                 </a>
             </nav>
-            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-                  rel="stylesheet">
-            <!-- Google Fonts: Great Vibes para el logo, Inter para el texto general -->
-            <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap"
-                  rel="stylesheet" />
             <style>
     /* Estilo para el logo y el texto general */
     .logo-font {

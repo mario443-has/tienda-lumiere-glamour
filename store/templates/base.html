@@ -7,27 +7,18 @@
         <title>
             {% block title %}Lumiere Glamour{% endblock %}
         </title>
-        <!-- Tailwind CSS CDN -->
-        <script src="https://cdn.tailwindcss.com"></script>
-        <!-- Google Fonts: Great Vibes para el logo, Inter para el texto general -->
-        <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap"
-              rel="stylesheet" />
-        <!-- Font Awesome para íconos -->
-        <link rel="stylesheet"
-              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-        <!-- Estilos personalizados para categorías -->
-        <link rel="stylesheet" href="{% static 'css/categorias.css' %}">
-        {# Este bloque es para CSS o meta tags adicionales específicos de una página #}
-        {% block extra_head %}{% endblock %}
-        <!-- Enlaces a archivos CSS externos -->
-        <link rel="stylesheet" href="{% static 'css/main.css' %}">
-        <link rel="stylesheet" href="{% static 'css/search.css' %}">
-        <link rel="stylesheet" href="{% static 'css/modals.css' %}">
-        <link rel="stylesheet" href="{% static 'css/badges.css' %}">
-        {# Asegúrate de tener este enlace para los badges #}
-        <!-- favicon -->
-        <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-        <!-- Google tag (gtag.js) 
+       <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Tailwind + tus estilos compilados -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+        <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPSFD64V89"></script>
         <script>
       window.dataLayer = window.dataLayer || [];
@@ -37,7 +28,7 @@
       gtag("js", new Date());
 
       gtag("config", "G-RPSFD64V89");
-        </script>-->
+        </script> 
     </head>
     <body class="bg-gray-100 font-inter text-gray-800">
         <!-- Header Section - Barra de Navegación Unificada -->

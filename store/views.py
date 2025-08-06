@@ -6,12 +6,18 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView  # Importa ListView
-
-from store.models import Categoria
+from django.core.cache import cache
 
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
-from .models import (Anuncio, Categoria, Favorito, MenuItem, Producto,
-                     SiteSetting, Variacion)
+from .models import (
+    Anuncio,
+    Categoria,
+    Favorito,
+    MenuItem,
+    Producto,
+    SiteSetting,
+    Variacion,
+)
 
 
 def google_verification(request):
@@ -65,14 +71,17 @@ def api_buscar_productos(request):
 
     try:
         # Realizar búsqueda en varios campos
-        productos = Producto.objects.filter(
-            Q(nombre__icontains=query)
-            | Q(descripcion__icontains=query)
-            | Q(categoria__nombre__icontains=query),
-            is_active=True,  # Solo productos activos
-        ).distinct()[
-            :8
-        ]  # Limitar a 8 resultados
+        productos = (
+            Producto.objects.filter(
+                Q(nombre__icontains=query)
+                | Q(descripcion__icontains=query)
+                | Q(categoria__nombre__icontains=query),
+                is_active=True,  # Solo productos activos
+            )
+            .select_related("categoria")
+            .prefetch_related("images")
+            .distinct()[:8]
+        )  # Limitar a 8 resultados
 
         resultados = []
         for producto in productos:
@@ -115,13 +124,16 @@ def buscar_productos(request):
         )
 
     # Búsqueda en múltiples campos usando Q objects
-    productos = Producto.objects.filter(
-        Q(nombre__icontains=query)  # Busca en el nombre
-        | Q(descripcion__icontains=query)  # Busca en la descripción
-        | Q(categoria__nombre__icontains=query)  # Busca en el nombre de la categoría
-    ).distinct()[
-        :10
-    ]  # Limita a 10 resultados para mejor rendimiento
+    productos = (
+        Producto.objects.filter(
+            Q(nombre__icontains=query)  # Busca en el nombre
+            | Q(descripcion__icontains=query)  # Busca en la descripción
+            | Q(categoria__nombre__icontains=query)  # Busca en el nombre de la categoría
+        )
+        .select_related("categoria")
+        .prefetch_related("images")
+        .distinct()[:10]
+    )  # Limita a 10 resultados para mejor rendimiento
 
     # Formatea los resultados
     resultados = []
@@ -155,7 +167,11 @@ def get_common_context(request):
             "producto_id", flat=True
         )
     )
-    categorias_principales = Categoria.objects.filter(padre__isnull=True)
+
+    categorias_principales = cache.get("categorias_principales")
+    if categorias_principales is None:
+        categorias_principales = Categoria.objects.filter(padre__isnull=True)
+        cache.set("categorias_principales", categorias_principales, 3600)
 
     return {
         "favoritos_ids": favoritos_ids,
@@ -177,7 +193,11 @@ def inicio(request):
     page = request.GET.get("page", 1)  # Página de paginación actual
 
     # --- 2. Filtrar productos activos ---
-    productos_queryset = Producto.objects.filter(is_active=True)
+    productos_queryset = (
+        Producto.objects.filter(is_active=True)
+        .select_related("categoria")
+        .prefetch_related("images")
+    )
     nombre_categoria_actual = None
     categoria_actual_obj = None
 
@@ -596,6 +616,7 @@ class CategoriaListView(ListView):
         return (
             Producto.objects.filter(categoria__in=categorias_a_incluir, is_active=True)
             .select_related("categoria")
+            .prefetch_related("images")
             .order_by("-fecha_creacion")
         )
 
@@ -661,7 +682,11 @@ def ver_favoritos(request):
     )
 
     # Obtener productos activos cuyos IDs estén en la lista de favoritos
-    favoritos_productos = Producto.objects.filter(id__in=favoritos_ids, is_active=True)
+    favoritos_productos = (
+        Producto.objects.filter(id__in=favoritos_ids, is_active=True)
+        .select_related("categoria")
+        .prefetch_related("images")
+    )
 
     context["favoritos_productos"] = favoritos_productos  # ✅ Pasar directamente instancias
     context["active_page"] = "favoritos"
@@ -682,7 +707,11 @@ def productos_por_etiqueta(request, badge):
         "oferta": "Ofertas Especiales",
     }
 
-    productos = Producto.objects.filter(badge=badge, is_active=True)
+    productos = (
+        Producto.objects.filter(badge=badge, is_active=True)
+        .select_related("categoria")
+        .prefetch_related("images")
+    )
 
     context = get_common_context(request)
     context.update({
@@ -697,7 +726,11 @@ def productos_por_etiqueta(request, badge):
 def api_favoritos(request):
     ids = request.GET.get("ids", "")
     id_list = [int(i) for i in ids.split(",") if i.isdigit()]
-    productos = Producto.objects.filter(id__in=id_list)
+    productos = (
+        Producto.objects.filter(id__in=id_list)
+        .select_related("categoria")
+        .prefetch_related("images")
+    )
 
     data = {
         "productos": [

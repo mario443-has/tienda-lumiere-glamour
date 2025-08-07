@@ -22,12 +22,6 @@
     background-color: #fce7f3; /* Un rosa muy claro para el fondo */
 }
 
-.category-circle-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Asegura que la imagen cubra el círculo */
-}
-
 /* Puedes añadir un estilo para un placeholder si no hay imagen */
 .category-circle-image-container img[src*="placeholder_category.png"] {
     background-color: #e0e0e0; /* Color de fondo para el placeholder */
@@ -125,4 +119,22 @@
     .categoria-nombre {
         font-size: 1.25rem; /* Ajuste para móviles */
     }
+}
+/* ✅ FIX: Imágenes circulares de categorías no recortadas en móvil */
+.category-circle-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 640px) {
+  .category-circle-image-container {
+    width: 72px;
+    height: 72px;
+  }
+
+  .category-circle-image-container img {
+    object-fit: contain; /* Evita recorte visual */
+    background-color: #fff; /* Fondo blanco opcional */
+  }
 }

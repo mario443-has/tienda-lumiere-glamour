@@ -66,7 +66,7 @@
                                         <img loading="lazy"
                                              src="{% if categoria.imagen_circular %}{{ categoria.imagen_circular.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
                                              alt="Categoría: {{ categoria.nombre }}"
-                                             class="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
+                                             class="w-full h-full object-contain md:object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
                                              onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';" />
                                     </div>
                                     <p class="text-gray-800 font-semibold mt-3 text-sm group-hover:text-pink-600 transition-colors duration-300">
@@ -106,7 +106,7 @@
                                 <img loading="lazy"
                                      src="{% if categoria.imagen_circular %}{{ categoria.imagen_circular.url }}{% else %}{% static 'img/sin_imagen.jpg' %}{% endif %}"
                                      alt="Categoría: {{ categoria.nombre }}"
-                                     class="w-full h-full object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
+                                     class="w-full h-full object-contain md:object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
                                      onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';" />
                             </div>
                             <p class="text-gray-800 font-semibold mt-3 text-base sm:text-lg group-hover:text-pink-600 transition-colors duration-300">

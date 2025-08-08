@@ -124,7 +124,6 @@
 .category-circle-image-container img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 @media (max-width: 640px) {
@@ -134,7 +133,16 @@
   }
 
   .category-circle-image-container img {
-    object-fit: contain; /* Evita recorte visual */
     background-color: #fff; /* Fondo blanco opcional */
   }
+}
+
+/* Ocultar barra de desplazamiento en carrusel de categorías */
+#category-carousel {
+  -ms-overflow-style: none; /* IE y Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+#category-carousel::-webkit-scrollbar {
+  display: none; /* Chrome, Safari y Opera */
 }

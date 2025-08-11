@@ -80,17 +80,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "lumiere_glamour.wsgi.application"
 ASGI_APPLICATION = "lumiere_glamour.asgi.application"  # Mantener si usas ASGI
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-# Configuración de base de datos para producción (PostgreSQL en Render)
-# Usa dj_database_url para parsear la URL de la base de datos de Render
+
 DATABASES = {
     "default": dj_database_url.config(
-        default="sqlite:///db.sqlite3",  # Default para desarrollo local (SQLite)
-        conn_max_age=600,  # Opcional: tiempo máximo de vida de la conexión
+        default="postgresql://neondb_owner:npg_oarhWRKT8N5f@ep-hidden-bar-afdvkgx0-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+        conn_max_age=600
     )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

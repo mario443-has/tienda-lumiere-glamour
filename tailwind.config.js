@@ -1,9 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './templates/**/*.html', // Tus plantillas Django
-    './static/js/**/*.js',   // Tus JS personalizados
+    './templates/**/*.html', // Plantillas Django
+    './static/js/**/*.js',   // JS personalizados
     './store/templates/**/*.html',
+  ],
+  safelist: [
+    'product-badge',
+    'badge-oferta',
+    'badge-nuevo',
+    'badge-tendencia'
   ],
   theme: {
     extend: {},

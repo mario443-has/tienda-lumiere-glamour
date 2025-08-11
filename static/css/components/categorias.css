@@ -1,151 +1,152 @@
 /* Estilos para la sección de categorías circulares */
 .category-circle-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+  width: 100%;
+  padding: 0.5rem;
 }
 
 .category-circle-link:hover {
-    transform: translateY(-5px); /* Efecto de elevación */
+  transform: translateY(-5px); /* Efecto de elevación */
 }
 
 .category-circle-image-container {
-    border-radius: 50%; /* Hace la imagen circular */
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0; /* Evita que la imagen se encoja */
-    background-color: #fce7f3; /* Un rosa muy claro para el fondo */
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fce7f3;
+  aspect-ratio: 1/1;
+  width: 100%;
+  max-width: 96px; /* Tamaño máximo para móvil */
+  margin: 0 auto; /* Centrar el contenedor */
 }
 
-/* Puedes añadir un estilo para un placeholder si no hay imagen */
-.category-circle-image-container img[src*="placeholder_category.png"] {
-    background-color: #e0e0e0; /* Color de fondo para el placeholder */
-    padding: 10px; /* Espacio alrededor del icono de placeholder si lo usas */
+/* Estilos para las imágenes de las categorías */
+.category-circle-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+  background-color: white;
+  transition: transform 0.3s ease;
+}
+
+/* Ajustes para pantallas medianas y grandes */
+@media (min-width: 768px) {
+  .category-circle-image-container {
+    max-width: 128px; /* Tamaño más grande para escritorio */
+  }
+
+  .category-circle-image-container img {
+    padding: 0.75rem;
+  }
 }
 
 /* Estilos para el texto de la categoría */
 .category-circle-link p {
-    white-space: nowrap; /* Evita que el nombre se rompa en varias líneas */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Añade puntos suspensivos si el texto es muy largo */
-    max-width: 120px; /* Limita el ancho del texto para evitar desbordamiento */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Puedes añadir un estilo para un placeholder si no hay imagen */
+.category-circle-image-container img[src*='placeholder_category.png'] {
+  background-color: #e0e0e0; /* Color de fondo para el placeholder */
+  padding: 10px; /* Espacio alrededor del icono de placeholder si lo usas */
 }
 
 /* Estilos para la sección de categorías (si aún la usas en otro lugar) */
 /* Mantengo los estilos anteriores por si los necesitas para otras secciones */
 .categorias-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem; /* Espacio entre las tarjetas de categoría */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem; /* Espacio entre las tarjetas de categoría */
 }
 
 .categoria-card {
-    background-color: #ffffff;
-    border-radius: 0.75rem; /* rounded-xl */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
-    padding: 1.5rem; /* p-6 */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+  padding: 1.5rem; /* p-6 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .categoria-card:hover {
-    transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15); /* shadow-lg */
+  transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15); /* shadow-lg */
 }
 
 .categoria-card-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: inherit; /* Hereda el color del texto */
-    width: 100%; /* Asegura que el enlace ocupe todo el ancho de la tarjeta */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit; /* Hereda el color del texto */
+  width: 100%; /* Asegura que el enlace ocupe todo el ancho de la tarjeta */
 }
 
 .categoria-icon {
-    font-size: 3rem; /* text-5xl */
-    color: #db2777; /* pink-600 */
-    margin-bottom: 1rem; /* mb-4 */
+  font-size: 3rem; /* text-5xl */
+  color: #db2777; /* pink-600 */
+  margin-bottom: 1rem; /* mb-4 */
 }
 
 .categoria-nombre {
-    font-size: 1.5rem; /* text-2xl */
-    font-weight: 700; /* font-bold */
-    color: #1f2937; /* gray-900 */
-    margin-bottom: 0.5rem; /* mb-2 */
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+  color: #1f2937; /* gray-900 */
+  margin-bottom: 0.5rem; /* mb-2 */
 }
 
 .categoria-count {
-    font-size: 1rem; /* text-base */
-    color: #6b7280; /* gray-500 */
+  font-size: 1rem; /* text-base */
+  color: #6b7280; /* gray-500 */
 }
 
 /* Estilos para subcategorías dentro de la tarjeta (si decides mostrarlas) */
 .subcategorias-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 1rem;
-    width: 100%;
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+  width: 100%;
 }
 
 .subcategorias-list li {
-    margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .subcategoria-link {
-    font-size: 0.875rem; /* text-sm */
-    color: #4b5563; /* gray-700 */
-    text-decoration: none;
-    transition: color 0.2s ease;
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* gray-700 */
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .subcategoria-link:hover {
-    color: #ec4899; /* pink-500 */
+  color: #ec4899; /* pink-500 */
 }
 
 /* Media queries para responsividad */
 @media (max-width: 768px) {
-    .categoria-icon {
-        font-size: 2.5rem; /* Ajuste para móviles */
-    }
-    .categoria-nombre {
-        font-size: 1.25rem; /* Ajuste para móviles */
-    }
-}
-/* ✅ FIX: Imágenes circulares de categorías no recortadas en móvil */
-.category-circle-image-container img {
-  width: 100%;
-  height: 100%;
-}
-
-@media (min-width: 641px) {
-  .category-circle-image-container img {
-    object-fit: cover;
+  .categoria-icon {
+    font-size: 2.5rem; /* Ajuste para móviles */
   }
-}
-
-/* ✅ FIX definitivo SOLO MÓVIL (prioridad alta sobre utilidades) */
-@media (max-width: 640px) {
-  .category-circle-image-container {
-    width: 72px !important;
-    height: 72px !important;
-    aspect-ratio: 1 / 1;
-  }
-
-  /* Mayor especificidad + !important para vencer .object-cover */
-  .category-circle-image-container > img {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    background-color: #fff; /* opcional, relleno uniforme */
+  .categoria-nombre {
+    font-size: 1.25rem; /* Ajuste para móviles */
   }
 }

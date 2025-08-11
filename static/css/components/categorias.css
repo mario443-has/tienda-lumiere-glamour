@@ -33,7 +33,7 @@
   height: 100%;
   /* CAMBIO: Usar object-fit: cover para que la imagen llene todo el círculo */
   object-fit: cover;
-  /* CAMBIO: Quitar el padding para que la imagen ocupe todo el espacio */
+  /* CAMBIO: Eliminar el padding para que la imagen ocupe todo el espacio */
   padding: 0;
   background-color: white;
   transition: transform 0.3s ease;
@@ -46,7 +46,7 @@
   }
 
   .category-circle-image-container img {
-    /* CAMBIO: Quitar el padding también en escritorio */
+    /* CAMBIO: Eliminar el padding también en escritorio */
     padding: 0;
   }
 }
@@ -70,7 +70,6 @@
 }
 
 /* Estilos para la sección de categorías (si aún la usas en otro lugar) */
-/* Mantengo los estilos anteriores por si los necesitas para otras secciones */
 .categorias-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

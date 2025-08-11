@@ -132,14 +132,20 @@
   }
 }
 
+/* ✅ FIX definitivo SOLO MÓVIL (prioridad alta sobre utilidades) */
 @media (max-width: 640px) {
   .category-circle-image-container {
-    width: 72px;
-    height: 72px;
+    width: 72px !important;
+    height: 72px !important;
+    aspect-ratio: 1 / 1;
   }
 
-  .category-circle-image-container img {
-    object-fit: contain; /* Evita recorte visual */
-    background-color: #fff; /* Fondo blanco opcional */
+  /* Mayor especificidad + !important para vencer .object-cover */
+  .category-circle-image-container > img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    background-color: #fff; /* opcional, relleno uniforme */
   }
 }

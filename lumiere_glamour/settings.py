@@ -22,9 +22,34 @@ SECRET_KEY = os.environ.get(
 # DEBUG debe ser False en producción
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
-# ALLOWED_HOSTS para Render y desarrollo local
-RENDER_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-ALLOWED_HOSTS = ["lumiere-glamour-web.onrender.com", "localhost", "127.0.0.1"]
+# --- Seguridad y proxy detrás de Railway ---
+
+# Fuerza HTTPS en producción (si no estás depurando)
+SECURE_SSL_REDIRECT = not DEBUG
+
+# Django confía en el header del proxy para detectar HTTPS (Railway lo envía)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Cookies seguras (ya las tenías en True, las reafirmamos aquí por claridad)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Si estás detrás de reverse proxy, respeta host/puerto reenviados
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+
+# --- ALLOWED_HOSTS y CSRF_TRUSTED_ORIGINS dinámicos ---
+DJANGO_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [h.strip() for h in DJANGO_ALLOWED_HOSTS.split(",") if h.strip()]
+
+# Permite un fallback para desarrollo local si no hay variable (no recomendado en prod)
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# CSRF (Django exige esquema https://....)
+DJANGO_CSRF_TRUSTED = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in DJANGO_CSRF_TRUSTED.split(",") if o.strip()]
 
 
 # Application definition
@@ -179,11 +204,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 CKEDITOR_UPLOAD_PATH = (
     "uploads/"  # Asegúrate de que esta ruta sea relativa a tu media storage
 )
-
-# Seguridad para producción en Render
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 
 # Redirección tras login (opcional)
 LOGIN_REDIRECT_URL = "/"

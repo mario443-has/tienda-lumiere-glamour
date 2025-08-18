@@ -86,10 +86,17 @@ ASGI_APPLICATION = "lumiere_glamour.asgi.application"  # Mantener si usas ASGI
 
 import dj_database_url
 
+DATABASE_URL = os.environ.get("DATABASE_URL")
+DB_SSL_REQUIRED = os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"  # en Railway interno suele ser False
+
+if not DATABASE_URL and not DEBUG:
+    raise RuntimeError("DATABASE_URL is required in production")
+
 DATABASES = {
     "default": dj_database_url.config(
+        default=DATABASE_URL or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=False  # 👈 solo en local
+        ssl_require=DB_SSL_REQUIRED,
     )
 }
 

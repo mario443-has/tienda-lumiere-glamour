@@ -11,7 +11,7 @@
 }
 
 .category-circle-link:hover {
-  transform: translateY(-5px); /* Efecto de elevación */
+  transform: translateY(-5px);
 }
 
 .category-circle-image-container {
@@ -23,18 +23,16 @@
   background-color: #fce7f3;
   aspect-ratio: 1/1;
   width: 100%;
-  max-width: 96px; /* Tamaño máximo para móvil */
-  margin: 0 auto; /* Centrar el contenedor */
+  max-width: 80px; /* Reducido de 96px para móvil */
+  margin: 0 auto;
 }
 
 /* Estilos para las imágenes de las categorías */
 .category-circle-image-container img {
   width: 100%;
   height: 100%;
-  /* CAMBIO: Usar object-fit: cover para que la imagen llene todo el círculo */
-  object-fit: cover;
-  /* CAMBIO: Eliminar el padding para que la imagen ocupe todo el espacio */
-  padding: 0;
+  object-fit: contain; /* Cambiado de cover a contain */
+  padding: 0.5rem; /* Añadido padding para que la imagen no toque los bordes */
   background-color: white;
   transition: transform 0.3s ease;
 }
@@ -42,12 +40,11 @@
 /* Ajustes para pantallas medianas y grandes */
 @media (min-width: 768px) {
   .category-circle-image-container {
-    max-width: 128px; /* Tamaño más grande para escritorio */
+    max-width: 120px; /* Ajustado de 128px */
   }
 
   .category-circle-image-container img {
-    /* CAMBIO: Eliminar el padding también en escritorio */
-    padding: 0;
+    padding: 0.75rem; /* Un poco más de padding en desktop */
   }
 }
 

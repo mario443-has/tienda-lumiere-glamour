@@ -28,4 +28,4 @@ COPY --from=frontend /app/static/css/output.css ./static/css/output.css
 RUN python manage.py collectstatic --no-input || true
 
 EXPOSE 8000
-CMD ["gunicorn", "lumiere_glamour.wsgi:application", "--bind", "0.0.0.0:8000", "--log-file", "-"]
+CMD ["gunicorn", "lumiere_glamour.wsgi:application", "--bind", "0.0.0.0:$PORT", "--log-file", "-"]

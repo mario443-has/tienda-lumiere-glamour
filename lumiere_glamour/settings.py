@@ -108,13 +108,14 @@ TEMPLATES = [
 WSGI_APPLICATION = "lumiere_glamour.wsgi.application"
 ASGI_APPLICATION = "lumiere_glamour.asgi.application"  # Mantener si usas ASGI
 
-
-import dj_database_url
+import dj_database_url  # deja este import una sola vez
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-DB_SSL_REQUIRED = os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"  # en Railway interno suele ser False
+DB_SSL_REQUIRED = os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"  # en red privada suele ser False
+SKIP_DB_CHECK = os.getenv("SKIP_DB_CHECK") == "1"  # <- NUEVO: para la fase de build
 
-if not DATABASE_URL and not DEBUG:
+# En build no exigimos DB (SKIP_DB_CHECK=1); en runtime/pre-deploy sí.
+if not SKIP_DB_CHECK and not DATABASE_URL and not DEBUG:
     raise RuntimeError("DATABASE_URL is required in production")
 
 DATABASES = {

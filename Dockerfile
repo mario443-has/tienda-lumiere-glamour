@@ -25,7 +25,7 @@ COPY . .
 COPY --from=frontend /app/static/css/output.css ./static/css/output.css
 
 # Collectstatic (ignora fallo si falta config en build)
-RUN python manage.py collectstatic --no-input || true
+RUN SKIP_DB_CHECK=1 python manage.py collectstatic --no-input || true
 
 EXPOSE 8000
 CMD ["gunicorn", "lumiere_glamour.wsgi:application", "--bind", "0.0.0.0:8000", "--log-file", "-"]

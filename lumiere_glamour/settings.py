@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 
 import dj_database_url  # Importa dj_database_url para la configuración de la base de datos
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,12 +84,15 @@ WSGI_APPLICATION = "lumiere_glamour.wsgi.application"
 ASGI_APPLICATION = "lumiere_glamour.asgi.application"  # Mantener si usas ASGI
 
 
+import dj_database_url
+
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgresql://neondb_owner:npg_oarhWRKT8N5f@ep-hidden-bar-afdvkgx0-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
-        conn_max_age=600
+        conn_max_age=600,
+        ssl_require=False  # 👈 solo en local
     )
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

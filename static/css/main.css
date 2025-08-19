@@ -470,8 +470,8 @@
 /* ===== Grilla de círculos (solo desktop) ===== */
 @media (min-width:1024px){
   .category-circles-grid{
-    grid-template-columns: repeat(7, 1fr); /* 7 por fila en desktop */
-    gap: 2.5rem; /* equivalente a gap-10 */
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2rem; /* 32px */
   }
 }
 

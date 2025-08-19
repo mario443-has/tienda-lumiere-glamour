@@ -4,6 +4,9 @@ module.exports = {
     './templates/**/*.html', // Plantillas Django
     './static/js/**/*.js',   // JS personalizados
     './store/templates/**/*.html',
+    './static/css/**/*.css',
+    './**/templates/**/*.html',
+
   ],
   safelist: [
     'product-badge',

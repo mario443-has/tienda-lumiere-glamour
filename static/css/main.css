@@ -1,12 +1,14 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
 
 /* === Tus estilos personalizados === */
 @import './components/badges.css';
 @import './components/categorias.css';
 @import './components/modals.css';
 @import './components/search.css';
+
+@tailwind utilities;
+
 
 @layer components {
   .product-badge { @apply text-white px-2 py-1 rounded-full text-xs font-bold; }
@@ -286,3 +288,156 @@
         animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
 }
+/* Estilos para la sección de categorías circulares */
+.category-circle-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.category-circle-link:hover {
+  transform: translateY(-5px);
+}
+
+.category-circle-image-container {
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fce7f3;
+  aspect-ratio: 1/1;
+  width: 100%;
+  max-width: 80px; /* Reducido de 96px para móvil */
+  margin: 0 auto;
+}
+
+/* Estilos para las imágenes de las categorías */
+.category-circle-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Cambiado de cover a contain */
+  padding: 0.5rem; /* Añadido padding para que la imagen no toque los bordes */
+  background-color: white;
+  transition: transform 0.3s ease;
+}
+
+/* Ajustes para pantallas medianas y grandes */
+@media (min-width: 768px) {
+  .category-circle-image-container {
+    max-width: 120px; /* Ajustado de 128px */
+  }
+
+  .category-circle-image-container img {
+    padding: 0.75rem; /* Un poco más de padding en desktop */
+  }
+}
+
+/* Estilos para el texto de la categoría */
+.category-circle-link p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Puedes añadir un estilo para un placeholder si no hay imagen */
+.category-circle-image-container img[src*='placeholder_category.png'] {
+  background-color: #e0e0e0; /* Color de fondo para el placeholder */
+  padding: 10px; /* Espacio alrededor del icono de placeholder si lo usas */
+}
+
+/* Estilos para la sección de categorías (si aún la usas en otro lugar) */
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem; /* Espacio entre las tarjetas de categoría */
+}
+
+.categoria-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+  padding: 1.5rem; /* p-6 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.categoria-card:hover {
+  transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15); /* shadow-lg */
+}
+
+.categoria-card-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit; /* Hereda el color del texto */
+  width: 100%; /* Asegura que el enlace ocupe todo el ancho de la tarjeta */
+}
+
+.categoria-icon {
+  font-size: 3rem; /* text-5xl */
+  color: #db2777; /* pink-600 */
+  margin-bottom: 1rem; /* mb-4 */
+}
+
+.categoria-nombre {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700; /* font-bold */
+  color: #1f2937; /* gray-900 */
+  margin-bottom: 0.5rem; /* mb-2 */
+}
+
+.categoria-count {
+  font-size: 1rem; /* text-base */
+  color: #6b7280; /* gray-500 */
+}
+
+/* Estilos para subcategorías dentro de la tarjeta (si decides mostrarlas) */
+.subcategorias-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.subcategorias-list li {
+  margin-bottom: 0.5rem;
+}
+
+.subcategoria-link {
+  font-size: 0.875rem; /* text-sm */
+  color: #4b5563; /* gray-700 */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.subcategoria-link:hover {
+  color: #ec4899; /* pink-500 */
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .categoria-icon {
+    font-size: 2.5rem; /* Ajuste para móviles */
+  }
+  .categoria-nombre {
+    font-size: 1.25rem; /* Ajuste para móviles */
+  }
+}
+
+

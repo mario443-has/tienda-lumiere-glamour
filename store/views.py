@@ -7,8 +7,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView  # Importa ListView
 
-from store.models import Categoria
-
 # Asegúrate de importar Producto, Categoria, Variacion y Favorito
 from .models import (Anuncio, Categoria, Favorito, MenuItem, Producto,
                      SiteSetting, Variacion)

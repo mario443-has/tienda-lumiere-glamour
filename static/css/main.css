@@ -426,12 +426,74 @@
     font-size: 1.25rem; /* Ajuste para móviles */
   }
 }
-/* === Fix responsivo para los círculos de categorías === */
-:root{
-  --cat-size: clamp(88px, 18vw, 120px);
-  --cat-pad: clamp(8px, 2vw, 12px);
+
+/* ===== Visibilidad por breakpoint ===== */
+/* Móvil/Tablet: carrusel visible, grilla oculta */
+#category-carousel-wrapper { display: block; }
+.category-circles-grid     { display: none; }
+
+/* ≥1024px (desktop): grilla visible, carrusel oculto */
+@media (min-width:1024px){
+  #category-carousel-wrapper { display: none; }
+  .category-circles-grid     { display: grid; }
 }
 
+/* ===== Carrusel (solo móvil/tablet) ===== */
+#category-carousel{
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Quita el width:100% que te forzaba 1 por vista */
+#category-carousel .category-item{
+  flex: 0 0 65%;           /* ~1.5 visibles en pantallas muy pequeñas */
+  scroll-snap-align: center;
+  padding: .5rem;
+  width: auto;             /* ← sobrescribe cualquier width:100% previo */
+}
+
+@media (min-width:400px){
+  #category-carousel .category-item{ flex-basis: 50%; }      /* 2 por vista */
+}
+@media (min-width:640px){
+  #category-carousel .category-item{ flex-basis: 33.333%; } /* 3 por vista */
+}
+
+/* ===== Grilla de círculos (solo desktop) ===== */
+@media (min-width:1024px){
+  .category-circles-grid{
+    grid-template-columns: repeat(6, 1fr); /* 6 por fila en desktop */
+    gap: 1.25rem;
+  }
+}
+@media (min-width:1280px){
+  .category-circles-grid{
+    grid-template-columns: repeat(7, 1fr); /* opcional: 7 en pantallas grandes */
+  }
+}
+
+/* ===== Tamaño responsivo de los círculos (comparte carrusel y grilla) ===== */
+/* Móvil */
+:root{
+  --cat-size: clamp(96px, 28vw, 120px);
+  --cat-pad:  clamp(8px, 3vw, 12px);
+}
+/* ≥640px */
+@media (min-width: 640px){
+  :root{ --cat-size: clamp(110px, 16vw, 150px); --cat-pad: 10px; }
+}
+/* ≥1024px */
+@media (min-width: 1024px){
+  :root{ --cat-size: 150px; --cat-pad: 12px; }
+}
+/* ≥1536px (opcional) */
+@media (min-width: 1536px){
+  :root{ --cat-size: 170px; --cat-pad: 14px; }
+}
+
+/* Aplica las variables a tu contenedor redondo ya existente */
 .category-circle-image-container{
   width: var(--cat-size);
   height: var(--cat-size);
@@ -442,7 +504,6 @@
   background-color: #fce7f3;
   margin: 0 auto;
 }
-
 .category-circle-image-container img{
   width: 100%;
   height: 100%;
@@ -451,13 +512,3 @@
   background-color: #fff;
   transition: transform .3s ease;
 }
-
-@media (min-width: 640px){
-  :root{ --cat-size: clamp(100px, 14vw, 140px); }
-}
-@media (min-width: 1024px){
-  :root{ --cat-size: 140px; --cat-pad: 12px; }
-}
-
-
-

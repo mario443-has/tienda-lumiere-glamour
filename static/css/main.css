@@ -471,7 +471,7 @@
 @media (min-width:1024px){
   .category-circles-grid{
     grid-template-columns: repeat(7, 1fr);
-    gap: 2rem; /* 32px */
+    gap: 1.25rem; /* 20px */
   }
 }
 
@@ -487,12 +487,12 @@
 }
 /* ≥1024px (desktop) */
 @media (min-width: 1024px){
-  :root{ --cat-size: 152px; --cat-pad: 14px; }
+  :root{ --cat-size: 140px; --cat-pad: 12px; }
 }
 
 /* ≥1536px (monitores grandes) */
 @media (min-width: 1536px){
-  :root{ --cat-size: 168px; --cat-pad: 16px; }
+  :root{ --cat-size: 150px; --cat-pad: 12px; }
 }
 
 /* Aplica las variables a tu contenedor redondo ya existente */

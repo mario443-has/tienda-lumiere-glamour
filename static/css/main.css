@@ -3,7 +3,6 @@
 
 /* === Tus estilos personalizados === */
 @import './components/badges.css';
-@import './components/categorias.css';
 @import './components/modals.css';
 @import './components/search.css';
 
@@ -313,7 +312,6 @@
   background-color: #fce7f3;
   aspect-ratio: 1/1;
   width: 100%;
-  max-width: 80px; /* Reducido de 96px para móvil */
   margin: 0 auto;
 }
 
@@ -325,17 +323,6 @@
   padding: 0.5rem; /* Añadido padding para que la imagen no toque los bordes */
   background-color: white;
   transition: transform 0.3s ease;
-}
-
-/* Ajustes para pantallas medianas y grandes */
-@media (min-width: 768px) {
-  .category-circle-image-container {
-    max-width: 120px; /* Ajustado de 128px */
-  }
-
-  .category-circle-image-container img {
-    padding: 0.75rem; /* Un poco más de padding en desktop */
-  }
 }
 
 /* Estilos para el texto de la categoría */
@@ -439,5 +426,38 @@
     font-size: 1.25rem; /* Ajuste para móviles */
   }
 }
+/* === Fix responsivo para los círculos de categorías === */
+:root{
+  --cat-size: clamp(88px, 18vw, 120px);
+  --cat-pad: clamp(8px, 2vw, 12px);
+}
+
+.category-circle-image-container{
+  width: var(--cat-size);
+  height: var(--cat-size);
+  max-width: none;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #fce7f3;
+  margin: 0 auto;
+}
+
+.category-circle-image-container img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: var(--cat-pad);
+  background-color: #fff;
+  transition: transform .3s ease;
+}
+
+@media (min-width: 640px){
+  :root{ --cat-size: clamp(100px, 14vw, 140px); }
+}
+@media (min-width: 1024px){
+  :root{ --cat-size: 140px; --cat-pad: 12px; }
+}
+
 
 

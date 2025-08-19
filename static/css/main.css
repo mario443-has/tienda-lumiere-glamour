@@ -479,20 +479,20 @@
 /* Móvil */
 :root{
   --cat-size: clamp(96px, 28vw, 120px);
-  --cat-pad:  clamp(2px, 1.2vw, 6px);
+  --cat-pad:  clamp(0px, 0.6vw, 3px);
 }
 /* ≥640px */
 @media (min-width: 640px){
-  :root{ --cat-size: clamp(110px, 16vw, 150px); --cat-pad: 6px; }
+  :root{ --cat-size: clamp(110px, 16vw, 150px); --cat-pad: 3px; }
 }
 /* ≥1024px (desktop) */
 @media (min-width: 1024px){
-  :root{ --cat-size: 152px; --cat-pad: 8px; }
+  :root{ --cat-size: 152px; --cat-pad: 3px; }
 }
 
 /* ≥1536px (monitores grandes) */
 @media (min-width: 1536px){
-  :root{ --cat-size: 168px; --cat-pad: 10px; }
+  :root{ --cat-size: 168px; --cat-pad: 4px; }
 }
 
 /* Aplica las variables a tu contenedor redondo ya existente */
@@ -512,11 +512,11 @@
   object-fit: cover;                /* llena mejor el círculo (recorte suave) */
   object-position: center;
   padding: var(--cat-pad);          /* aro más fino */
-  background-color: #fff;
-  transform: scale(1.06);           /* un pelín más grande por defecto */
+  background-color: transparent;
+  transform: scale(1.16);           /* un pelín más grande por defecto */
   transition: transform .3s ease;
 }
 /* en hover, aún más grande */
 .category-circle-link:hover .category-circle-image-container img{
-  transform: scale(1.12);
+  transform: scale(1.22);
 }

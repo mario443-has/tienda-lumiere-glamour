@@ -1,7 +1,8 @@
+# Updated settings.py
 import os
 from pathlib import Path
 
-import dj_database_url  # Importa dj_database_url para la configuración de la base de datos
+import dj_database_url 
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,12 +23,12 @@ SECRET_KEY = os.environ.get(
 # DEBUG debe ser False en producción
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
-# --- Seguridad y proxy detrás de Railway ---
+# --- Seguridad y proxy detrás de Railway/Render ---
 
 # Fuerza HTTPS en producción (si no estás depurando)
 SECURE_SSL_REDIRECT = not DEBUG
 
-# Django confía en el header del proxy para detectar HTTPS (Railway lo envía)
+# Django confía en el header del proxy para detectar HTTPS (Railway/Render lo envían)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Cookies seguras (ya las tenías en True, las reafirmamos aquí por claridad)
@@ -38,12 +39,22 @@ CSRF_COOKIE_SECURE = True
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 
+# --- Configuración del Host Canónico y dominios permitidos ---
 
-# --- ALLOWED_HOSTS y CSRF_TRUSTED_ORIGINS dinámicos ---
+# NUEVO: Define el host preferido para redirecciones, si existe.
+CANONICAL_HOST = os.getenv("CANONICAL_HOST", "").strip()
+
+# Obtiene los hosts de una variable de entorno y añade los hosts de producción como respaldo
 DJANGO_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = [h.strip() for h in DJANGO_ALLOWED_HOSTS.split(",") if h.strip()]
 
-# Permite un fallback para desarrollo local si no hay variable (no recomendado en prod)
+# Agrega los hosts específicos de Railway y Render a la lista de permitidos
+ALLOWED_HOSTS.extend([
+    "lumiereglamour-production.up.railway.app",
+    "lumiere-glamour-web.onrender.com",
+])
+
+# Si no se definen hosts en el entorno, usa los de desarrollo local
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
@@ -51,6 +62,18 @@ if not ALLOWED_HOSTS:
 DJANGO_CSRF_TRUSTED = os.getenv("CSRF_TRUSTED_ORIGINS", "")
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in DJANGO_CSRF_TRUSTED.split(",") if o.strip()]
 
+# Agrega los orígenes de producción a la lista de confianza del CSRF
+CSRF_TRUSTED_ORIGINS.extend([
+    "https://lumiereglamour-production.up.railway.app",
+    "https://lumiere-glamour-web.onrender.com",
+])
+# Suma los hosts locales SOLO en debug:
+if DEBUG:
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
+    CSRF_TRUSTED_ORIGINS += [
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
 
 # Application definition
 
@@ -61,17 +84,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.humanize",  # NUEVO: Añadido para filtros como 'intcomma'
-    "store",  # Tu aplicación de tienda
-    "ckeditor",  # CKEditor
-    "ckeditor_uploader",  # CKEditor Uploader
-    "cloudinary",  # Añade Cloudinary
-    "cloudinary_storage",  # Añade django-cloudinary-storage
+    "django.contrib.humanize", 
+    "store", 
+    "ckeditor", 
+    "ckeditor_uploader", 
+    "cloudinary", 
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise debe ir justo después de SecurityMiddleware
+    # NUEVO: Coloca este middleware justo después de SecurityMiddleware, como se solicitó.
+    # Esto asegura que las redirecciones al dominio canónico se manejen muy pronto en la petición.
+    "core.middleware.CanonicalDomainRedirectMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware", 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -88,12 +114,12 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
             BASE_DIR
-            / "templates",  # Para plantillas a nivel de proyecto (ej. si tuvieras un base.html aquí)
+            / "templates", 
             BASE_DIR
             / "store"
-            / "templates",  # ¡NUEVO! Añade explícitamente la carpeta de plantillas de tu app 'store'
+            / "templates", 
         ],
-        "APP_DIRS": True,  # Esto le dice a Django que busque en la carpeta 'templates' de cada app instalada
+        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -106,13 +132,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "lumiere_glamour.wsgi.application"
-ASGI_APPLICATION = "lumiere_glamour.asgi.application"  # Mantener si usas ASGI
+ASGI_APPLICATION = "lumiere_glamour.asgi.application" 
 
-import dj_database_url  # deja este import una sola vez
-
+# Aseguramos que la importación de dj_database_url esté una sola vez
 DATABASE_URL = os.environ.get("DATABASE_URL")
-DB_SSL_REQUIRED = os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"  # en red privada suele ser False
-SKIP_DB_CHECK = os.getenv("SKIP_DB_CHECK") == "1"  # <- NUEVO: para la fase de build
+DB_SSL_REQUIRED = os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"
+SKIP_DB_CHECK = os.getenv("SKIP_DB_CHECK") == "1" 
 
 # En build no exigimos DB (SKIP_DB_CHECK=1); en runtime/pre-deploy sí.
 if not SKIP_DB_CHECK and not DATABASE_URL and not DEBUG:
@@ -149,9 +174,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "es-co"  # Idioma español de Colombia
+LANGUAGE_CODE = "es-co" 
 
-TIME_ZONE = "America/Bogota"  # Zona horaria de Bogotá, Colombia
+TIME_ZONE = "America/Bogota" 
 
 USE_I18N = True
 
@@ -163,11 +188,11 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),  # Tus directorios estáticos de la app
+    os.path.join(BASE_DIR, "static"), 
 ]
 STATIC_ROOT = os.path.join(
     BASE_DIR, "staticfiles"
-)  # Donde collectstatic reunirá los archivos
+) 
 
 # Configuración de WhiteNoise para servir archivos estáticos comprimidos
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -203,7 +228,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # CKEditor Uploader path
 CKEDITOR_UPLOAD_PATH = (
-    "uploads/"  # Asegúrate de que esta ruta sea relativa a tu media storage
+    "uploads/" 
 )
 
 # Redirección tras login (opcional)

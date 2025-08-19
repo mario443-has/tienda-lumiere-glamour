@@ -470,13 +470,8 @@
 /* ===== Grilla de círculos (solo desktop) ===== */
 @media (min-width:1024px){
   .category-circles-grid{
-    grid-template-columns: repeat(6, 1fr); /* 6 por fila en desktop */
-    gap: 1.25rem;
-  }
-}
-@media (min-width:1280px){
-  .category-circles-grid{
-    grid-template-columns: repeat(7, 1fr); /* opcional: 7 en pantallas grandes */
+    grid-template-columns: repeat(7, 1fr); /* 7 por fila en desktop */
+    gap: 2.5rem; /* equivalente a gap-10 */
   }
 }
 
@@ -492,11 +487,10 @@
 }
 /* ≥1024px */
 @media (min-width: 1024px){
-  :root{ --cat-size: 150px; --cat-pad: 12px; }
+  :root{ --cat-size: 160px; --cat-pad: 12px; }
 }
-/* ≥1536px (opcional) */
 @media (min-width: 1536px){
-  :root{ --cat-size: 170px; --cat-pad: 14px; }
+  :root{ --cat-size: 180px; --cat-pad: 14px; }
 }
 
 /* Aplica las variables a tu contenedor redondo ya existente */

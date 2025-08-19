@@ -76,7 +76,7 @@
                 </div>
 
                 {# Cuadrícula de Categorías (solo para tablet y escritorio) #}
-                <div class="category-circles-grid hidden lg:grid gap-8 justify-items-center max-w-6xl mx-auto">
+                <div class="category-circles-grid hidden lg:grid gap-10 justify-items-center max-w-screen-xl mx-auto px-6">
                 {% for categoria in categorias_principales %}
                     <a href="{% url 'categoria' categoria.slug %}"
                     class="category-circle-link flex flex-col items-center text-center group">

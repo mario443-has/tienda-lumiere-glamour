@@ -485,12 +485,14 @@
 @media (min-width: 640px){
   :root{ --cat-size: clamp(110px, 16vw, 150px); --cat-pad: 10px; }
 }
-/* ≥1024px */
+/* ≥1024px (desktop) */
 @media (min-width: 1024px){
-  :root{ --cat-size: 160px; --cat-pad: 12px; }
+  :root{ --cat-size: 152px; --cat-pad: 14px; }
 }
+
+/* ≥1536px (monitores grandes) */
 @media (min-width: 1536px){
-  :root{ --cat-size: 180px; --cat-pad: 14px; }
+  :root{ --cat-size: 168px; --cat-pad: 16px; }
 }
 
 /* Aplica las variables a tu contenedor redondo ya existente */

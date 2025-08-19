@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Inicio - Lumiere Glamour{% endblock %}
+{% block title %}Lumiere Glamour{% endblock %}
 {% block content %}
     {# Carrusel de Anuncios: Solo se muestra en la página principal si hay anuncios #}
     {% if anuncios and not ofertas_activas and not query and not categoria_actual %}
@@ -21,7 +21,7 @@
                 </div>
             {% endfor %}
         </div>
-    </div>
+        </div>
 
     <!-- Navegación -->
     <button id="prev-announcement" aria-label="Anterior" title="Anterior"

@@ -483,16 +483,16 @@
 }
 /* ≥640px */
 @media (min-width: 640px){
-  :root{ --cat-size: clamp(110px, 16vw, 150px); --cat-pad: 3px; }
+  :root{ --cat-size: clamp(104px, 15vw, 140px); --cat-pad: 3px; }
 }
 /* ≥1024px (desktop) */
 @media (min-width: 1024px){
-  :root{ --cat-size: 152px; --cat-pad: 3px; }
+  :root{ --cat-size: 144px; --cat-pad: 3px; }
 }
 
 /* ≥1536px (monitores grandes) */
 @media (min-width: 1536px){
-  :root{ --cat-size: 168px; --cat-pad: 4px; }
+  :root{ --cat-size: 160px; --cat-pad: 4px; }
 }
 
 /* Aplica las variables a tu contenedor redondo ya existente */

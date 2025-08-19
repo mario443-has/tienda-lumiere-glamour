@@ -472,19 +472,23 @@
 
 /* ===== Grilla de círculos (solo desktop) ===== */
 @media (min-width:1024px){
-   .category-circles-grid{
-    /* centrado real del bloque */
-    grid-template-columns: repeat(7, var(--cat-size)); /* 7 columnas del tamaño del círculo */
+  .category-circles-grid{
+    display: flex !important;        /* sobrescribe lg:grid */
+    flex-wrap: wrap;
+    justify-content: center;         /* centra la última fila */
     gap: var(--cat-gap);
 
-    /* ancho exacto de 7 círculos + 6 gaps y centrado */
-    width: min(100%, calc(7 * var(--cat-size) + 6 * var(--cat-gap)));
+    /* mismo ancho máximo: 7 círculos + 6 gaps y centrado */
+    max-width: calc(7 * var(--cat-size) + 6 * var(--cat-gap));
     margin-inline: auto;
+  }
 
-    /* los círculos quedan centrados dentro de cada celda */
-    justify-items: center;
+  /* cada ítem ocupa exactamente el diámetro del círculo */
+  .category-circles-grid > a{
+    width: var(--cat-size);
   }
 }
+
 /* ===== Tamaño responsivo de los círculos (comparte carrusel y grilla) ===== */
 /* Móvil */
 :root{

@@ -467,14 +467,24 @@
   #category-carousel .category-item{ flex-basis: 33.333%; } /* 3 por vista */
 }
 
+/* gap que ya usas (20px) */
+:root{ --cat-gap: 1.25rem; }
+
 /* ===== Grilla de círculos (solo desktop) ===== */
 @media (min-width:1024px){
-  .category-circles-grid{
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1.25rem; /* 20px */
+   .category-circles-grid{
+    /* centrado real del bloque */
+    grid-template-columns: repeat(7, var(--cat-size)); /* 7 columnas del tamaño del círculo */
+    gap: var(--cat-gap);
+
+    /* ancho exacto de 7 círculos + 6 gaps y centrado */
+    width: min(100%, calc(7 * var(--cat-size) + 6 * var(--cat-gap)));
+    margin-inline: auto;
+
+    /* los círculos quedan centrados dentro de cada celda */
+    justify-items: center;
   }
 }
-
 /* ===== Tamaño responsivo de los círculos (comparte carrusel y grilla) ===== */
 /* Móvil */
 :root{

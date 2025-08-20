@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lumiereglamour-production.up.railway.app/sitemap.xml

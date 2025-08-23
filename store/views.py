@@ -602,9 +602,7 @@ class CategoriaListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["categoria"] = self.categoria
-        context.update(
-            get_common_context(self.request)
-        )  # CAMBIO: Pasar self.request aquí
+        context.update(get_common_context(self.request))
 
         # ✅ Usa el Page object real que crea ListView
         page_obj = context["page_obj"]
@@ -625,25 +623,22 @@ class CategoriaListView(ListView):
                     ),
                     "get_precio_final": format_precio(producto.get_precio_final()),
                     "imagen": producto.get_primary_image_url(),
-                    "is_favorito": producto.id
-                    in context[
-                        "favoritos_ids"
-                    ],  # Usar favoritos_ids del contexto común
+                    "is_favorito": producto.id in context["favoritos_ids"],
                 }
             )
 
-        # Actualizar el contexto con los productos procesados
         context["productos_procesados"] = productos_procesados
-
-        # ✅ Se establece el slug de la categoría como la página activa.
         context["active_page"] = self.categoria.slug
-        
+
+        # Cálculo de extra_query
         params = self.request.GET.copy()
-        params.pop("page", None)
-        context["extra_query"] = ("&" + params.urlencode()) if params else ""
-        
-#vista de favoritos
+        if 'page' in params:
+            del params['page']
+        extra_query = ("&" + params.urlencode()) if params else ""
+        context["extra_query"] = extra_query
+
         return context
+
 def ver_favoritos(request):
     """
     Vista para mostrar todos los productos favoritos

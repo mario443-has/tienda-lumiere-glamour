@@ -4,7 +4,7 @@
 {# Necesario para el filtro intcomma para precios #}
 {% block title %}
     {% if categoria %}{{ categoria.nombre }} -{% endif %}
-    Lumière Glamour
+    Lumiere Glamour
 {% endblock %}
 {% block content %}
     <main class="container mx-auto px-4 py-8">
@@ -50,6 +50,6 @@
                 </div>
             {% endfor %}
         </div>
-        {% include 'store/paginador.html' with page_obj=pagina_productos %}
+        {% include 'store/components/paginador.html' with page_obj=pagina_productos %}
     </main>
 {% endblock %}

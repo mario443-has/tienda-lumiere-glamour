@@ -636,9 +636,12 @@ class CategoriaListView(ListView):
             del params['page']
         extra_query = ("&" + params.urlencode()) if params else ""
         context["extra_query"] = extra_query
+        
+        print("DEBUG Django → request.path:", self.request.path)
+        print("DEBUG Django → GET params:", self.request.GET)
 
         return context
-
+        
 def ver_favoritos(request):
     """
     Vista para mostrar todos los productos favoritos

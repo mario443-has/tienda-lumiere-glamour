@@ -106,8 +106,55 @@ document.addEventListener('DOMContentLoaded', function() {
         } finally {
             hideLoading();
         }
-    }
 
+        async function handlePaginationClick(e) {
+    e.preventDefault(); 
+
+    const href = this.getAttribute('href');
+    const url = new URL(href, window.location.href).toString();
+
+    console.log("DEBUG → Click en link:", href);
+    console.log("DEBUG → URL resuelta:", url);
+
+    showLoading();
+
+    try {
+        const response = await fetch(url);
+        console.log("DEBUG → Status respuesta:", response.status);
+
+        const html = await response.text();
+
+        // Parsea
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const newProductosContainer = doc.getElementById('productos-grid');
+        const newPaginacionContainer = doc.getElementById('pagination-container');
+
+        console.log("DEBUG → ¿newProductosContainer encontrado?", !!newProductosContainer);
+        console.log("DEBUG → ¿newPaginacionContainer encontrado?", !!newPaginacionContainer);
+
+        if (newProductosContainer && productosContainer) {
+            productosContainer.innerHTML = newProductosContainer.innerHTML;
+        }
+        if (newPaginacionContainer && paginacionContainer) {
+            paginacionContainer.innerHTML = newPaginacionContainer.innerHTML;
+        }
+
+        setupPaginationListeners();
+        if (typeof initProductAnimations === 'function') {
+            initProductAnimations();
+        }
+
+    } catch (error) {
+        console.error("DEBUG → Error en fetch:", error);
+    } finally {
+        hideLoading();
+    }
+}
+
+    }
+    
     // Llama a la función al inicio para que los enlaces de la primera página funcionen
     setupPaginationListeners();
 });

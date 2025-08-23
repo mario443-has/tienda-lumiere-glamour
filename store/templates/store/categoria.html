@@ -34,6 +34,7 @@
         </ol>
     </nav>
 
+    <!-- Título de la categoría -->
     <h1 class="text-3xl font-bold text-gray-900 text-center mb-8">
         {% if categoria %}
             {{ categoria.nombre }}
@@ -42,15 +43,9 @@
         {% endif %}
     </h1>
 
-    {# Opcional: spinner para la carga asíncrona #}
-    <div id="loading-spinner" class="hidden text-center my-4">
-        <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-pink-600"></div>
-    </div>
-
-    {# ⬇️ CONTENEDOR QUE TU JS NECESITA #}
-    <div id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {# Importante: iterar los OBJETOS de la página #}
-        {% for producto in pagina_productos.object_list %}
+    <!-- Grid de productos -->
+    <section id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for producto in pagina_productos %}
             {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
         {% empty %}
             <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
@@ -58,12 +53,14 @@
                 <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
             </div>
         {% endfor %}
-    </div>
+    </section>
 
-    {# ⬇️ CONTENEDOR QUE TU JS NECESITA #}
-    <div id="pagination-container" class="mt-8">
-        {% include 'store/paginador.html' with page_obj=pagina_productos %}
-    </div>
+    <!-- Paginador -->
+    <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
+        {% if pagina_productos.has_other_pages %}
+            {% include 'store/paginador.html' with page_obj=pagina_productos %}
+        {% endif %}
+    </section>
 
 </main>
 {% endblock %}

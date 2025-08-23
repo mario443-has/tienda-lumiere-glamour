@@ -634,7 +634,6 @@ class CategoriaListView(ListView):
 
         # Actualizar el contexto con los productos procesados
         context["productos_procesados"] = productos_procesados
-        context["active_page"] = self.categoria.slug
 
         # ✅ Se establece el slug de la categoría como la página activa.
         context["active_page"] = self.categoria.slug

@@ -1,55 +1,69 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
-{# Necesario para el filtro intcomma para precios #}
+
 {% block title %}
     {% if categoria %}{{ categoria.nombre }} -{% endif %}
     Lumiere Glamour
 {% endblock %}
+
 {% block content %}
-    <main class="container mx-auto px-4 py-8">
-        <!-- Breadcrumbs -->
-        <nav class="text-sm text-gray-600 mb-6">
-            <ol class="list-none p-0 inline-flex">
+<main class="container mx-auto px-4 py-8">
+
+    <!-- Breadcrumbs -->
+    <nav class="text-sm text-gray-600 mb-6">
+        <ol class="list-none p-0 inline-flex">
+            <li class="flex items-center">
+                <a href="{% url 'home' %}" class="text-pink-600 hover:underline">Inicio</a>
+                <span class="mx-2">/</span>
+            </li>
+            {% if categoria.padre %}
                 <li class="flex items-center">
-                    <a href="{% url 'home' %}" class="text-pink-600 hover:underline">Inicio</a>
+                    <a href="{% url 'categoria' categoria.padre.slug %}"
+                       class="text-pink-600 hover:underline">{{ categoria.padre.nombre }}</a>
                     <span class="mx-2">/</span>
                 </li>
-                {% if categoria.padre %}
-                    <li class="flex items-center">
-                        <a href="{% url 'categoria' categoria.padre.slug %}"
-                           class="text-pink-600 hover:underline">{{ categoria.padre.nombre }}</a>
-                        <span class="mx-2">/</span>
-                    </li>
-                {% endif %}
-                <li class="text-gray-800 font-semibold">
-                    {% if categoria %}
-                        {{ categoria.nombre }}
-                    {% else %}
-                        Categoría
-                    {% endif %}
-                </li>
-            </ol>
-        </nav>
-        <h1 class="text-3xl font-bold text-gray-900 text-center mb-8">
-            {% if categoria %}
-                {{ categoria.nombre }}
-            {% else %}
-                Productos
             {% endif %}
-        </h1>
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {% for producto in pagina_productos %}
-                {# Usar 'pagina_productos' como se pasa desde views.py #}
-                {# Incluye la tarjeta de producto desde el template parcial correcto #}
-                {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
-            {% empty %}
-                <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
-                    <p class="text-xl font-semibold mb-2">No hay productos en esta categoría.</p>
-                    <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
-                </div>
-            {% endfor %}
-        </div>
+            <li class="text-gray-800 font-semibold">
+                {% if categoria %}
+                    {{ categoria.nombre }}
+                {% else %}
+                    Categoría
+                {% endif %}
+            </li>
+        </ol>
+    </nav>
+
+    <h1 class="text-3xl font-bold text-gray-900 text-center mb-8">
+        {% if categoria %}
+            {{ categoria.nombre }}
+        {% else %}
+            Productos
+        {% endif %}
+    </h1>
+
+    {# Opcional: spinner para la carga asíncrona #}
+    <div id="loading-spinner" class="hidden text-center my-4">
+        <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-pink-600"></div>
+    </div>
+
+    {# ⬇️ CONTENEDOR QUE TU JS NECESITA #}
+    <div id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {# Importante: iterar los OBJETOS de la página #}
+        {% for producto in pagina_productos.object_list %}
+            {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
+        {% empty %}
+            <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
+                <p class="text-xl font-semibold mb-2">No hay productos en esta categoría.</p>
+                <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {# ⬇️ CONTENEDOR QUE TU JS NECESITA #}
+    <div id="pagination-container" class="mt-8">
         {% include 'store/paginador.html' with page_obj=pagina_productos %}
-    </main>
+    </div>
+
+</main>
 {% endblock %}

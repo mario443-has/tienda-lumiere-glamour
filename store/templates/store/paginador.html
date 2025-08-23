@@ -2,7 +2,7 @@
     <nav class="flex justify-center items-center space-x-1 sm:space-x-2 mt-8" aria-label="Paginación">
         <!-- Botón para la página anterior -->
         {% if page_obj.has_previous %}
-            <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}"
+            <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}{{ extra_query }}"
                class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
                aria-label="Página anterior">Anterior</a>
         {% else %}
@@ -13,19 +13,21 @@
 
         <!-- Botón para la primera página -->
         {% if page_obj.paginator.num_pages > 1 %}
-            <a href="{{ request.path }}?page=1"
+            <a href="{{ request.path }}?page=1{{ extra_query }}"
                class="px-3 py-2 text-sm font-medium rounded-lg {% if page_obj.number == 1 %}text-white bg-pink-600 shadow-md transform scale-110{% else %}text-gray-700 hover:bg-gray-200{% endif %} transition duration-300">
                 1
             </a>
         {% endif %}
 
         <!-- Puntos suspensivos (izquierda) si es necesario -->
-        {% if page_obj.number > 3 %}<span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>{% endif %}
+        {% if page_obj.number > 3 %}
+            <span class="px-3 py-2 text-sm font-medium text-gray-700">...</span>
+        {% endif %}
 
         <!-- Páginas adyacentes a la actual -->
         {% for i in page_obj.paginator.page_range %}
             {% if i > page_obj.number|add:'-2' and i < page_obj.number|add:'2' and i != 1 and i != page_obj.paginator.num_pages %}
-                <a href="{{ request.path }}?page={{ i }}"
+                <a href="{{ request.path }}?page={{ i }}{{ extra_query }}"
                    class="px-3 py-2 text-sm font-medium rounded-lg {% if page_obj.number == i %}text-white bg-pink-600 shadow-md transform scale-110{% else %}text-gray-700 hover:bg-gray-200{% endif %} transition duration-300">
                     {{ i }}
                 </a>
@@ -41,7 +43,7 @@
         {% if page_obj.paginator.num_pages > 5 %}
             {% for i in page_obj.paginator.page_range %}
                 {% if i > page_obj.paginator.num_pages|add:'-3' and i < page_obj.paginator.num_pages %}
-                    <a href="{{ request.path }}?page={{ i }}"
+                    <a href="{{ request.path }}?page={{ i }}{{ extra_query }}"
                        class="px-3 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-200 transition duration-300 hidden sm:block">
                         {{ i }}
                     </a>
@@ -51,7 +53,7 @@
 
         <!-- Botón para la última página -->
         {% if page_obj.paginator.num_pages > 1 %}
-            <a href="{{ request.path }}?page={{ page_obj.paginator.num_pages }}"
+            <a href="{{ request.path }}?page={{ page_obj.paginator.num_pages }}{{ extra_query }}"
                class="px-3 py-2 text-sm font-medium rounded-lg {% if page_obj.number == page_obj.paginator.num_pages %}text-white bg-pink-600 shadow-md transform scale-110{% else %}text-gray-700 hover:bg-gray-200{% endif %} transition duration-300">
                 {{ page_obj.paginator.num_pages }}
             </a>
@@ -59,7 +61,7 @@
 
         <!-- Botón para la página siguiente -->
         {% if page_obj.has_next %}
-            <a href="{{ request.path }}?page={{ page_obj.next_page_number }}"
+            <a href="{{ request.path }}?page={{ page_obj.next_page_number }}{{ extra_query }}"
                class="px-3 py-2 text-sm font-medium rounded-lg text-pink-600 border border-pink-200 hover:bg-pink-100 transition duration-300 transform hover:scale-105"
                aria-label="Página siguiente">Siguiente</a>
         {% else %}
@@ -69,3 +71,4 @@
         {% endif %}
     </nav>
 {% endif %}
+

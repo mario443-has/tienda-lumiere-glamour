@@ -269,28 +269,30 @@ def inicio(request):
     # --- 12. Obtener anuncios activos (banners del carrusel) ---
     anuncios = Anuncio.objects.filter(is_active=True).order_by("order")
 
-    # --- 13. Actualizar el contexto con los datos dinámicos de esta vista ---
+   # --- 13. Actualizar el contexto con los datos dinámicos de esta vista ---
     context.update(
         {
             "productos": productos_procesados,
             "pagina_productos": productos_paginados,
             "query": query or "",
-            "categoria_actual": (
-                categoria_actual_obj.id if categoria_actual_obj else None
-            ),
+            "categoria_actual": (categoria_actual_obj.id if categoria_actual_obj else None),
             "nombre_categoria_actual": nombre_categoria_actual or "Todos los productos",
             "ofertas_activas": ofertas_activas == "true",
             "anuncios": anuncios,
-            "favoritos": list(
-                favoritos
-            ),  # 🔐 Necesario para la función de favoritos en JS
+            "favoritos": list(favoritos),  # 🔐 Necesario para la función de favoritos en JS
         }
     )
+
+    # ➕ NUEVO: construir querystring extra sin 'page'
+    params = request.GET.copy()          # <-- aquí va request, no self.request
+    params.pop("page", None)
+    context["extra_query"] = ("&" + params.urlencode()) if params else ""
+
     # ✅ Se establece 'inicio' como la página activa para el menú de navegación principal.
     context["active_page"] = "inicio"
+
     # --- 14. Renderizar la plantilla con todos los datos ---
     return render(request, "store/index.html", context)
-
 
 def producto_detalle(request, pk):
     """
@@ -564,7 +566,7 @@ class CategoriaListView(ListView):
     template_name = "store/categoria.html"
     context_object_name = "productos"
     paginate_by = 12
-
+        
     def get_queryset(self):
         slug = self.kwargs.get("slug")
 
@@ -638,6 +640,10 @@ class CategoriaListView(ListView):
 
         # ✅ Se establece el slug de la categoría como la página activa.
         context["active_page"] = self.categoria.slug
+        
+        params = self.request.GET.copy()
+        params.pop("page", None)
+        context["extra_query"] = ("&" + params.urlencode()) if params else ""
         
 #vista de favoritos
         return context

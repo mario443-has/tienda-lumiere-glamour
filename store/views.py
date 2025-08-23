@@ -606,16 +606,14 @@ class CategoriaListView(ListView):
             get_common_context(self.request)
         )  # CAMBIO: Pasar self.request aquí
 
-        # Obtener los productos paginados
-        productos_paginados = context["productos"]
+        # ✅ Usa el Page object real que crea ListView
+        page_obj = context["page_obj"]
 
-        # La lógica de favoritos_ids ya se maneja en get_common_context,
-        # por lo que no es necesario repetirla aquí.
-        # Solo aseguramos que los productos procesados usen el favoritos_ids del contexto común.
+        # Lo que usará tu template como lista y como page_obj del paginador
+        context["pagina_productos"] = page_obj
 
-        # Procesar los productos para la plantilla
         productos_procesados = []
-        for producto in productos_paginados:
+        for producto in page_obj.object_list:
             productos_procesados.append(
                 {
                     "id": producto.id,
@@ -636,7 +634,7 @@ class CategoriaListView(ListView):
 
         # Actualizar el contexto con los productos procesados
         context["productos_procesados"] = productos_procesados
-        context["pagina_productos"] = productos_paginados
+        context["active_page"] = self.categoria.slug
 
         # ✅ Se establece el slug de la categoría como la página activa.
         context["active_page"] = self.categoria.slug

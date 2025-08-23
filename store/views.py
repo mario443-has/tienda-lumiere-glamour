@@ -603,7 +603,7 @@ class CategoriaListView(ListView):
         context = super().get_context_data(**kwargs)
         context["categoria"] = self.categoria
         context.update(get_common_context(self.request))
-
+        context["request"] = self.request
         # ✅ Usa el Page object real que crea ListView
         page_obj = context["page_obj"]
 

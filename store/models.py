@@ -112,7 +112,14 @@ class Favorito(models.Model):
     def __str__(self):
         return f"Favorito: {self.producto.nombre} - Session: {self.session_key}"
 
-
+def _force_https(url: str) -> str:
+    if not url:
+        return url
+    if url.startswith("//"):
+        return "https:" + url
+    if url.startswith("http://"):
+        return "https://" + url[len("http://"):]
+    return url
 class Producto(models.Model):
     # Opciones para la etiqueta del producto (renombrado de ETIQUETA_CHOICES a BADGE_CHOICES)
     BADGE_CHOICES = [
@@ -189,18 +196,47 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
-    def get_primary_image_url(self):
+    def get_primary_image_url(self, absolute: bool = False) -> str:
         """
-        Devuelve la URL de la imagen principal del producto.
-        Prioriza la imagen principal del producto, luego la primera imagen de la galería,
-        y finalmente una imagen por defecto si no hay ninguna.
+        Devuelve la URL de la imagen principal del producto:
+        1) campo imagen
+        2) primera de la galería
+        3) fallback estático
+        Siempre en HTTPS. Si absolute=True y la URL es relativa, usa CANONICAL_HOST.
         """
-        if self.imagen:
-            return self.imagen.url
-        elif self.images.exists():
-            return self.images.first().image.url
-        else:
-            return static("img/sin_imagen.jpg")
+        url = None
+
+        # 1) Imagen principal
+        if getattr(self, "imagen", None):
+            try:
+                url = self.imagen.url
+            except Exception:
+                url = None
+
+        # 2) Primera imagen de la galería
+        if not url and hasattr(self, "images") and self.images.exists():
+            first = self.images.first()
+            try:
+                url = first.image.url  # ajusta si tu campo se llama distinto
+            except Exception:
+                url = None
+
+        # 3) Fallback estático
+        if not url:
+            url = static("img/sin_imagen.jpg")
+
+        # Forzar HTTPS
+        url = _force_https(url)
+
+        # Volver absoluta si se pide y la URL es relativa (empieza por "/")
+        if absolute and url.startswith("/"):
+            canonical = getattr(settings, "CANONICAL_HOST", "").strip()
+            if canonical:
+                # CANONICAL_HOST esperado sin esquema, p.ej. "lumiereglamour.com"
+                base = f"https://{canonical}"
+                url = urljoin(base, url)
+
+        return url
 
     def get_badge_class(self):
         """

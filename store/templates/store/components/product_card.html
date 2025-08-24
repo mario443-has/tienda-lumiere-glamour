@@ -5,12 +5,14 @@
 <div class="bg-white rounded-xl shadow-lg hover:shadow-xl hover:bg-pink-50 transition-all duration-300 ease-in-out overflow-hidden relative group product-card"
      itemscope itemtype="https://schema.org/Product">
 
+  {# Badge opcional #}
   {% if producto.badge %}
     <div class="absolute top-3 left-3 z-10 product-badge {{ producto.get_badge_class }}">
       {{ producto.get_badge_display }}
     </div>
   {% endif %}
 
+  {# Botón favoritos (JS lo gestiona) #}
   <button type="button"
           class="btn-favorito absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
           data-product-id="{{ producto.id }}"
@@ -19,10 +21,11 @@
     <i class="fa-regular fa-heart text-gray-500"></i>
   </button>
 
+  {# Enlace al detalle #}
   <a href="{% url 'producto_detalle' pk=producto.id %}" class="block" itemprop="url">
     <div class="product-tilt-container transition-transform duration-300 group-hover:scale-105">
       {% if producto.get_primary_image_url %}
-        <img src="{{ producto.get_primary_image_url|default:''|replace:'http://','https://' }}"
+        <img src="{{ producto.get_primary_image_url }}"
              alt="{{ producto.nombre }}"
              class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
              loading="lazy" decoding="async"
@@ -43,15 +46,16 @@
         {{ producto.nombre|truncatechars:40 }}
       </h3>
 
-      {# Opcional: descripción corta para enriquecer (no crítica) #}
+      {# (Opcional) descripción breve para enriquecer datos estructurados #}
       {% if producto.descripcion %}
         <meta itemprop="description" content="{{ producto.descripcion|striptags|truncatechars:160 }}">
       {% endif %}
 
-      {# ==== BLOQUE OBLIGATORIO: OFFERS ==== #}
+      {# ====== OFFERS (requerido para rich results) ====== #}
       <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
         <link itemprop="url" href="{% url 'producto_detalle' pk=producto.id %}">
         <meta itemprop="priceCurrency" content="COP">
+        {# precio numérico con punto decimal (no coma) #}
         <meta itemprop="price" content="{{ producto.get_precio_final|floatformat:2|unlocalize }}">
         {% if producto.stock|default:0 > 0 %}
           <link itemprop="availability" href="https://schema.org/InStock">
@@ -63,9 +67,9 @@
           <meta itemprop="priceValidUntil" content="{{ producto.oferta_fin|date:'Y-m-d' }}">
         {% endif %}
       </div>
-      {# ==== FIN OFFERS ==== #}
+      {# ====== FIN OFFERS ====== #}
 
-      {# Precios visibles para usuarios (formato local con $ e intcomma) #}
+      {# Precios visibles para usuarios (formato local) #}
       <div class="mt-1 flex items-baseline space-x-2">
         {% if producto.descuento %}
           <p class="text-pink-600 font-bold text-lg">
@@ -83,6 +87,7 @@
     </div>
   </a>
 
+  {# Botón carrito #}
   <div class="p-4 pt-0">
     <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-md"
             data-product-id="{{ producto.id }}"

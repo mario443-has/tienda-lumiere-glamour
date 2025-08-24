@@ -20,9 +20,8 @@ urlpatterns = [
     path(
         "api/buscar-productos/", views.api_buscar_productos, name="api_buscar_productos"
     ),  # Endpoint para búsqueda en vivo
-    path(
-        "categoria/<slug:slug>/", CategoriaListView.as_view(), name="categoria"
-    ),  # Añade esta línea
+
+  # Añade esta línea
     path("carrito/", views.ver_carrito, name="ver_carrito"),
     path("favoritos/", views.ver_favoritos, name="ver_favoritos"),
     path("toggle-favorito/", views.toggle_favorito, name="toggle_favorito"),

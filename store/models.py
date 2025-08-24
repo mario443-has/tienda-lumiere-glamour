@@ -1,16 +1,14 @@
-from decimal import (ROUND_HALF_UP,  # Importa ROUND_HALF_UP para el redondeo
-                     Decimal)
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from urllib.parse import urljoin
 
 from ckeditor.fields import RichTextField
-from cloudinary.models import \
-    CloudinaryField  # AÑADIDO: Import para CloudinaryField
+from cloudinary.models import CloudinaryField
+from django.conf import settings
 from django.db import models
 from django.db.models import Count
-from django.templatetags.static import \
-    static  # Importar static para el fallback de imagen
+from django.templatetags.static import static
 from django.utils.text import slugify
-from django.utils.translation import \
-    gettext_lazy as _  # Import para internacionalización de verbose_name
+from django.utils.translation import gettext_lazy as _
 
 
 # Custom QuerySet para el modelo Categoria
@@ -195,7 +193,20 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+    def get_precio_schema(self) -> str:
+        """
+        Devuelve el precio para schema.org con punto decimal y 2 decimales (e.g. '12000.00').
+        """
+        try:
+            # get_precio_final es MÉTODO, hay que llamarlo
+            valor = self.get_precio_final()
+            value = Decimal(valor)
+            return f"{value:.2f}"
+        except (InvalidOperation, TypeError):
+            return ""
 
+    
     def get_primary_image_url(self, absolute: bool = False) -> str:
         """
         Devuelve la URL de la imagen principal del producto:

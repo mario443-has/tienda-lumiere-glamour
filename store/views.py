@@ -299,6 +299,11 @@ def productos_por_categoria(request, slug):
     Vista para mostrar los productos de una categoría específica,
     manejando paginación con la misma lógica que la vista de inicio.
     """
+     # ------------------ AÑADE ESTAS LÍNEAS ------------------
+    print(f"DEBUG: Vista 'productos_por_categoria' llamada.")
+    print(f"DEBUG: Slug de la categoría: {slug}")
+    print(f"DEBUG: Parámetros GET de la solicitud: {request.GET}")
+    # ---------------------------------------------------------
 
     # 1. Obtener la categoría por su slug
     categoria_actual = get_object_or_404(Categoria, slug=slug)

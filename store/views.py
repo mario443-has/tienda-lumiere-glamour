@@ -294,6 +294,65 @@ def inicio(request):
     # --- 14. Renderizar la plantilla con todos los datos ---
     return render(request, "store/index.html", context)
 
+def productos_por_categoria(request, slug):
+    """
+    Vista para mostrar los productos de una categoría específica,
+    manejando paginación con la misma lógica que la vista de inicio.
+    """
+
+    # 1. Obtener la categoría por su slug
+    categoria_actual = get_object_or_404(Categoria, slug=slug)
+
+    # 2. Obtener productos de la categoría y subcategorías
+    categorias_a_incluir = [categoria_actual]
+
+    def get_all_subcategories(category, visited=None):
+        if visited is None:
+            visited = set()
+        subcategories = []
+        for sub in category.subcategorias.all():
+            if sub.id not in visited:
+                visited.add(sub.id)
+                subcategories.append(sub)
+                subcategories.extend(get_all_subcategories(sub, visited))
+        return subcategories
+
+    categorias_a_incluir.extend(get_all_subcategories(categoria_actual))
+
+    productos_queryset = Producto.objects.filter(
+        categoria__in=categorias_a_incluir,
+        is_active=True
+    ).order_by('-fecha_creacion')
+
+    # 3. Paginación de productos
+    page = request.GET.get("page", 1)
+    paginator = Paginator(productos_queryset, 12)
+    try:
+        productos_paginados = paginator.page(page)
+    except PageNotAnInteger:
+        productos_paginados = paginator.page(1)
+    except EmptyPage:
+        productos_paginados = paginator.page(paginator.num_pages)
+
+    # 4. Construir el contexto para la plantilla
+    context = get_common_context(request)
+    context.update({
+        "categoria": categoria_actual,
+        "productos": productos_paginados.object_list, # Usa la lista de productos
+        "pagina_productos": productos_paginados, # Usa el objeto paginador
+        "nombre_categoria_actual": categoria_actual.nombre,
+        "active_page": categoria_actual.slug,
+    })
+
+    # 5. Calcular extra_query para el paginador
+    params = request.GET.copy()
+    if 'page' in params:
+        del params['page']
+    extra_query = ("&" + params.urlencode()) if params else ""
+    context["extra_query"] = extra_query
+
+    return render(request, "store/categoria.html", context)
+
 def producto_detalle(request, pk):
     """
     Vista para mostrar los detalles de un producto específico.
@@ -555,95 +614,6 @@ def ver_carrito(request):
     context = get_common_context(request)  # CAMBIO: Pasar request aquí
     context["carrito_detalles"] = productos_carrito_detalles  # Renombrado para claridad
     return render(request, "store/carrito.html", context)
-
-
-class CategoriaListView(ListView):
-    """
-    Vista basada en clase para mostrar productos por categoría.
-    """
-
-    model = Producto
-    template_name = "store/categoria.html"
-    context_object_name = "productos"
-    paginate_by = 12
-        
-    def get_queryset(self):
-        slug = self.kwargs.get("slug")
-
-        self.categoria = Categoria.objects.filter(slug=slug).first()
-        if not self.categoria:
-            raise Http404("Categoría no encontrada")
-
-        # Filtra productos que pertenecen a esta categoría o a cualquiera de sus subcategorías
-        categorias_a_incluir = [self.categoria]
-
-        # Versión mejorada de get_all_subcategories para evitar recursión infinita
-        def get_all_subcategories(category, visited=None):
-            if visited is None:
-                visited = set()
-
-            subcategories = []
-            for sub in category.subcategorias.all():
-                if sub.id not in visited:
-                    visited.add(sub.id)
-                    subcategories.append(sub)
-                    subcategories.extend(get_all_subcategories(sub, visited))
-            return subcategories
-
-        categorias_a_incluir.extend(get_all_subcategories(self.categoria))
-
-        # Filtra solo productos activos y ordena por fecha de creación
-        return (
-            Producto.objects.filter(categoria__in=categorias_a_incluir, is_active=True)
-            .select_related("categoria")
-            .order_by("-fecha_creacion")
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["categoria"] = self.categoria
-        context.update(get_common_context(self.request))
-        context["request"] = self.request
-        page_obj = context["page_obj"]
-        context["pagina_productos"] = page_obj
-
-        productos_procesados = []
-        for producto in page_obj.object_list:
-            productos_procesados.append(
-                {
-                    "id": producto.id,
-                    "nombre": producto.nombre,
-                    "descripcion": producto.descripcion,
-                    "precio": format_precio(producto.precio),
-                    "descuento": (
-                        format_precio(producto.descuento) if producto.descuento else "0"
-                    ),
-                    "get_precio_final": format_precio(producto.get_precio_final()),
-                    "imagen": producto.get_primary_image_url(),
-                    "is_favorito": producto.id in context["favoritos_ids"],
-                }
-            )
-
-        context["productos_procesados"] = productos_procesados
-        context["active_page"] = self.categoria.slug
-
-        # ➕ MODIFICACIÓN: Construir extra_query para incluir el slug de la categoría
-        params = self.request.GET.copy()
-        if 'page' in params:
-            del params['page']
-        
-        # Agrega el slug de la categoría a los parámetros GET para la paginación
-        # Esto es necesario para que el paginador sepa a qué categoría volver
-        params['slug'] = self.kwargs.get("slug")
-        
-        extra_query = ("&" + params.urlencode()) if params else ""
-        context["extra_query"] = extra_query
-        
-        print("DEBUG Django → request.path:", self.request.path)
-        print("DEBUG Django → GET params:", self.request.GET)
-        print("DEBUG Django → extra_query:", extra_query)
-
-        return context
         
 def ver_favoritos(request):
     """

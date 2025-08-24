@@ -32,4 +32,6 @@ urlpatterns = [
         name="productos_por_etiqueta",
     ),
     path('api/favoritos/', views.api_favoritos, name='api_favoritos'),
+    
+    path('categoria/<slug:slug>/', views.productos_por_categoria, name='categoria'),
 ]

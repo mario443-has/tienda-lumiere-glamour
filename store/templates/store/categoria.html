@@ -58,7 +58,7 @@
     <!-- Paginador -->
     <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
         {% if pagina_productos.has_other_pages %}
-            {% include 'store/paginador.html' with page_obj=pagina_productos %}
+            {% include 'store/paginador.html' with page_obj=pagina_productos extra_query=extra_query %}
         {% endif %}
     </section>
 

@@ -4,79 +4,95 @@
 <div class="bg-white rounded-xl shadow-lg hover:shadow-xl hover:bg-pink-50 transition-all duration-300 ease-in-out overflow-hidden relative group product-card"
      itemscope itemtype="https://schema.org/Product">
 
-    {# 🏷️ Badge del producto (si existe) #}
-    {% if producto.badge %}
-        <div class="absolute top-3 left-3 z-10 product-badge {{ producto.get_badge_class }}">
-            {{ producto.get_badge_display }}
-        </div>
-    {% endif %}
-
-{# ❤️ Botón de favoritos flotante #}
-<button type="button"
-        class="btn-favorito absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
-        data-product-id="{{ producto.id }}"
-        aria-label="Añadir a favoritos"
-        title="Añadir a favoritos">
-    <i class="fa-regular fa-heart text-gray-500"></i>
-</button>
-
-
-    {# 📦 Imagen y enlace al detalle del producto #}
-    <a href="{% url 'producto_detalle' pk=producto.id %}" class="block">
-        <div class="product-tilt-container transition-transform duration-300 group-hover:scale-105">
-            {% if producto.get_primary_image_url %}
-                <img src="{{ producto.get_primary_image_url }}"
-                     alt="{{ producto.nombre }}"
-                     class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
-                     loading="lazy"
-                     decoding="async"
-                     itemprop="image"
-                     onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
-            {% else %}
-                <img src="{% static 'img/sin_imagen.jpg' %}"
-                     alt="Imagen no disponible"
-                     class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
-                     loading="lazy"
-                     decoding="async"
-                     itemprop="image">
-            {% endif %}
-        </div>
-
-        <div class="p-4">
-            <h3 class="text-base font-semibold text-gray-800 group-hover:text-pink-600 transition duration-300"
-                itemprop="name">
-                {{ producto.nombre|truncatechars:40 }}
-            </h3>
-            <div class="mt-1 flex items-baseline space-x-2">
-                {% if producto.descuento %}
-                    <p class="text-pink-600 font-bold text-lg" itemprop="price">
-                        ${{ producto.get_precio_final|floatformat:0|intcomma }}
-                    </p>
-                    <p class="text-gray-500 text-sm line-through">
-                        ${{ producto.precio|floatformat:0|intcomma }}
-                    </p>
-                {% else %}
-                    <p class="text-gray-900 font-bold text-lg" itemprop="price">
-                        ${{ producto.precio|floatformat:0|intcomma }}
-                    </p>
-                {% endif %}
-            </div>
-            <meta itemprop="priceCurrency" content="COP">
-        </div>
-    </a>
-
-    {# 🛒 Botón de añadir al carrito #}
-    <div class="p-4 pt-0">
-        <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-md"
-                data-product-id="{{ producto.id }}"
-                data-product-name="{{ producto.nombre }}"
-                data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
-                data-selected-variant-id="{% if producto.variaciones.exists %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
-                data-product-image-url="{{ producto.get_primary_image_url|default:'/static/img/sin_imagen.jpg' }}"
-                aria-label="Añadir {{ producto.nombre }} al carrito"
-                title="Añadir al carrito">
-            <i class="fas fa-shopping-cart text-base"></i>
-            <span>Añadir al Carrito</span>
-        </button>
+  {% if producto.badge %}
+    <div class="absolute top-3 left-3 z-10 product-badge {{ producto.get_badge_class }}">
+      {{ producto.get_badge_display }}
     </div>
+  {% endif %}
+
+  <button type="button"
+          class="btn-favorito absolute top-3 right-3 z-10 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
+          data-product-id="{{ producto.id }}"
+          aria-label="Añadir a favoritos"
+          title="Añadir a favoritos">
+    <i class="fa-regular fa-heart text-gray-500"></i>
+  </button>
+
+  <a href="{% url 'producto_detalle' pk=producto.id %}" class="block" itemprop="url">
+    <div class="product-tilt-container transition-transform duration-300 group-hover:scale-105">
+      {% if producto.get_primary_image_url %}
+        <img src="{{ producto.get_primary_image_url }}"
+             alt="{{ producto.nombre }}"
+             class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
+             loading="lazy" decoding="async"
+             itemprop="image"
+             onerror="this.onerror=null;this.src='{% static 'img/sin_imagen.jpg' %}';">
+      {% else %}
+        <img src="{% static 'img/sin_imagen.jpg' %}"
+             alt="Imagen no disponible"
+             class="w-full h-48 object-cover rounded-t-xl bg-gray-100"
+             loading="lazy" decoding="async"
+             itemprop="image">
+      {% endif %}
+    </div>
+
+    <div class="p-4">
+      <h3 class="text-base font-semibold text-gray-800 group-hover:text-pink-600 transition duration-300"
+          itemprop="name">
+        {{ producto.nombre|truncatechars:40 }}
+      </h3>
+
+      {# ---- OFFERS para resultados enriquecidos ---- #}
+      <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+        <link itemprop="url" href="{% url 'producto_detalle' pk=producto.id %}">
+        <meta itemprop="priceCurrency" content="COP">
+        <meta itemprop="price" content="{{ producto.get_precio_final|floatformat:2 }}">
+        {% if producto.stock|default:0 > 0 %}
+          <link itemprop="availability" href="https://schema.org/InStock">
+        {% else %}
+          <link itemprop="availability" href="https://schema.org/OutOfStock">
+        {% endif %}
+        <link itemprop="itemCondition" href="https://schema.org/NewCondition">
+        {% if producto.oferta_fin %}
+          <meta itemprop="priceValidUntil" content="{{ producto.oferta_fin|date:'Y-m-d' }}">
+        {% endif %}
+        {% if producto.sku %}
+          <meta itemprop="sku" content="{{ producto.sku }}">
+        {% endif %}
+        {% if producto.marca %}
+          <meta itemprop="brand" content="{{ producto.marca }}">
+        {% endif %}
+      </div>
+      {# ---- FIN OFFERS ---- #}
+
+      <div class="mt-1 flex items-baseline space-x-2">
+        {% if producto.descuento %}
+          <p class="text-pink-600 font-bold text-lg">
+            ${{ producto.get_precio_final|floatformat:0|intcomma }}
+          </p>
+          <p class="text-gray-500 text-sm line-through">
+            ${{ producto.precio|floatformat:0|intcomma }}
+          </p>
+        {% else %}
+          <p class="text-gray-900 font-bold text-lg">
+            ${{ producto.precio|floatformat:0|intcomma }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+
+  <div class="p-4 pt-0">
+    <button class="btn-agregar-carrito w-full bg-pink-600 text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 shadow-md"
+            data-product-id="{{ producto.id }}"
+            data-product-name="{{ producto.nombre }}"
+            data-product-price="{{ producto.get_precio_final|floatformat:2 }}"
+            data-selected-variant-id="{% if producto.variaciones.exists %}{{ producto.variaciones.first.id }}{% else %}{{ producto.id }}{% endif %}"
+            data-product-image-url="{{ producto.get_primary_image_url|default:'/static/img/sin_imagen.jpg' }}"
+            aria-label="Añadir {{ producto.nombre }} al carrito"
+            title="Añadir al carrito">
+      <i class="fas fa-shopping-cart text-base"></i>
+      <span>Añadir al Carrito</span>
+    </button>
+  </div>
 </div>

@@ -2,7 +2,6 @@
 from django.urls import path
 
 from . import views  # Importa tus vistas
-from .views import CategoriaListView  # Agrega esta importación
 
 urlpatterns = [
     path("", views.inicio, name="home"),

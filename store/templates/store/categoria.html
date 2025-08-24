@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load cache %}
 
 {% block title %}
     {% if categoria %}{{ categoria.nombre }} -{% endif %}
@@ -10,7 +11,7 @@
 {% block content %}
 <main class="container mx-auto px-4 py-8">
 
-    <!-- Breadcrumbs -->
+    {# Breadcrumbs #}
     <nav class="text-sm text-gray-600 mb-6">
         <ol class="list-none p-0 inline-flex">
             <li class="flex items-center">
@@ -25,42 +26,66 @@
                 </li>
             {% endif %}
             <li class="text-gray-800 font-semibold">
-                {% if categoria %}
-                    {{ categoria.nombre }}
-                {% else %}
-                    Categoría
-                {% endif %}
+                {% if categoria %}{{ categoria.nombre }}{% else %}Categoría{% endif %}
             </li>
         </ol>
     </nav>
 
-    <!-- Título de la categoría -->
+    {# Título de la categoría #}
     <h1 class="text-3xl font-bold text-gray-900 text-center mb-8">
-        {% if categoria %}
-            {{ categoria.nombre }}
-        {% else %}
-            Productos
-        {% endif %}
+        {% if categoria %}{{ categoria.nombre }}{% else %}Productos{% endif %}
     </h1>
 
-    <!-- Grid de productos -->
-    <section id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for producto in pagina_productos %}
-            {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
-        {% empty %}
-            <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
-                <p class="text-xl font-semibold mb-2">No hay productos en esta categoría.</p>
-                <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
-            </div>
-        {% endfor %}
-    </section>
+    {# Cachea SOLO para usuarios anónimos; los logueados ven contenido “vivo” (por favoritos, etc.) #}
+    {% if not request.user.is_authenticated %}
+      {% cache 300 "cat-list" categoria.slug pagina_productos.number extra_query %}
+        {# Grid de productos (usa el objeto de página) #}
+        <section id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for producto in pagina_productos %}
+                {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
+            {% empty %}
+                <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
+                    <p class="text-xl font-semibold mb-2">No hay productos en esta categoría.</p>
+                    <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
+                </div>
+            {% endfor %}
+        </section>
 
-    <!-- Paginador -->
-    <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
-        {% if pagina_productos.has_other_pages %}
-            {% include 'store/paginador.html' with page_obj=pagina_productos extra_query=extra_query %}
-        {% endif %}
-    </section>
+        {# Paginador #}
+        <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
+            {% if pagina_productos.has_other_pages %}
+                {% include 'store/paginador.html' with page_obj=pagina_productos extra_query=extra_query %}
+            {% endif %}
+        </section>
+
+        {# Marcador útil para depurar que cambia de página #}
+        <div class="text-xs text-gray-400 mt-2">
+            Página {{ pagina_productos.number }} de {{ pagina_productos.paginator.num_pages }}
+        </div>
+      {% endcache %}
+    {% else %}
+        {# Misma sección SIN cache para usuarios logueados #}
+        <section id="productos-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for producto in pagina_productos %}
+                {% include 'store/components/product_card.html' with producto=producto favoritos_ids=favoritos_ids %}
+            {% empty %}
+                <div class="col-span-full text-center text-gray-600 p-8 bg-white rounded-lg shadow-md w-full">
+                    <p class="text-xl font-semibold mb-2">No hay productos en esta categoría.</p>
+                    <p class="text-gray-500">¡Pronto tendremos más novedades para ti!</p>
+                </div>
+            {% endfor %}
+        </section>
+
+        <section id="pagination-container" class="container mx-auto px-4 py-4 mt-6">
+            {% if pagina_productos.has_other_pages %}
+                {% include 'store/paginador.html' with page_obj=pagina_productos extra_query=extra_query %}
+            {% endif %}
+        </section>
+
+        <div class="text-xs text-gray-400 mt-2">
+            Página {{ pagina_productos.number }} de {{ pagina_productos.paginator.num_pages }}
+        </div>
+    {% endif %}
 
 </main>
 {% endblock %}

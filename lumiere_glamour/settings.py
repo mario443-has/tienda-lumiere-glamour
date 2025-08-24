@@ -5,10 +5,11 @@ from pathlib import Path
 import dj_database_url 
 from dotenv import load_dotenv
 
-load_dotenv()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Definir primero BASE_DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Luego cargar el .env usando BASE_DIR
+load_dotenv(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -105,7 +106,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "store.middleware.CategoriaCacheMiddleware",
+    #"store.middleware.CategoriaCacheMiddleware",
 ]
 
 ROOT_URLCONF = "lumiere_glamour.urls"
@@ -135,19 +136,21 @@ TEMPLATES = [
 WSGI_APPLICATION = "lumiere_glamour.wsgi.application"
 ASGI_APPLICATION = "lumiere_glamour.asgi.application" 
 
-# Aseguramos que la importación de dj_database_url esté una sola vez
+# --- Base de datos (Railway/Postgres con fallback a SQLite en dev) ---
 DATABASE_URL = os.environ.get("DATABASE_URL")
 DB_SSL_REQUIRED = os.environ.get("DB_SSL_REQUIRED", "False").lower() == "true"
-SKIP_DB_CHECK = os.getenv("SKIP_DB_CHECK") == "1" 
+SKIP_DB_CHECK = os.getenv("SKIP_DB_CHECK") == "1"
 
-# En build no exigimos DB (SKIP_DB_CHECK=1); en runtime/pre-deploy sí.
+# En producción (DEBUG False) exige DATABASE_URL, salvo que permitas saltarte check
 if not SKIP_DB_CHECK and not DATABASE_URL and not DEBUG:
     raise RuntimeError("DATABASE_URL is required in production")
 
 DATABASES = {
     "default": dj_database_url.config(
+        # Si no hay DATABASE_URL, usa SQLite para no bloquearte en desarrollo
         default=DATABASE_URL or f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
+        # Esto fuerza SSL incluso si olvidas ?sslmode=require en la URL
         ssl_require=DB_SSL_REQUIRED,
     )
 }

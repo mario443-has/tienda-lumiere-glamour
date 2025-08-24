@@ -162,7 +162,7 @@ def get_common_context(request):
 
 def inicio(request):
     """
-    Vista principal de la tienda virtual Lumière Glamour.
+    Vista principal de la tienda virtual Lumiere Glamour.
     Filtra productos por búsqueda, categoría, subcategoría y ofertas activas.
     También maneja la paginación, la carga de anuncios y favoritos por sesión.
     """
@@ -604,10 +604,7 @@ class CategoriaListView(ListView):
         context["categoria"] = self.categoria
         context.update(get_common_context(self.request))
         context["request"] = self.request
-        # ✅ Usa el Page object real que crea ListView
         page_obj = context["page_obj"]
-
-        # Lo que usará tu template como lista y como page_obj del paginador
         context["pagina_productos"] = page_obj
 
         productos_procesados = []
@@ -630,15 +627,21 @@ class CategoriaListView(ListView):
         context["productos_procesados"] = productos_procesados
         context["active_page"] = self.categoria.slug
 
-        # Cálculo de extra_query
+        # ➕ MODIFICACIÓN: Construir extra_query para incluir el slug de la categoría
         params = self.request.GET.copy()
         if 'page' in params:
             del params['page']
+        
+        # Agrega el slug de la categoría a los parámetros GET para la paginación
+        # Esto es necesario para que el paginador sepa a qué categoría volver
+        params['slug'] = self.kwargs.get("slug")
+        
         extra_query = ("&" + params.urlencode()) if params else ""
         context["extra_query"] = extra_query
         
         print("DEBUG Django → request.path:", self.request.path)
         print("DEBUG Django → GET params:", self.request.GET)
+        print("DEBUG Django → extra_query:", extra_query)
 
         return context
         
